@@ -1,0 +1,7 @@
+**/bin/
+**/obj/
+**/.env
+Tests/
+.git
+.gitignore
+*.md

@@ -1,41 +1,58 @@
+using FitnessTracker.Api.Parsers;
+using FitnessTracker.Api.Telegram;
+using FitnessTracker.Application.Common.Interfaces;
+using FitnessTracker.Application.Workouts.Handlers;
+using FitnessTracker.Domain.Interfaces;
+using FitnessTracker.Infrastructure.Persistence;
+using FitnessTracker.Infrastructure.Persistence.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Telegram.Bot;
+using Telegram.Bot.Polling;
+using Telegram.Bot.Types;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+if (builder.Environment.IsDevelopment())
+    DotNetEnv.Env.Load();
+
+var token = Environment.GetEnvironmentVariable("BOT_TOKEN")
+    ?? throw new InvalidOperationException("BOT_TOKEN not set");
+
+var connection = Environment.GetEnvironmentVariable("DATABASE_CONNECTION")
+    ?? throw new InvalidOperationException("DATABASE_CONNECTION not set");
+
+builder.Services.AddDbContext<WriteDbContext>(o => o.UseNpgsql(connection));
+builder.Services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<LogWorkoutHandler>());
+
+builder.Services.AddSingleton<ITelegramBotClient>(_ => new TelegramBotClient(token));
+
+builder.Services.AddSingleton<IWorkoutParser, WorkoutTextParser>();
+builder.Services.AddSingleton<IUpdateHandler, WorkoutUpdateHandler>();
+builder.Services.AddHostedService<BotService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    app.MapOpenApi();
+    var db = scope.ServiceProvider.GetRequiredService<WriteDbContext>();
+    await db.Database.CanConnectAsync();
 }
 
-app.UseHttpsRedirection();
+app.MapGet("/health", () => "ok");
 
-var summaries = new[]
+if (!app.Environment.IsDevelopment())
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    app.MapPost("/bot", async (
+        Update update,
+        ITelegramBotClient bot,
+        IUpdateHandler handler,
+        CancellationToken ct) =>
+    {
+        await handler.HandleUpdateAsync(bot, update, ct);
+    });
+}
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

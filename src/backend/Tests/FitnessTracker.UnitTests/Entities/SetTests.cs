@@ -15,7 +15,7 @@ public class SetTests
 
         Assert.Equal(weight, set.Weight);
         Assert.Equal(reps, set.Repetitions);
-        Assert.NotEqual(Guid.Empty, set.Id);
+        Assert.False(set.Id == Guid.Empty);
     }
 
     [Fact]
