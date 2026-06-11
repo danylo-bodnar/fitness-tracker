@@ -1,3 +1,4 @@
+using FitnessTracker.Domain.Aggregates;
 using FitnessTracker.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -22,7 +23,10 @@ public class ExerciseLogConfiguration : IEntityTypeConfiguration<ExerciseLog>
             .HasColumnName("exercise_name")
             .HasMaxLength(100);
 
-        builder.Property<Guid>("WorkoutSessionId");
+        builder.HasOne<WorkoutSession>()
+            .WithMany(x => x.Exercises)
+            .HasForeignKey("WorkoutSessionId")
+            .IsRequired();
 
         builder.Metadata.FindNavigation(nameof(ExerciseLog.Sets))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);

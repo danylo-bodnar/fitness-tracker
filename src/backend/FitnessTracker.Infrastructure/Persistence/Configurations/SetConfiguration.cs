@@ -26,6 +26,9 @@ public class SetConfiguration : IEntityTypeConfiguration<Set>
                 reps => reps.Value,
                 value => new(value));
 
-        builder.Property<Guid>("ExerciseLogId");
+        builder.HasOne<ExerciseLog>()
+            .WithMany(x => x.Sets)
+            .HasForeignKey("ExerciseLogId")
+            .IsRequired();
     }
 }
