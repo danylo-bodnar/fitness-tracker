@@ -7,6 +7,7 @@ namespace FitnessTracker.Domain.Aggregates;
 
 public class WorkoutSession(SessionId id, UserId userId, DateOnly date) : AggregateRoot
 {
+    private WorkoutSession() : this(default!, default!, default!) { }
     private readonly List<ExerciseLog> _exercises = [];
 
     public SessionId Id { get; } = id;
