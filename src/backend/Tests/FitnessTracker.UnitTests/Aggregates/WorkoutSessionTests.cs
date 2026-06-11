@@ -18,7 +18,7 @@ public class WorkoutSessionTests
 
         Assert.Equal(Today, session.Date);
         Assert.Equal(UserId, session.UserId);
-        Assert.NotEqual<Guid>(Guid.Empty, session.Id.Value);
+        Assert.False(session.Id.Value == Guid.Empty);
     }
 
     [Fact]

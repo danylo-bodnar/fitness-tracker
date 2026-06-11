@@ -13,7 +13,7 @@ public class ExerciseLogTests
 
         Assert.Equal(name, log.Name);
         Assert.Empty(log.Sets);
-        Assert.NotEqual(Guid.Empty, log.Id);
+        Assert.False(log.Id == Guid.Empty);
     }
 
     [Fact]
