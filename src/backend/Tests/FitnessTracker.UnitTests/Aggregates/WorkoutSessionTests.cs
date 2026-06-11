@@ -2,7 +2,6 @@ using FitnessTracker.Domain.Aggregates;
 using FitnessTracker.Domain.Entities;
 using FitnessTracker.Domain.Events;
 using FitnessTracker.Domain.Exceptions;
-using FitnessTracker.Domain.Interfaces;
 using FitnessTracker.Domain.ValueObjects;
 
 namespace FitnessTracker.UnitTests.Aggregates;
@@ -19,7 +18,7 @@ public class WorkoutSessionTests
 
         Assert.Equal(Today, session.Date);
         Assert.Equal(UserId, session.UserId);
-        Assert.NotEqual(Guid.Empty, session.Id);
+        Assert.NotEqual(Guid.Empty, session.Id.Value);
     }
 
     [Fact]
