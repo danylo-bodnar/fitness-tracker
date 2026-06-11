@@ -33,6 +33,7 @@ jobs:
           dotnet ef database update \
             --project ./FitnessTracker.Infrastructure \
             --startup-project ./FitnessTracker.Api \
+            --configuration Release \
             --no-build
         env:
           DATABASE_CONNECTION: ${{ secrets.DATABASE_CONNECTION }}
