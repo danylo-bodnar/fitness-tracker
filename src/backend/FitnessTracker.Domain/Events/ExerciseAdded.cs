@@ -3,4 +3,4 @@ using FitnessTracker.Domain.ValueObjects;
 
 namespace FitnessTracker.Domain.Events;
 
-public record ExerciseAdded(SessionId SessionId, ExerciseName Name) : IDomainEvent;
+public record ExerciseAdded(Guid SessionId, ExerciseName Name) : IDomainEvent;

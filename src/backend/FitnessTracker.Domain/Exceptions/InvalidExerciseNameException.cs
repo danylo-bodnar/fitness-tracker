@@ -1,5 +1,8 @@
 namespace FitnessTracker.Domain.Exceptions;
 
-public class InvalidExerciseNameException(string message) : DomainException(message)
+public class InvalidExerciseNameException : DomainException
 {
+    public InvalidExerciseNameException(string message) : base(message)
+    {
+    }
 }
