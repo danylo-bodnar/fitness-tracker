@@ -4,6 +4,7 @@ namespace FitnessTracker.Domain.Entities;
 
 public class ExerciseLog(ExerciseName name)
 {
+    private ExerciseLog() : this(default!) { }
     private readonly List<Set> _sets = [];
 
     public Guid Id { get; } = Guid.NewGuid();
