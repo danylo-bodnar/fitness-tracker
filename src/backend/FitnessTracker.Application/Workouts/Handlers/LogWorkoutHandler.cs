@@ -1,33 +1,39 @@
 using FitnessTracker.Application.Common.Interfaces;
 using FitnessTracker.Application.Workouts.Commands;
 using FitnessTracker.Domain.Aggregates;
+using FitnessTracker.Domain.Exceptions;
 using FitnessTracker.Domain.Interfaces;
 using FitnessTracker.Domain.ValueObjects;
 using MediatR;
 
 namespace FitnessTracker.Application.Workouts.Handlers;
 
-public class LogWorkoutHandler(IWorkoutSessionRepository workoutSessionRepository, IUnitOfWork unitOfWork) : IRequestHandler<LogWorkoutCommand, SessionId>
+public class LogWorkoutHandler(
+    IWorkoutSessionRepository workoutSessionRepository,
+    IExerciseRepository exerciseRepository,
+    IUnitOfWork unitOfWork) : IRequestHandler<LogWorkoutCommand, SessionId>
 {
-    private readonly IWorkoutSessionRepository _workoutSessionRepository = workoutSessionRepository;
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
-
-    public async Task<SessionId> Handle(LogWorkoutCommand request, CancellationToken cancellationToken)
+    public async Task<SessionId> Handle(LogWorkoutCommand cmd, CancellationToken cancellationToken)
     {
-        var session = await _workoutSessionRepository.GetByUserAndDateAsync(
-            request.UserId, request.Date, cancellationToken);
+        var exercise = await exerciseRepository.FindByNameAsync(
+            cmd.ExerciseName.Value, cancellationToken)
+            ?? throw new ExerciseNotFoundException(cmd.ExerciseName.Value);
 
-        if (session == null)
+        var session = await workoutSessionRepository.GetByUserAndDateAsync(
+            cmd.UserId, cmd.Date, cancellationToken);
+
+        if (session is null)
         {
-            session = WorkoutSession.Create(request.UserId, request.Date);
-            _workoutSessionRepository.Add(session);
+            session = WorkoutSession.Create(cmd.UserId, cmd.Date);
+            workoutSessionRepository.Add(session);
         }
 
-        var exercise = session.AddExercise(request.ExerciseName, request.Date);
-        foreach (var reps in request.Reps)
-            exercise.LogSet(new Weight(request.WeightKg), new Repetitions(reps));
+        var exerciseLog = session.AddExercise(exercise.Id, exercise.Name, cmd.Date);
 
-        await _unitOfWork.CommitAsync(cancellationToken);
+        foreach (var reps in cmd.Reps)
+            exerciseLog.LogSet(new Weight(cmd.WeightKg), new Repetitions(reps));
+
+        await unitOfWork.CommitAsync(cancellationToken);
 
         return session.Id;
     }

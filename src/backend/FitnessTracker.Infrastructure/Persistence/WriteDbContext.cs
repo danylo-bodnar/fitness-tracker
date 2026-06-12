@@ -1,4 +1,5 @@
 using FitnessTracker.Domain.Aggregates;
+using FitnessTracker.Domain.Entities;
 using FitnessTracker.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,7 @@ public class WriteDbContext(DbContextOptions<WriteDbContext> options) : DbContex
 {
     public DbSet<WorkoutSession> WorkoutSessions => Set<WorkoutSession>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<Exercise> Exercises => Set<Exercise>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -15,5 +17,6 @@ public class WriteDbContext(DbContextOptions<WriteDbContext> options) : DbContex
         modelBuilder.ApplyConfiguration(new ExerciseLogConfiguration());
         modelBuilder.ApplyConfiguration(new SetConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new ExerciseConfiguration());
     }
 }

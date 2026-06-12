@@ -24,6 +24,7 @@ var connection = Environment.GetEnvironmentVariable("DATABASE_CONNECTION")
 builder.Services.AddDbContext<WriteDbContext>(o => o.UseNpgsql(connection));
 builder.Services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<LogWorkoutHandler>());
 

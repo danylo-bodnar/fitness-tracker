@@ -5,6 +5,6 @@
   <Project Path="FitnessTracker.Contracts/FitnessTracker.Contracts.csproj" />
   <Project Path="FitnessTracker.Domain/FitnessTracker.Domain.csproj" />
   <Project Path="FitnessTracker.Infrastructure/FitnessTracker.Infrastructure.csproj" />
-  <Project Path="FitnessTracker.IntegrationTests/FitnessTracker.IntegrationTests.csproj" />
+  <Project Path="Tests/FitnessTracker.IntegrationTests/FitnessTracker.IntegrationTests.csproj" />
   <Project Path="Tests/FitnessTracker.UnitTests/FitnessTracker.UnitTests.csproj" />
 </Solution>

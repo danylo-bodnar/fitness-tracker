@@ -16,7 +16,7 @@ public class ExerciseLogConfiguration : IEntityTypeConfiguration<ExerciseLog>
         builder.Property(x => x.Id)
             .ValueGeneratedNever();
 
-        builder.Property(x => x.Name)
+        builder.Property(x => x.ExerciseName)
             .HasConversion(
                 name => name.Value,
                 value => new(value))
@@ -28,7 +28,14 @@ public class ExerciseLogConfiguration : IEntityTypeConfiguration<ExerciseLog>
             .HasForeignKey("WorkoutSessionId")
             .IsRequired();
 
-        builder.Metadata.FindNavigation(nameof(ExerciseLog.Sets))!
-            .SetPropertyAccessMode(PropertyAccessMode.Field);
+        builder.HasOne<Exercise>()
+            .WithMany()
+            .HasForeignKey(x => x.ExerciseId)
+            .IsRequired();
+
+        builder.HasMany<Set>("_sets")
+            .WithOne()
+            .HasForeignKey("ExerciseLogId")
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -2,13 +2,22 @@ using FitnessTracker.Domain.ValueObjects;
 
 namespace FitnessTracker.Domain.Entities;
 
-public class ExerciseLog(ExerciseName name)
+public class ExerciseLog
 {
-    private ExerciseLog() : this(default!) { }
     private readonly List<Set> _sets = [];
 
-    public Guid Id { get; } = Guid.NewGuid();
-    public ExerciseName Name { get; } = name;
+    private ExerciseLog() { }
+
+    public ExerciseLog(Guid exerciseId, ExerciseName exerciseName)
+    {
+        Id = Guid.NewGuid();
+        ExerciseId = exerciseId;
+        ExerciseName = exerciseName;
+    }
+
+    public Guid Id { get; private set; }
+    public Guid ExerciseId { get; private set; }
+    public ExerciseName ExerciseName { get; private set; } = default!;
     public IReadOnlyList<Set> Sets => _sets.AsReadOnly();
 
     public Set LogSet(Weight weight, Repetitions repetitions)

@@ -14,11 +14,11 @@ public class ExerciseNameTests
     }
 
     [Fact]
-    public void Create_IsCaseInsensitive()
+    public void Create_NormalizesToLowerCase()
     {
         var name = new ExerciseName("Bench Press");
 
-        Assert.Equal("Bench Press", name.Value);
+        Assert.Equal("bench press", name.Value);
     }
 
     [Fact]
@@ -34,8 +34,26 @@ public class ExerciseNameTests
     }
 
     [Fact]
-    public void Create_WithUnrecognizedName_ThrowsInvalidExerciseNameException()
+    public void Create_TrimsWhitespace()
     {
-        Assert.Throws<InvalidExerciseNameException>(() => new ExerciseName("deadlift"));
+        var name = new ExerciseName("  squat  ");
+
+        Assert.Equal("squat", name.Value);
+    }
+
+    [Fact]
+    public void Create_WithMaxLengthName_ReturnsExerciseName()
+    {
+        var longName = new string('a', 100);
+
+        var name = new ExerciseName(longName);
+
+        Assert.Equal(longName, name.Value);
+    }
+
+    [Fact]
+    public void Create_WithExcessLengthName_ThrowsInvalidExerciseNameException()
+    {
+        Assert.Throws<InvalidExerciseNameException>(() => new ExerciseName(new string('a', 101)));
     }
 }

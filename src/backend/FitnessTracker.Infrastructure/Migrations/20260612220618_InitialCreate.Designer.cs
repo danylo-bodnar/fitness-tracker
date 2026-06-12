@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FitnessTracker.Infrastructure.Migrations
 {
     [DbContext(typeof(WriteDbContext))]
-    [Migration("20260612082452_Initial")]
-    partial class Initial
+    [Migration("20260612220618_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,12 +63,35 @@ namespace FitnessTracker.Infrastructure.Migrations
                     b.ToTable("workout_sessions", (string)null);
                 });
 
+            modelBuilder.Entity("FitnessTracker.Domain.Entities.Exercise", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("MuscleGroup")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("exercise_name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("exercises", (string)null);
+                });
+
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ExerciseLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Name")
+                    b.Property<Guid>("ExerciseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ExerciseName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
@@ -78,6 +101,8 @@ namespace FitnessTracker.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExerciseId");
 
                     b.HasIndex("WorkoutSessionId");
 
@@ -107,6 +132,12 @@ namespace FitnessTracker.Infrastructure.Migrations
 
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ExerciseLog", b =>
                 {
+                    b.HasOne("FitnessTracker.Domain.Entities.Exercise", null)
+                        .WithMany()
+                        .HasForeignKey("ExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FitnessTracker.Domain.Aggregates.WorkoutSession", null)
                         .WithMany("Exercises")
                         .HasForeignKey("WorkoutSessionId")
