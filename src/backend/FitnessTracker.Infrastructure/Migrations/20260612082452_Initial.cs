@@ -6,11 +6,25 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FitnessTracker.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "users",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TelegramChatId = table.Column<long>(type: "bigint", nullable: false),
+                    TelegramUsername = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Timezone = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_users", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "workout_sessions",
                 columns: table => new
@@ -30,17 +44,17 @@ namespace FitnessTracker.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     exercise_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    WorkoutSessionId = table.Column<Guid>(type: "uuid", nullable: false),
-                    WorkoutSessionId1 = table.Column<Guid>(type: "uuid", nullable: true)
+                    WorkoutSessionId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_exercise_logs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_exercise_logs_workout_sessions_WorkoutSessionId1",
-                        column: x => x.WorkoutSessionId1,
+                        name: "FK_exercise_logs_workout_sessions_WorkoutSessionId",
+                        column: x => x.WorkoutSessionId,
                         principalTable: "workout_sessions",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -64,9 +78,9 @@ namespace FitnessTracker.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_exercise_logs_WorkoutSessionId1",
+                name: "IX_exercise_logs_WorkoutSessionId",
                 table: "exercise_logs",
-                column: "WorkoutSessionId1");
+                column: "WorkoutSessionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_sets_ExerciseLogId",
@@ -79,6 +93,9 @@ namespace FitnessTracker.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "sets");
+
+            migrationBuilder.DropTable(
+                name: "users");
 
             migrationBuilder.DropTable(
                 name: "exercise_logs");
