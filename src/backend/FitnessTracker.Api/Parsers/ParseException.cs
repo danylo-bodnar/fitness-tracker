@@ -1,8 +1,5 @@
 namespace FitnessTracker.Api.Parsers;
 
-public class ParseException : Exception
+public class ParseException(string message) : Exception(message)
 {
-    public ParseException(string message) : base(message)
-    {
-    }
 }
