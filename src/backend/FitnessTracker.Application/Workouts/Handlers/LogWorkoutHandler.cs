@@ -7,16 +7,10 @@ using MediatR;
 
 namespace FitnessTracker.Application.Workouts.Handlers;
 
-public class LogWorkoutHandler : IRequestHandler<LogWorkoutCommand, SessionId>
+public class LogWorkoutHandler(IWorkoutSessionRepository workoutSessionRepository, IUnitOfWork unitOfWork) : IRequestHandler<LogWorkoutCommand, SessionId>
 {
-    private readonly IWorkoutSessionRepository _workoutSessionRepository;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public LogWorkoutHandler(IWorkoutSessionRepository workoutSessionRepository, IUnitOfWork unitOfWork)
-    {
-        _workoutSessionRepository = workoutSessionRepository;
-        _unitOfWork = unitOfWork;
-    }
+    private readonly IWorkoutSessionRepository _workoutSessionRepository = workoutSessionRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<SessionId> Handle(LogWorkoutCommand request, CancellationToken cancellationToken)
     {

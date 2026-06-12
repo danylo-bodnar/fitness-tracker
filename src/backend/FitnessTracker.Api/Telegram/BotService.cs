@@ -3,24 +3,16 @@ using Telegram.Bot.Polling;
 
 namespace FitnessTracker.Api.Telegram;
 
-public class BotService : BackgroundService
+public class BotService(
+    ITelegramBotClient bot,
+    IUpdateHandler updateHandler,
+    ILogger<BotService> logger,
+    IHostEnvironment env) : BackgroundService
 {
-    private readonly ITelegramBotClient _bot;
-    private readonly IUpdateHandler _updateHandler;
-    private readonly ILogger<BotService> _logger;
-    private readonly IHostEnvironment _env;
-
-    public BotService(
-        ITelegramBotClient bot,
-        IUpdateHandler updateHandler,
-        ILogger<BotService> logger,
-        IHostEnvironment env)
-    {
-        _bot = bot;
-        _updateHandler = updateHandler;
-        _logger = logger;
-        _env = env;
-    }
+    private readonly ITelegramBotClient _bot = bot;
+    private readonly IUpdateHandler _updateHandler = updateHandler;
+    private readonly ILogger<BotService> _logger = logger;
+    private readonly IHostEnvironment _env = env;
 
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
