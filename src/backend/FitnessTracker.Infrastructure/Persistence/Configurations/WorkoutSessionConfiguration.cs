@@ -19,6 +19,9 @@ public class WorkoutSessionConfiguration : IEntityTypeConfiguration<WorkoutSessi
                 value => new SessionId(value))
             .ValueGeneratedNever();
 
+        builder.Property(x => x.Date)
+            .HasColumnType("date");
+
         builder.Property(x => x.UserId)
             .HasConversion(
                 id => id.Value,

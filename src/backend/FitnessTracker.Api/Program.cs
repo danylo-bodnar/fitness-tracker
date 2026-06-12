@@ -35,12 +35,6 @@ builder.Services.AddHostedService<BotService>();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<WriteDbContext>();
-    await db.Database.CanConnectAsync();
-}
-
 app.MapGet("/health", () => "ok");
 
 if (!app.Environment.IsDevelopment())
