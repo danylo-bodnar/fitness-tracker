@@ -1,11 +1,7 @@
 using FitnessTracker.Api.Parsers;
 using FitnessTracker.Api.Telegram;
-using FitnessTracker.Application.Common.Interfaces;
-using FitnessTracker.Application.Workouts.Handlers;
-using FitnessTracker.Domain.Interfaces;
-using FitnessTracker.Infrastructure.Persistence;
-using FitnessTracker.Infrastructure.Persistence.Repositories;
-using Microsoft.EntityFrameworkCore;
+using FitnessTracker.Application;
+using FitnessTracker.Infrastructure;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -21,12 +17,8 @@ var token = Environment.GetEnvironmentVariable("BOT_TOKEN")
 var connection = Environment.GetEnvironmentVariable("DATABASE_CONNECTION")
     ?? throw new InvalidOperationException("DATABASE_CONNECTION not set");
 
-builder.Services.AddDbContext<WriteDbContext>(o => o.UseNpgsql(connection));
-builder.Services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<LogWorkoutHandler>());
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(connection);
 
 builder.Services.AddSingleton<ITelegramBotClient>(_ => new TelegramBotClient(token));
 
