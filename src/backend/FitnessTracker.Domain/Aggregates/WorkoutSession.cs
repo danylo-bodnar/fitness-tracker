@@ -21,15 +21,15 @@ public class WorkoutSession(SessionId id, UserId userId, DateOnly date) : Aggreg
         return session;
     }
 
-    public ExerciseLog AddExercise(ExerciseName name, DateOnly today)
+    public ExerciseLog AddExercise(Guid exerciseId, ExerciseName name, DateOnly today)
     {
         if (Date != today)
             throw new PastSessionModificationException();
 
-        if (_exercises.Any(e => e.Name == name))
+        if (_exercises.Any(e => e.ExerciseName == name))
             throw new DuplicateExerciseException(name.Value);
 
-        var log = new ExerciseLog(name);
+        var log = new ExerciseLog(exerciseId, name);
         _exercises.Add(log);
         AddDomainEvent(new ExerciseAdded(Id, name));
         return log;

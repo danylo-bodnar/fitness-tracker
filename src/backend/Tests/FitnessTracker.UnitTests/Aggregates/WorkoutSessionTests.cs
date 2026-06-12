@@ -37,7 +37,7 @@ public class WorkoutSessionTests
     {
         var session = WorkoutSession.Create(UserId, Today);
 
-        var exercise = session.AddExercise(new ExerciseName("squat"), Today);
+        var exercise = session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), Today);
 
         Assert.Single(session.Exercises);
         Assert.Equal(exercise, session.Exercises[0]);
@@ -49,7 +49,7 @@ public class WorkoutSessionTests
         var session = WorkoutSession.Create(UserId, Today);
         session.PopEvents(); // clear creation event
 
-        session.AddExercise(new ExerciseName("squat"), Today);
+        session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), Today);
 
         var events = session.PopEvents();
         Assert.Single(events);
@@ -61,10 +61,10 @@ public class WorkoutSessionTests
     {
         var session = WorkoutSession.Create(UserId, Today);
 
-        session.AddExercise(new ExerciseName("squat"), Today);
+        session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), Today);
 
         Assert.Throws<DuplicateExerciseException>(() =>
-            session.AddExercise(new ExerciseName("squat"), Today));
+            session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), Today));
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class WorkoutSessionTests
         var yesterday = Today.AddDays(-1);
 
         Assert.Throws<PastSessionModificationException>(() =>
-            session.AddExercise(new ExerciseName("squat"), yesterday));
+            session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), yesterday));
     }
 
     [Fact]

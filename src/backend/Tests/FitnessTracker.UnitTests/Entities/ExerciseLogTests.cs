@@ -8,10 +8,12 @@ public class ExerciseLogTests
     [Fact]
     public void Create_SetsProperties()
     {
+        var exerciseId = Guid.NewGuid();
         var name = new ExerciseName("squat");
-        var log = new ExerciseLog(name);
+        var log = new ExerciseLog(exerciseId, name);
 
-        Assert.Equal(name, log.Name);
+        Assert.Equal(name, log.ExerciseName);
+        Assert.Equal(exerciseId, log.ExerciseId);
         Assert.Empty(log.Sets);
         Assert.False(log.Id == Guid.Empty);
     }
@@ -19,7 +21,7 @@ public class ExerciseLogTests
     [Fact]
     public void LogSet_AddsSetToCollection()
     {
-        var log = new ExerciseLog(new ExerciseName("squat"));
+        var log = new ExerciseLog(Guid.NewGuid(), new ExerciseName("squat"));
 
         log.LogSet(new Weight(100), new Repetitions(5));
 
@@ -31,7 +33,7 @@ public class ExerciseLogTests
     [Fact]
     public void LogSet_ReturnsCreatedSet()
     {
-        var log = new ExerciseLog(new ExerciseName("squat"));
+        var log = new ExerciseLog(Guid.NewGuid(), new ExerciseName("squat"));
 
         var set = log.LogSet(new Weight(100), new Repetitions(5));
 
@@ -42,7 +44,7 @@ public class ExerciseLogTests
     [Fact]
     public void LogSet_MultipleSets_AddsAll()
     {
-        var log = new ExerciseLog(new ExerciseName("squat"));
+        var log = new ExerciseLog(Guid.NewGuid(), new ExerciseName("squat"));
 
         log.LogSet(new Weight(100), new Repetitions(5));
         log.LogSet(new Weight(100), new Repetitions(5));
