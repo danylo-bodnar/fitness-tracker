@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace FitnessTracker.Infrastructure.Migrations
+namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
