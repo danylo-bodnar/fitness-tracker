@@ -1,7 +1,7 @@
 using FitnessTracker.Infrastructure.Persistence.ReadModels;
 using Microsoft.EntityFrameworkCore;
 
-namespace FitnessTracker.Infrastructure.Persistence;
+namespace FitnessTracker.Infrastructure.Persistence.DbContexts;
 
 public class ReadDbContext(DbContextOptions<ReadDbContext> options) : DbContext(options)
 {

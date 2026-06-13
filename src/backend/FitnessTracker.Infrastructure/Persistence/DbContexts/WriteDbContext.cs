@@ -3,7 +3,7 @@ using FitnessTracker.Domain.Entities;
 using FitnessTracker.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
-namespace FitnessTracker.Infrastructure.Persistence;
+namespace FitnessTracker.Infrastructure.Persistence.DbContexts;
 
 public class WriteDbContext(DbContextOptions<WriteDbContext> options) : DbContext(options)
 {

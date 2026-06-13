@@ -1,6 +1,7 @@
 using FitnessTracker.Domain.Aggregates;
 using FitnessTracker.Domain.Interfaces;
 using FitnessTracker.Domain.ValueObjects;
+using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Infrastructure.Persistence.Repositories;
