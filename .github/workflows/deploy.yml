@@ -28,9 +28,21 @@ jobs:
       - name: Build
         run: dotnet build FitnessTracker.slnx --configuration Release --no-restore
 
-      - name: Run migrations
+      - name: Run Write migrations
         run: |
           dotnet ef database update \
+            --context WriteDbContext \
+            --project ./FitnessTracker.Infrastructure \
+            --startup-project ./FitnessTracker.Api \
+            --configuration Release \
+            --no-build
+        env:
+          DATABASE_CONNECTION: ${{ secrets.DATABASE_CONNECTION }}
+
+      - name: Run Read migrations
+        run: |
+          dotnet ef database update \
+            --context ReadDbContext \
             --project ./FitnessTracker.Infrastructure \
             --startup-project ./FitnessTracker.Api \
             --configuration Release \
