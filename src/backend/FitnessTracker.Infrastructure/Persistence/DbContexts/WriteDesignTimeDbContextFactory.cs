@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace FitnessTracker.Infrastructure.Persistence;
+namespace FitnessTracker.Infrastructure.Persistence.DbContexts;
 
 public class WriteDesignTimeDbContextFactory : IDesignTimeDbContextFactory<WriteDbContext>
 {

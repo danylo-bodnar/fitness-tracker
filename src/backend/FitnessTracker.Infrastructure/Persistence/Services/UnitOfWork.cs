@@ -1,6 +1,7 @@
 using FitnessTracker.Application.Common.Interfaces;
+using FitnessTracker.Infrastructure.Persistence.DbContexts;
 
-namespace FitnessTracker.Infrastructure.Persistence;
+namespace FitnessTracker.Infrastructure.Persistence.Services;
 
 public class UnitOfWork(WriteDbContext db) : IUnitOfWork
 {
