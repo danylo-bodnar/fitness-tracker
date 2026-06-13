@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace FitnessTracker.Infrastructure.Persistence;
 
-public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<WriteDbContext>
+public class WriteDesignTimeDbContextFactory : IDesignTimeDbContextFactory<WriteDbContext>
 {
     public WriteDbContext CreateDbContext(string[] args)
     {
