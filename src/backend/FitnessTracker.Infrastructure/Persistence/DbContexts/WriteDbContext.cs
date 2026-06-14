@@ -1,6 +1,7 @@
 using FitnessTracker.Domain.Aggregates;
 using FitnessTracker.Domain.Entities;
 using FitnessTracker.Infrastructure.Persistence.Configurations;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Infrastructure.Persistence.DbContexts;
@@ -18,5 +19,9 @@ public class WriteDbContext(DbContextOptions<WriteDbContext> options) : DbContex
         modelBuilder.ApplyConfiguration(new SetConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new ExerciseConfiguration());
+
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
+        modelBuilder.AddOutboxStateEntity();
     }
 }

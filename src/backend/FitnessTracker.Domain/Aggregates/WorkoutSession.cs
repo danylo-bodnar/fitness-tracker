@@ -17,7 +17,7 @@ public class WorkoutSession(SessionId id, UserId userId, DateOnly date) : Aggreg
     public static WorkoutSession Create(UserId userId, DateOnly date)
     {
         var session = new WorkoutSession(new SessionId(Guid.NewGuid()), userId, date);
-        session.AddDomainEvent(new WorkoutLogged(session.Id, userId));
+
         return session;
     }
 
@@ -31,8 +31,23 @@ public class WorkoutSession(SessionId id, UserId userId, DateOnly date) : Aggreg
 
         var log = new ExerciseLog(exerciseId, name);
         _exercises.Add(log);
-        AddDomainEvent(new ExerciseAdded(Id, name));
+
         return log;
+    }
+
+    public void CompleteExercise(ExerciseLog log)
+    {
+        AddDomainEvent(new ExercisePerformed(
+              Id,
+              UserId,
+              log.ExerciseId,
+              log.ExerciseName,
+              Date,
+              [.. log.Sets.Select(s => new SetRecord(
+                  s.Weight.Kg,
+                  s.Repetitions.Value
+              ))]
+          ));
     }
 
     public ExerciseLog? FindExercise(Guid exerciseId)

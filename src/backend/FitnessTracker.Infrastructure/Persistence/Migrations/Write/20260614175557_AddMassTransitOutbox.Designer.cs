@@ -3,6 +3,7 @@ using System;
 using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
 {
     [DbContext(typeof(WriteDbContext))]
-    partial class WriteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260614175557_AddMassTransitOutbox")]
+    partial class AddMassTransitOutbox
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,110 +81,6 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                     b.HasKey("Id");
 
                     b.ToTable("exercises", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("00000001-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Arms",
-                            Name = "bicep curl"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000002-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Arms",
-                            Name = "hammer curl"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000003-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Legs",
-                            Name = "squat"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000004-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Legs",
-                            Name = "leg press"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000005-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Legs",
-                            Name = "leg curl"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000006-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Legs",
-                            Name = "calf raises"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000007-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Legs",
-                            Name = "romanian deadlift"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000008-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Chest",
-                            Name = "bench press"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000009-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Chest",
-                            Name = "incline dumbbell press"
-                        },
-                        new
-                        {
-                            Id = new Guid("0000000a-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Chest",
-                            Name = "dips"
-                        },
-                        new
-                        {
-                            Id = new Guid("0000000b-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Shoulders",
-                            Name = "lateral raises"
-                        },
-                        new
-                        {
-                            Id = new Guid("0000000c-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Arms",
-                            Name = "triceps pushdown"
-                        },
-                        new
-                        {
-                            Id = new Guid("0000000d-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Arms",
-                            Name = "triceps extension"
-                        },
-                        new
-                        {
-                            Id = new Guid("0000000e-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Back",
-                            Name = "pull-ups"
-                        },
-                        new
-                        {
-                            Id = new Guid("0000000f-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Back",
-                            Name = "barbell row"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000010-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Back",
-                            Name = "cable row"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000011-0000-0000-0000-000000000001"),
-                            MuscleGroup = "Back",
-                            Name = "machine row"
-                        });
                 });
 
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ExerciseLog", b =>

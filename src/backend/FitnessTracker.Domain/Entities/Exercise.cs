@@ -12,7 +12,7 @@ public class Exercise
         MuscleGroup = muscleGroup;
     }
 
-    public Guid Id { get; } = Guid.NewGuid();
-    public ExerciseName Name { get; } = null!;
-    public string? MuscleGroup { get; }
+    public Guid Id { get; init; } = Guid.NewGuid();
+    public ExerciseName Name { get; init; } = null!;
+    public string? MuscleGroup { get; init; }
 }

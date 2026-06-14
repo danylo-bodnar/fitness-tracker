@@ -31,7 +31,10 @@ public class LogWorkoutHandler(
         var exerciseLog = session.AddExercise(exercise.Id, exercise.Name, cmd.Date);
 
         foreach (var reps in cmd.Reps)
+        {
             exerciseLog.LogSet(new Weight(cmd.WeightKg), new Repetitions(reps));
+        }
+        session.CompleteExercise(exerciseLog);
 
         await unitOfWork.CommitAsync(cancellationToken);
 
