@@ -15,7 +15,10 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("fitness-tracker");
+        var connectionString =
+            configuration.GetConnectionString("fitness-tracker")
+            ?? configuration["DATABASE_CONNECTION"]
+            ?? throw new InvalidOperationException("No connection string");
 
         services.AddDbContext<WriteDbContext>(o => o.UseNpgsql(connectionString));
         services.AddDbContext<ReadDbContext>(o => o.UseNpgsql(connectionString));
@@ -42,8 +45,10 @@ public static class DependencyInjection
 
             x.UsingRabbitMq((ctx, cfg) =>
              {
-                 var rabbitMqConnection = configuration.GetConnectionString("rabbitmq")
-                       ?? throw new InvalidOperationException("RabbitMQ connection string not found");
+                 var rabbitMqConnection =
+                    configuration.GetConnectionString("rabbitmq")
+                    ?? configuration["RABBITMQ_CONNECTION"]
+                    ?? throw new InvalidOperationException("RabbitMQ connection string not found");
 
                  cfg.Host(rabbitMqConnection);
                  cfg.ConfigureEndpoints(ctx);
