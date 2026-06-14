@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FitnessTracker.Application\FitnessTracker.Application.csproj" />
     <ProjectReference Include="..\FitnessTracker.Infrastructure\FitnessTracker.Infrastructure.csproj" />
+    <ProjectReference Include="..\FitnessTracker.ServiceDefaults\FitnessTracker.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

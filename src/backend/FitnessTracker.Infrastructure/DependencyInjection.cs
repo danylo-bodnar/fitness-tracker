@@ -13,14 +13,19 @@ namespace FitnessTracker.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        var connectionString = configuration.GetConnectionString("fitness-tracker");
+
         services.AddDbContext<WriteDbContext>(o => o.UseNpgsql(connectionString));
         services.AddDbContext<ReadDbContext>(o => o.UseNpgsql(connectionString));
+
         services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
+
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
         services.AddMassTransit(x =>
@@ -36,15 +41,14 @@ public static class DependencyInjection
             });
 
             x.UsingRabbitMq((ctx, cfg) =>
-            {
-                cfg.Host(configuration["RabbitMq:Host"], h =>
-                {
-                    h.Username(configuration["RabbitMq:Username"]!);
-                    h.Password(configuration["RabbitMq:Password"]!);
-                });
+             {
+                 var rabbitMqConnection = configuration.GetConnectionString("rabbitmq")
+                       ?? throw new InvalidOperationException("RabbitMQ connection string not found");
 
-                cfg.ConfigureEndpoints(ctx);
-            });
+                 cfg.Host(rabbitMqConnection);
+                 cfg.ConfigureEndpoints(ctx);
+             });
+
         });
 
         return services;

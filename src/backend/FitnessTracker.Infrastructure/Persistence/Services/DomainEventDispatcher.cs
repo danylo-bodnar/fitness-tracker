@@ -17,6 +17,7 @@ public class DomainEventDispatcher(
         var aggregates = db.ChangeTracker
             .Entries<AggregateRoot>()
             .Select(e => e.Entity)
+            .Where(x => x.DomainEvents.Any())
             .ToList();
 
         foreach (var aggregate in aggregates)

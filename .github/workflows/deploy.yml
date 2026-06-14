@@ -34,7 +34,6 @@ jobs:
             --context WriteDbContext \
             --project ./FitnessTracker.Infrastructure \
             --startup-project ./FitnessTracker.Api \
-            --configuration Release \
             --no-build
         env:
           DATABASE_CONNECTION: ${{ secrets.DATABASE_CONNECTION }}
@@ -45,7 +44,6 @@ jobs:
             --context ReadDbContext \
             --project ./FitnessTracker.Infrastructure \
             --startup-project ./FitnessTracker.Api \
-            --configuration Release \
             --no-build
         env:
           DATABASE_CONNECTION: ${{ secrets.DATABASE_CONNECTION }}

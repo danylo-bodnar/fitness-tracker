@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FitnessTracker.Infrastructure.Persistence.Migrations.Read
 {
     [DbContext(typeof(ReadDbContext))]
-    [Migration("20260613213922_InitialCreate")]
+    [Migration("20260614184731_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
