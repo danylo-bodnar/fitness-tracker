@@ -15,10 +15,11 @@ var token = Environment.GetEnvironmentVariable("BOT_TOKEN")
     ?? throw new InvalidOperationException("BOT_TOKEN not set");
 
 var connection = Environment.GetEnvironmentVariable("DATABASE_CONNECTION")
-    ?? throw new InvalidOperationException("DATABASE_CONNECTION not set");
+    ?? builder.Configuration.GetConnectionString("Default")
+    ?? throw new InvalidOperationException("DATABASE_CONNECTION nor ConnectionStrings:Default set");
 
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure(connection);
+builder.Services.AddInfrastructure(connection, builder.Configuration);
 
 builder.Services.AddSingleton<ITelegramBotClient>(_ => new TelegramBotClient(token));
 

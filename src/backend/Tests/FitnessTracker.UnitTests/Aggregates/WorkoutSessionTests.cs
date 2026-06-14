@@ -22,14 +22,13 @@ public class WorkoutSessionTests
     }
 
     [Fact]
-    public void Create_FiresWorkoutLoggedEvent()
+    public void Create_FiresNoEvents()
     {
         var session = WorkoutSession.Create(UserId, Today);
 
         var events = session.PopEvents();
 
-        Assert.Single(events);
-        Assert.IsType<WorkoutLogged>(events.First());
+        Assert.Empty(events);
     }
 
     [Fact]
@@ -44,16 +43,22 @@ public class WorkoutSessionTests
     }
 
     [Fact]
-    public void AddExercise_FiresExerciseAddedEvent()
+    public void CompleteExercise_FiresExercisePerformedEvent()
     {
         var session = WorkoutSession.Create(UserId, Today);
-        session.PopEvents(); // clear creation event
+        var exerciseLog = session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), Today);
+        exerciseLog.LogSet(new Weight(100), new Repetitions(5));
+        exerciseLog.LogSet(new Weight(100), new Repetitions(5));
 
-        session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), Today);
+        session.CompleteExercise(exerciseLog);
 
         var events = session.PopEvents();
-        Assert.Single(events);
-        Assert.IsType<ExerciseAdded>(events.First());
+        var performed = Assert.Single(events);
+        var ev = Assert.IsType<ExercisePerformed>(performed);
+        Assert.Equal(session.Id, ev.SessionId);
+        Assert.Equal(UserId, ev.UserId);
+        Assert.Equal(exerciseLog.ExerciseId, ev.ExerciseId);
+        Assert.Equal(2, ev.Sets.Count);
     }
 
     [Fact]
@@ -81,6 +86,9 @@ public class WorkoutSessionTests
     public void PopEvents_ReturnsEventsAndClears()
     {
         var session = WorkoutSession.Create(UserId, Today);
+        var exerciseLog = session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), Today);
+        exerciseLog.LogSet(new Weight(100), new Repetitions(5));
+        session.CompleteExercise(exerciseLog);
 
         var first = session.PopEvents();
         Assert.NotEmpty(first);

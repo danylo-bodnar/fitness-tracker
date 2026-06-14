@@ -1,16 +1,19 @@
 using FitnessTracker.Application.Common.Interfaces;
 using FitnessTracker.Domain.Interfaces;
+using FitnessTracker.Infrastructure.Messaging.Consumers;
 using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using FitnessTracker.Infrastructure.Persistence.Repositories;
 using FitnessTracker.Infrastructure.Persistence.Services;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FitnessTracker.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString, IConfiguration configuration)
     {
         services.AddDbContext<WriteDbContext>(o => o.UseNpgsql(connectionString));
         services.AddDbContext<ReadDbContext>(o => o.UseNpgsql(connectionString));
@@ -18,6 +21,31 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+        services.AddMassTransit(x =>
+        {
+            x.AddConsumer<AnalyticsConsumer>();
+            x.AddConsumer<PersonalRecordConsumer>();
+            x.AddConsumer<NotificationConsumer>();
+
+            x.AddEntityFrameworkOutbox<WriteDbContext>(o =>
+            {
+                o.UsePostgres();
+                o.UseBusOutbox();
+            });
+
+            x.UsingRabbitMq((ctx, cfg) =>
+            {
+                cfg.Host(configuration["RabbitMq:Host"], h =>
+                {
+                    h.Username(configuration["RabbitMq:Username"]!);
+                    h.Password(configuration["RabbitMq:Password"]!);
+                });
+
+                cfg.ConfigureEndpoints(ctx);
+            });
+        });
 
         return services;
     }
