@@ -1,10 +1,13 @@
 <Solution>
   <Folder Name="/Tests/" />
   <Project Path="FitnessTracker.Api/FitnessTracker.Api.csproj" />
+  <Project Path="FitnessTracker.AppHost/FitnessTracker.AppHost.csproj" />
   <Project Path="FitnessTracker.Application/FitnessTracker.Application.csproj" />
   <Project Path="FitnessTracker.Contracts/FitnessTracker.Contracts.csproj" />
   <Project Path="FitnessTracker.Domain/FitnessTracker.Domain.csproj" />
   <Project Path="FitnessTracker.Infrastructure/FitnessTracker.Infrastructure.csproj" />
+  <Project Path="FitnessTracker.Migrator/FitnessTracker.Migrator.csproj" />
+  <Project Path="FitnessTracker.ServiceDefaults/FitnessTracker.ServiceDefaults.csproj" />
   <Project Path="Tests/FitnessTracker.IntegrationTests/FitnessTracker.IntegrationTests.csproj" />
   <Project Path="Tests/FitnessTracker.UnitTests/FitnessTracker.UnitTests.csproj" />
 </Solution>
