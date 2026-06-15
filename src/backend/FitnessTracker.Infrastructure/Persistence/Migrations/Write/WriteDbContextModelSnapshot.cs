@@ -52,9 +52,6 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
                     b.ToTable("workout_sessions", (string)null);

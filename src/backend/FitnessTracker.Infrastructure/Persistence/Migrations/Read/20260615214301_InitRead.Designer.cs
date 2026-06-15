@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FitnessTracker.Infrastructure.Persistence.Migrations.Read
 {
     [DbContext(typeof(ReadDbContext))]
-    [Migration("20260614184731_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260615214301_InitRead")]
+    partial class InitRead
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

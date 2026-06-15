@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
 {
     [DbContext(typeof(WriteDbContext))]
-    [Migration("20260615082052_AddMoreExercises")]
-    partial class AddMoreExercises
+    [Migration("20260615214244_InitWrite")]
+    partial class InitWrite
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,9 +54,6 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
 
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
