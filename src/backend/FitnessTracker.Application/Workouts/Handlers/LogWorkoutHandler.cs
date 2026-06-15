@@ -11,9 +11,9 @@ namespace FitnessTracker.Application.Workouts.Handlers;
 public class LogWorkoutHandler(
     IWorkoutSessionRepository workoutSessionRepository,
     IExerciseRepository exerciseRepository,
-    IUnitOfWork unitOfWork) : IRequestHandler<LogWorkoutCommand, SessionId>
+    IUnitOfWork unitOfWork) : IRequestHandler<LogWorkoutCommand, Guid>
 {
-    public async Task<SessionId> Handle(LogWorkoutCommand cmd, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(LogWorkoutCommand cmd, CancellationToken cancellationToken)
     {
         var exercise = await exerciseRepository.FindByNameAsync(
             cmd.ExerciseName.Value, cancellationToken)

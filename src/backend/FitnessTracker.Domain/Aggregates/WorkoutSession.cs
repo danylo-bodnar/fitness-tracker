@@ -5,18 +5,18 @@ using FitnessTracker.Domain.ValueObjects;
 
 namespace FitnessTracker.Domain.Aggregates;
 
-public class WorkoutSession(SessionId id, UserId userId, DateOnly date) : AggregateRoot
+public class WorkoutSession(Guid id, Guid userId, DateOnly date) : AggregateRoot
 {
-    private WorkoutSession() : this(default!, default!, default!) { }
+    private WorkoutSession() : this(default, default, default) { }
     private readonly List<ExerciseLog> _exercises = [];
 
-    public SessionId Id { get; } = id;
-    public UserId UserId { get; } = userId;
+    public Guid Id { get; } = id;
+    public Guid UserId { get; } = userId;
     public DateOnly Date { get; } = date;
 
-    public static WorkoutSession Create(UserId userId, DateOnly date)
+    public static WorkoutSession Create(Guid userId, DateOnly date)
     {
-        var session = new WorkoutSession(new SessionId(Guid.NewGuid()), userId, date);
+        var session = new WorkoutSession(Guid.NewGuid(), userId, date);
 
         return session;
     }

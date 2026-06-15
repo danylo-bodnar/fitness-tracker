@@ -1,5 +1,4 @@
 using FitnessTracker.Contracts.Events;
-using FitnessTracker.Domain.ValueObjects;
 using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -36,9 +35,8 @@ public class NotificationConsumer(ITelegramBotClient bot, WriteDbContext db)
     {
         var user = await db.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == new UserId(userId), ct);
+            .FirstOrDefaultAsync(u => u.Id == userId, ct);
 
         return user?.TelegramChatId;
     }
 }
-

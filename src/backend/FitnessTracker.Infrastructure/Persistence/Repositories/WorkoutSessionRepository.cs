@@ -1,6 +1,5 @@
 using FitnessTracker.Domain.Aggregates;
 using FitnessTracker.Domain.Interfaces;
-using FitnessTracker.Domain.ValueObjects;
 using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +9,7 @@ public class WorkoutSessionRepository(WriteDbContext db) : IWorkoutSessionReposi
 {
     private readonly WriteDbContext _db = db;
 
-    public async Task<WorkoutSession?> GetByUserAndDateAsync(UserId userId, DateOnly date, CancellationToken ct = default)
+    public async Task<WorkoutSession?> GetByUserAndDateAsync(Guid userId, DateOnly date, CancellationToken ct = default)
     {
         return await _db.WorkoutSessions
             .Include(x => x.Exercises)

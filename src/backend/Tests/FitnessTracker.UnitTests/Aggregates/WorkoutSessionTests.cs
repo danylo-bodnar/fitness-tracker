@@ -8,7 +8,7 @@ namespace FitnessTracker.UnitTests.Aggregates;
 
 public class WorkoutSessionTests
 {
-    private static readonly UserId UserId = new(Guid.NewGuid());
+    private static readonly Guid UserId = Guid.NewGuid();
     private static readonly DateOnly Today = DateOnly.FromDateTime(DateTime.UtcNow);
 
     [Fact]
@@ -18,7 +18,7 @@ public class WorkoutSessionTests
 
         Assert.Equal(Today, session.Date);
         Assert.Equal(UserId, session.UserId);
-        Assert.False(session.Id.Value == Guid.Empty);
+        Assert.False(session.Id == Guid.Empty);
     }
 
     [Fact]

@@ -4,8 +4,8 @@ using FitnessTracker.Domain.ValueObjects;
 namespace FitnessTracker.Domain.Events;
 
 public record ExercisePerformed(
-    SessionId SessionId,
-    UserId UserId,
+    Guid SessionId,
+    Guid UserId,
     Guid ExerciseId,
     ExerciseName ExerciseName,
     DateOnly Date,
