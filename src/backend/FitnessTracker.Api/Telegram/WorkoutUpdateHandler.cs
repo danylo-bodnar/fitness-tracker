@@ -69,7 +69,7 @@ public class WorkoutUpdateHandler(
 
             await bot.SendMessage(
                 update.Message.Chat.Id,
-                $"Logged ✅ ({sessionId.Value})",
+                $"Logged ✅ ({sessionId})",
                 cancellationToken: ct);
         }
         catch (Exception ex)

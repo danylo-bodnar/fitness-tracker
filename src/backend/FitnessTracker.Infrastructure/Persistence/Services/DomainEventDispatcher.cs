@@ -37,7 +37,7 @@ public class DomainEventDispatcher(
     private async Task PublishExerciseLoggedEvent(ExercisePerformed e, CancellationToken ct)
     {
         await publisher.Publish(new ExerciseLoggedEvent(
-            UserId: e.UserId.Value,
+            UserId: e.UserId,
             ExerciseId: e.ExerciseId,
             ExerciseName: e.ExerciseName.Value,
             Date: e.Date,

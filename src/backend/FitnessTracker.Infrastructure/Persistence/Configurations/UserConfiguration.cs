@@ -1,5 +1,4 @@
 using FitnessTracker.Domain.Aggregates;
-using FitnessTracker.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,9 +13,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .HasConversion(
-                id => id.Value,
-                value => new UserId(value))
             .ValueGeneratedNever();
 
         builder.Property(x => x.TelegramChatId)

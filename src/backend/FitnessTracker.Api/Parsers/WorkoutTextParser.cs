@@ -6,7 +6,7 @@ namespace FitnessTracker.Api.Parsers;
 
 public partial class WorkoutTextParser : IWorkoutParser
 {
-    public LogWorkoutCommand Parse(string text, UserId userId, DateOnly date)
+    public LogWorkoutCommand Parse(string text, Guid userId, DateOnly date)
     {
         var match = WorkoutPattern().Match(text.Trim());
 
