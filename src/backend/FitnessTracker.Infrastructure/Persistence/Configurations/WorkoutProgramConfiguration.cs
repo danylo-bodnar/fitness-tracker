@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FitnessTracker.Infrastructure.Persistence.Configurations;
 
-public class WorkoutSessionConfiguration : IEntityTypeConfiguration<WorkoutSession>
+public class WorkoutProgramConfiguration : IEntityTypeConfiguration<WorkoutProgram>
 {
-    public void Configure(EntityTypeBuilder<WorkoutSession> builder)
+    public void Configure(EntityTypeBuilder<WorkoutProgram> builder)
     {
-        builder.ToTable("workout_sessions");
+        builder.ToTable("workout_programs");
 
         builder.HasKey(x => x.Id);
 
@@ -19,15 +19,16 @@ public class WorkoutSessionConfiguration : IEntityTypeConfiguration<WorkoutSessi
         builder.Property(x => x.UserId)
             .IsRequired();
 
-        builder.Property(x => x.Date)
-            .HasColumnType("date");
+        builder.Property(x => x.Name)
+            .IsRequired()
+            .HasMaxLength(100);
 
-        builder.HasMany(typeof(ExerciseLog), "_exercises")
+        builder.HasMany<ProgramDay>("_days")
             .WithOne()
-            .HasForeignKey("WorkoutSessionId")
+            .HasForeignKey("WorkoutProgramId")
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Navigation("_exercises")
+        builder.Navigation("_days")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

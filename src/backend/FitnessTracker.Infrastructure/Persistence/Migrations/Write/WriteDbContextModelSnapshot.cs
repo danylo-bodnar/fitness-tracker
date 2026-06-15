@@ -28,16 +28,19 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                         .HasColumnType("uuid");
 
                     b.Property<long>("TelegramChatId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("telegram_chat_id");
 
                     b.Property<string>("TelegramUsername")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("telegram_username");
 
                     b.Property<string>("Timezone")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("timezone");
 
                     b.HasKey("Id");
 
@@ -51,6 +54,9 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
 
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -309,6 +315,53 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                     b.ToTable("exercise_logs", (string)null);
                 });
 
+            modelBuilder.Entity("FitnessTracker.Domain.Entities.ProgramDay", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("program_days", (string)null);
+                });
+
+            modelBuilder.Entity("FitnessTracker.Domain.Entities.ProgramExercise", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ExerciseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ExerciseName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("ProgramDayId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("TargetReps")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TargetSets")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProgramDayId");
+
+                    b.ToTable("program_exercises", (string)null);
+                });
+
             modelBuilder.Entity("FitnessTracker.Domain.Entities.Set", b =>
                 {
                     b.Property<Guid>("Id")
@@ -515,6 +568,14 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FitnessTracker.Domain.Entities.ProgramExercise", b =>
+                {
+                    b.HasOne("FitnessTracker.Domain.Entities.ProgramDay", null)
+                        .WithMany("_exercises")
+                        .HasForeignKey("ProgramDayId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("FitnessTracker.Domain.Entities.Set", b =>
                 {
                     b.HasOne("FitnessTracker.Domain.Entities.ExerciseLog", null)
@@ -532,6 +593,11 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ExerciseLog", b =>
                 {
                     b.Navigation("Sets");
+                });
+
+            modelBuilder.Entity("FitnessTracker.Domain.Entities.ProgramDay", b =>
+                {
+                    b.Navigation("_exercises");
                 });
 #pragma warning restore 612, 618
         }

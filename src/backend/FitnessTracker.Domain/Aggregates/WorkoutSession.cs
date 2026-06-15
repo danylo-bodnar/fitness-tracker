@@ -5,21 +5,26 @@ using FitnessTracker.Domain.ValueObjects;
 
 namespace FitnessTracker.Domain.Aggregates;
 
-public class WorkoutSession(Guid id, Guid userId, DateOnly date) : AggregateRoot
+public class WorkoutSession : AggregateRoot
 {
-    private WorkoutSession() : this(default, default, default) { }
-    private readonly List<ExerciseLog> _exercises = [];
+    public Guid Id { get; private set; }
+    public Guid UserId { get; private set; }
+    public DateOnly Date { get; private set; }
 
-    public Guid Id { get; } = id;
-    public Guid UserId { get; } = userId;
-    public DateOnly Date { get; } = date;
+    private readonly List<ExerciseLog> _exercises = new();
+    public IReadOnlyList<ExerciseLog> Exercises => _exercises;
+
+    private WorkoutSession() { }
+
+    private WorkoutSession(Guid id, Guid userId, DateOnly date)
+    {
+        Id = id;
+        UserId = userId;
+        Date = date;
+    }
 
     public static WorkoutSession Create(Guid userId, DateOnly date)
-    {
-        var session = new WorkoutSession(Guid.NewGuid(), userId, date);
-
-        return session;
-    }
+        => new(Guid.NewGuid(), userId, date);
 
     public ExerciseLog AddExercise(Guid exerciseId, ExerciseName name, DateOnly today)
     {
@@ -38,20 +43,18 @@ public class WorkoutSession(Guid id, Guid userId, DateOnly date) : AggregateRoot
     public void CompleteExercise(ExerciseLog log)
     {
         AddDomainEvent(new ExercisePerformed(
-              Id,
-              UserId,
-              log.ExerciseId,
-              log.ExerciseName,
-              Date,
-              [.. log.Sets.Select(s => new SetRecord(
-                  s.Weight.Kg,
-                  s.Repetitions.Value
-              ))]
-          ));
+            Id,
+            UserId,
+            log.ExerciseId,
+            log.ExerciseName,
+            Date,
+            [.. log.Sets.Select(s => new SetRecord(
+                s.Weight.Kg,
+                s.Repetitions.Value
+            ))]
+        ));
     }
 
     public ExerciseLog? FindExercise(Guid exerciseId)
         => _exercises.FirstOrDefault(e => e.Id == exerciseId);
-
-    public IReadOnlyList<ExerciseLog> Exercises => _exercises.AsReadOnly();
 }

@@ -16,13 +16,16 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .ValueGeneratedNever();
 
         builder.Property(x => x.TelegramChatId)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnName("telegram_chat_id");
 
         builder.Property(x => x.TelegramUsername)
-            .HasMaxLength(100);
+            .HasMaxLength(100)
+            .HasColumnName("telegram_username");
 
         builder.Property(x => x.Timezone)
+            .IsRequired()
             .HasMaxLength(50)
-            .IsRequired();
+            .HasColumnName("timezone");
     }
 }

@@ -99,13 +99,25 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                 });
 
             migrationBuilder.CreateTable(
+                name: "program_days",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_program_days", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "users",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TelegramChatId = table.Column<long>(type: "bigint", nullable: false),
-                    TelegramUsername = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    Timezone = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
+                    telegram_chat_id = table.Column<long>(type: "bigint", nullable: false),
+                    telegram_username = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    timezone = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -117,11 +129,35 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     Date = table.Column<DateOnly>(type: "date", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_workout_sessions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "program_exercises",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ExerciseId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ExerciseName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    TargetSets = table.Column<int>(type: "integer", nullable: false),
+                    TargetReps = table.Column<int>(type: "integer", nullable: false),
+                    Order = table.Column<int>(type: "integer", nullable: false),
+                    ProgramDayId = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_program_exercises", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_program_exercises_program_days_ProgramDayId",
+                        column: x => x.ProgramDayId,
+                        principalTable: "program_days",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -254,6 +290,11 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                 column: "Created");
 
             migrationBuilder.CreateIndex(
+                name: "IX_program_exercises_ProgramDayId",
+                table: "program_exercises",
+                column: "ProgramDayId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_sets_ExerciseLogId",
                 table: "sets",
                 column: "ExerciseLogId");
@@ -272,10 +313,16 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                 name: "OutboxState");
 
             migrationBuilder.DropTable(
+                name: "program_exercises");
+
+            migrationBuilder.DropTable(
                 name: "sets");
 
             migrationBuilder.DropTable(
                 name: "users");
+
+            migrationBuilder.DropTable(
+                name: "program_days");
 
             migrationBuilder.DropTable(
                 name: "exercise_logs");

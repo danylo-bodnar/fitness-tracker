@@ -1,33 +1,32 @@
-using FitnessTracker.Domain.Aggregates;
 using FitnessTracker.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FitnessTracker.Infrastructure.Persistence.Configurations;
 
-public class WorkoutSessionConfiguration : IEntityTypeConfiguration<WorkoutSession>
+public class ProgramDayConfiguration : IEntityTypeConfiguration<ProgramDay>
 {
-    public void Configure(EntityTypeBuilder<WorkoutSession> builder)
+    public void Configure(EntityTypeBuilder<ProgramDay> builder)
     {
-        builder.ToTable("workout_sessions");
+        builder.ToTable("program_days");
 
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
             .ValueGeneratedNever();
 
-        builder.Property(x => x.UserId)
-            .IsRequired();
+        builder.Property(x => x.Name)
+            .IsRequired()
+            .HasMaxLength(100);
 
-        builder.Property(x => x.Date)
-            .HasColumnType("date");
-
-        builder.HasMany(typeof(ExerciseLog), "_exercises")
+        builder.HasMany<ProgramExercise>("_exercises")
             .WithOne()
-            .HasForeignKey("WorkoutSessionId")
+            .HasForeignKey("ProgramDayId")
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation("_exercises")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Ignore(x => x.Exercises);
     }
 }

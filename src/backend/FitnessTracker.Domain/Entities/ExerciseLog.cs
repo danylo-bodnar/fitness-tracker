@@ -4,7 +4,12 @@ namespace FitnessTracker.Domain.Entities;
 
 public class ExerciseLog
 {
+    public Guid Id { get; private set; }
+    public Guid ExerciseId { get; private set; }
+    public ExerciseName ExerciseName { get; private set; } = null!;
+
     private readonly List<Set> _sets = [];
+    public IReadOnlyList<Set> Sets => _sets.AsReadOnly();
 
     private ExerciseLog() { }
 
@@ -14,11 +19,6 @@ public class ExerciseLog
         ExerciseId = exerciseId;
         ExerciseName = exerciseName;
     }
-
-    public Guid Id { get; private set; }
-    public Guid ExerciseId { get; private set; }
-    public ExerciseName ExerciseName { get; private set; } = default!;
-    public IReadOnlyList<Set> Sets => _sets.AsReadOnly();
 
     public Set LogSet(Weight weight, Repetitions repetitions)
     {
