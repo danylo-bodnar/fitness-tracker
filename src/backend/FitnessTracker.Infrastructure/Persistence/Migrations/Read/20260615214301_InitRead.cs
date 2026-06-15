@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FitnessTracker.Infrastructure.Persistence.Migrations.Read
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitRead : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
