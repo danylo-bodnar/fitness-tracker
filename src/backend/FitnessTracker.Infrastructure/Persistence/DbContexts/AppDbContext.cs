@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Infrastructure.Persistence.DbContexts;
 
-public class WriteDbContext(DbContextOptions<WriteDbContext> options) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<WorkoutSession> WorkoutSessions => Set<WorkoutSession>();
     public DbSet<WorkoutProgram> WorkoutPrograms => Set<WorkoutProgram>();

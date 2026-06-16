@@ -3,17 +3,20 @@ using System;
 using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
+namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
 {
-    [DbContext(typeof(WriteDbContext))]
-    partial class WriteDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20260616220956_InitApp")]
+    partial class InitApp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,6 +48,24 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                     b.HasKey("Id");
 
                     b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("FitnessTracker.Domain.Aggregates.WorkoutProgram", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WorkoutPrograms");
                 });
 
             modelBuilder.Entity("FitnessTracker.Domain.Aggregates.WorkoutSession", b =>
@@ -325,7 +346,12 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<Guid?>("WorkoutProgramId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("WorkoutProgramId");
 
                     b.ToTable("program_days", (string)null);
                 });
@@ -568,6 +594,13 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FitnessTracker.Domain.Entities.ProgramDay", b =>
+                {
+                    b.HasOne("FitnessTracker.Domain.Aggregates.WorkoutProgram", null)
+                        .WithMany("Days")
+                        .HasForeignKey("WorkoutProgramId");
+                });
+
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ProgramExercise", b =>
                 {
                     b.HasOne("FitnessTracker.Domain.Entities.ProgramDay", null)
@@ -583,6 +616,11 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                         .HasForeignKey("ExerciseLogId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FitnessTracker.Domain.Aggregates.WorkoutProgram", b =>
+                {
+                    b.Navigation("Days");
                 });
 
             modelBuilder.Entity("FitnessTracker.Domain.Aggregates.WorkoutSession", b =>

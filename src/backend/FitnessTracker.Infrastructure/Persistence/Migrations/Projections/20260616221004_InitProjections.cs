@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace FitnessTracker.Infrastructure.Persistence.Migrations.Read
+namespace FitnessTracker.Infrastructure.Persistence.Migrations.Projections
 {
     /// <inheritdoc />
-    public partial class InitRead : Migration
+    public partial class InitProjections : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

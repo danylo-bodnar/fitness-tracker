@@ -6,10 +6,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
+namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
 {
     /// <inheritdoc />
-    public partial class InitWrite : Migration
+    public partial class InitApp : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -99,18 +99,6 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                 });
 
             migrationBuilder.CreateTable(
-                name: "program_days",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_program_days", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "users",
                 columns: table => new
                 {
@@ -138,26 +126,16 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                 });
 
             migrationBuilder.CreateTable(
-                name: "program_exercises",
+                name: "WorkoutPrograms",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ExerciseId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ExerciseName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    TargetSets = table.Column<int>(type: "integer", nullable: false),
-                    TargetReps = table.Column<int>(type: "integer", nullable: false),
-                    Order = table.Column<int>(type: "integer", nullable: false),
-                    ProgramDayId = table.Column<Guid>(type: "uuid", nullable: true)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_program_exercises", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_program_exercises_program_days_ProgramDayId",
-                        column: x => x.ProgramDayId,
-                        principalTable: "program_days",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_WorkoutPrograms", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -187,6 +165,24 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                 });
 
             migrationBuilder.CreateTable(
+                name: "program_days",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    WorkoutProgramId = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_program_days", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_program_days_WorkoutPrograms_WorkoutProgramId",
+                        column: x => x.WorkoutProgramId,
+                        principalTable: "WorkoutPrograms",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "sets",
                 columns: table => new
                 {
@@ -202,6 +198,29 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                         name: "FK_sets_exercise_logs_ExerciseLogId",
                         column: x => x.ExerciseLogId,
                         principalTable: "exercise_logs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "program_exercises",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ExerciseId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ExerciseName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    TargetSets = table.Column<int>(type: "integer", nullable: false),
+                    TargetReps = table.Column<int>(type: "integer", nullable: false),
+                    Order = table.Column<int>(type: "integer", nullable: false),
+                    ProgramDayId = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_program_exercises", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_program_exercises_program_days_ProgramDayId",
+                        column: x => x.ProgramDayId,
+                        principalTable: "program_days",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -290,6 +309,11 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
                 column: "Created");
 
             migrationBuilder.CreateIndex(
+                name: "IX_program_days_WorkoutProgramId",
+                table: "program_days",
+                column: "WorkoutProgramId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_program_exercises_ProgramDayId",
                 table: "program_exercises",
                 column: "ProgramDayId");
@@ -326,6 +350,9 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.Write
 
             migrationBuilder.DropTable(
                 name: "exercise_logs");
+
+            migrationBuilder.DropTable(
+                name: "WorkoutPrograms");
 
             migrationBuilder.DropTable(
                 name: "exercises");

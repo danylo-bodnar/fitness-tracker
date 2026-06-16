@@ -3,20 +3,17 @@ using System;
 using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace FitnessTracker.Infrastructure.Persistence.Migrations.Read
+namespace FitnessTracker.Infrastructure.Persistence.Migrations.Projections
 {
-    [DbContext(typeof(ReadDbContext))]
-    [Migration("20260615230657_InitRead")]
-    partial class InitRead
+    [DbContext(typeof(ProjectionsDbContext))]
+    partial class ProjectionsDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

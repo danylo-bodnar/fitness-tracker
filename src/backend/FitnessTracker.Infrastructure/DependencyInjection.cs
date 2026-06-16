@@ -19,8 +19,8 @@ public static class DependencyInjection
             ?? configuration["DATABASE_CONNECTION"]
             ?? throw new InvalidOperationException("No connection string");
 
-        services.AddDbContext<WriteDbContext>(o => o.UseNpgsql(connectionString));
-        services.AddDbContext<ReadDbContext>(o => o.UseNpgsql(connectionString));
+        services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
+        services.AddDbContext<ProjectionsDbContext>(o => o.UseNpgsql(connectionString));
 
         services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
@@ -37,7 +37,7 @@ public static class DependencyInjection
             x.AddConsumer<PersonalRecordConsumer>();
             x.AddConsumer<NotificationConsumer>();
 
-            x.AddEntityFrameworkOutbox<WriteDbContext>(o =>
+            x.AddEntityFrameworkOutbox<AppDbContext>(o =>
             {
                 o.UsePostgres();
                 o.UseBusOutbox();

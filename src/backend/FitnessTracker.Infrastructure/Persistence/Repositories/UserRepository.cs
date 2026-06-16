@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Infrastructure.Persistence.Repositories;
 
-public class UserRepository(WriteDbContext db) : IUserRepository
+public class UserRepository(AppDbContext db) : IUserRepository
 {
-    private readonly WriteDbContext _db = db;
+    private readonly AppDbContext _db = db;
 
     public async Task<User?> GetByTelegramChatIdAsync(long telegramChatId, CancellationToken ct = default)
     {

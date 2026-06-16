@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Infrastructure.Persistence.Repositories;
 
-public class ExerciseRepository(WriteDbContext db) : IExerciseRepository
+public class ExerciseRepository(AppDbContext db) : IExerciseRepository
 {
     public async Task<Exercise?> FindByNameAsync(string name, CancellationToken ct = default)
         => await db.Exercises

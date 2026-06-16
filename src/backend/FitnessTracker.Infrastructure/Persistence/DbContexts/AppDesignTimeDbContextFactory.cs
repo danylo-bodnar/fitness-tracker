@@ -3,17 +3,17 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace FitnessTracker.Infrastructure.Persistence.DbContexts;
 
-public class WriteDesignTimeDbContextFactory : IDesignTimeDbContextFactory<WriteDbContext>
+public class AppDesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
-    public WriteDbContext CreateDbContext(string[] args)
+    public AppDbContext CreateDbContext(string[] args)
     {
         var connection = Environment.GetEnvironmentVariable("DATABASE_CONNECTION")
             ?? "Host=localhost;Port=5432;Database=fitness_tracker;Username=postgres;Password=postgres";
 
-        var options = new DbContextOptionsBuilder<WriteDbContext>()
+        var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseNpgsql(connection)
             .Options;
 
-        return new WriteDbContext(options);
+        return new AppDbContext(options);
     }
 }

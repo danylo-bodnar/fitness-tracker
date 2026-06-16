@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Infrastructure.Messaging.Consumers;
 
-public class AnalyticsConsumer(ReadDbContext db) : IConsumer<ExerciseLoggedEvent>
+public class AnalyticsConsumer(ProjectionsDbContext db) : IConsumer<ExerciseLoggedEvent>
 {
     public async Task Consume(ConsumeContext<ExerciseLoggedEvent> context)
     {

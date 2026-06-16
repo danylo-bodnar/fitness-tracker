@@ -6,7 +6,7 @@ using Telegram.Bot;
 
 namespace FitnessTracker.Infrastructure.Messaging.Consumers;
 
-public class NotificationConsumer(ITelegramBotClient bot, WriteDbContext db)
+public class NotificationConsumer(ITelegramBotClient bot, AppDbContext db)
     : IConsumer<ExerciseLoggedEvent>, IConsumer<PRDetectedEvent>
 {
     public async Task Consume(ConsumeContext<ExerciseLoggedEvent> context)

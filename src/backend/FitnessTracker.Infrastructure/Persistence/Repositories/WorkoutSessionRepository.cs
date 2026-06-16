@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Infrastructure.Persistence.Repositories;
 
-public class WorkoutSessionRepository(WriteDbContext db) : IWorkoutSessionRepository
+public class WorkoutSessionRepository(AppDbContext db) : IWorkoutSessionRepository
 {
-    private readonly WriteDbContext _db = db;
+    private readonly AppDbContext _db = db;
 
     public async Task<WorkoutSession?> GetByUserAndDateAsync(Guid userId, DateOnly date, CancellationToken ct = default)
     {

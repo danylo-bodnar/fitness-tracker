@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Infrastructure.Persistence.DbContexts;
 
-public class ReadDbContext(DbContextOptions<ReadDbContext> options) : DbContext(options)
+public class ProjectionsDbContext(DbContextOptions<ProjectionsDbContext> options) : DbContext(options)
 {
     public DbSet<PersonalRecordReadModel> UserPRs => Set<PersonalRecordReadModel>();
     public DbSet<ExerciseProgressReadModel> ExerciseProgress => Set<ExerciseProgressReadModel>();

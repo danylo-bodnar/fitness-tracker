@@ -6,7 +6,7 @@ using MassTransit;
 
 namespace FitnessTracker.Infrastructure.Messaging.Consumers;
 
-public class PersonalRecordConsumer(ReadDbContext db)
+public class PersonalRecordConsumer(ProjectionsDbContext db)
     : IConsumer<ExerciseLoggedEvent>
 {
     public async Task Consume(ConsumeContext<ExerciseLoggedEvent> context)

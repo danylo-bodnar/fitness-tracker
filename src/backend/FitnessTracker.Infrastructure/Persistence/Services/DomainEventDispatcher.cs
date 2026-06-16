@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FitnessTracker.Infrastructure.Persistence.Services;
 
 public class DomainEventDispatcher(
-    WriteDbContext db,
+    AppDbContext db,
     IPublishEndpoint publisher) : IDomainEventDispatcher
 {
     public async Task DispatchAsync(CancellationToken cancellationToken)

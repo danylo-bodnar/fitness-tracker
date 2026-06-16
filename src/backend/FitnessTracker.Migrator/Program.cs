@@ -6,21 +6,21 @@ var host = Host.CreateDefaultBuilder(args)
     {
         var cs = context.Configuration.GetConnectionString("fitness-tracker");
 
-        services.AddDbContext<WriteDbContext>(o =>
+        services.AddDbContext<AppDbContext>(o =>
             o.UseNpgsql(cs));
 
-        services.AddDbContext<ReadDbContext>(o =>
+        services.AddDbContext<ProjectionsDbContext>(o =>
             o.UseNpgsql(cs));
     })
     .Build();
 
 using (var scope = host.Services.CreateScope())
 {
-    var writeDb = scope.ServiceProvider.GetRequiredService<WriteDbContext>();
-    var readDb = scope.ServiceProvider.GetRequiredService<ReadDbContext>();
+    var appDb = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var projectionsDb = scope.ServiceProvider.GetRequiredService<ProjectionsDbContext>();
 
-    await writeDb.Database.MigrateAsync();
-    await readDb.Database.MigrateAsync();
+    await appDb.Database.MigrateAsync();
+    await projectionsDb.Database.MigrateAsync();
 
     Console.WriteLine("✅ Databases migrated successfully");
 }

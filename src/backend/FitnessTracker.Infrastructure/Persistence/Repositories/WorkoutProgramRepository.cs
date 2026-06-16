@@ -7,9 +7,9 @@ namespace FitnessTracker.Infrastructure.Persistence.Repositories;
 
 public class WorkoutProgramRepository : IWorkoutProgramRepository
 {
-    private readonly WriteDbContext _db;
+    private readonly AppDbContext _db;
 
-    public WorkoutProgramRepository(WriteDbContext db)
+    public WorkoutProgramRepository(AppDbContext db)
     {
         _db = db;
     }
