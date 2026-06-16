@@ -1,6 +1,6 @@
 using FitnessTracker.Domain.Aggregates;
 
-namespace FitnessTracker.Domain.Interfaces;
+namespace FitnessTracker.Application.Common.Interfaces;
 
 public interface IUserRepository
 {

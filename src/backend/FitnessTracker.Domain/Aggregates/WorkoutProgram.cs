@@ -21,6 +21,15 @@ public class WorkoutProgram : AggregateRoot
         Name = name;
     }
 
+    public WorkoutProgram(Guid userId, string name, List<ProgramDay> programDays)
+    {
+        Id = Guid.NewGuid();
+        UserId = userId;
+        Name = name;
+
+        _days.AddRange(programDays);
+    }
+
     public ProgramDay AddDay(string name, List<ProgramExercise> exercises)
     {
         var existingDay = _days.FirstOrDefault(d => d.Name.Equals(name, StringComparison.OrdinalIgnoreCase));

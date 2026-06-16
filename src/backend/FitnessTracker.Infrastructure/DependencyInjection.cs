@@ -1,5 +1,4 @@
 using FitnessTracker.Application.Common.Interfaces;
-using FitnessTracker.Domain.Interfaces;
 using FitnessTracker.Infrastructure.Messaging.Consumers;
 using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using FitnessTracker.Infrastructure.Persistence.Repositories;
@@ -26,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
+        services.AddScoped<IWorkoutProgramRepository, WorkoutProgramRepository>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

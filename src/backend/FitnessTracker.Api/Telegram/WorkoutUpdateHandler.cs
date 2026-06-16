@@ -1,6 +1,5 @@
 using FitnessTracker.Api.Parsers;
 using FitnessTracker.Application.Common.Interfaces;
-using FitnessTracker.Domain.Interfaces;
 using MediatR;
 using Telegram.Bot;
 using Telegram.Bot.Polling;

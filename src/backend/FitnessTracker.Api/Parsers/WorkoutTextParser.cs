@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using FitnessTracker.Application.Workouts.Commands;
+using FitnessTracker.Application.WorkoutSessions.Commands;
 using FitnessTracker.Domain.ValueObjects;
 
 namespace FitnessTracker.Api.Parsers;

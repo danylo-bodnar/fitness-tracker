@@ -1,4 +1,4 @@
-namespace FitnessTracker.Domain.Interfaces;
+namespace FitnessTracker.Domain.Abstractions;
 
 public interface IAggregateRoot
 {

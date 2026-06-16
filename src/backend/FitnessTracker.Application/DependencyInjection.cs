@@ -1,4 +1,4 @@
-using FitnessTracker.Application.Workouts.Handlers;
+using FitnessTracker.Application.WorkoutSessions.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FitnessTracker.Application;

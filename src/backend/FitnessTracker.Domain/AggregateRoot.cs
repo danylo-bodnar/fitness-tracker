@@ -1,4 +1,4 @@
-using FitnessTracker.Domain.Interfaces;
+using FitnessTracker.Domain.Abstractions;
 
 namespace FitnessTracker.Domain;
 

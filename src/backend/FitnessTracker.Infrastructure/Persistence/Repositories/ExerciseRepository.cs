@@ -16,18 +16,6 @@ public class ExerciseRepository(WriteDbContext db) : IExerciseRepository
         => await db.Exercises
             .FirstOrDefaultAsync(e => e.Id == id, ct);
 
-    public async Task<IReadOnlyList<Exercise>> SearchAsync(string query, CancellationToken ct = default)
-        => await db.Exercises
-            .Where(e => EF.Functions.ILike(e.Name.Value, $"%{query}%"))
-            .OrderBy(e => e.Name.Value)
-            .Take(10)
-            .ToListAsync(ct);
-
-    public async Task<IReadOnlyList<Exercise>> GetAllAsync(CancellationToken ct = default)
-        => await db.Exercises
-            .OrderBy(e => e.Name.Value)
-            .ToListAsync(ct);
-
     public async Task AddAsync(Exercise exercise, CancellationToken ct = default)
         => await db.Exercises.AddAsync(exercise, ct);
 }

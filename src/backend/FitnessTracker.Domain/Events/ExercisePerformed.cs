@@ -1,4 +1,4 @@
-using FitnessTracker.Domain.Interfaces;
+using FitnessTracker.Domain.Abstractions;
 using FitnessTracker.Domain.ValueObjects;
 
 namespace FitnessTracker.Domain.Events;

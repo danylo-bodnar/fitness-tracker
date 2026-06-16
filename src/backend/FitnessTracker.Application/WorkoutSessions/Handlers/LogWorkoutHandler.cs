@@ -1,12 +1,11 @@
 using FitnessTracker.Application.Common.Interfaces;
-using FitnessTracker.Application.Workouts.Commands;
+using FitnessTracker.Application.WorkoutSessions.Commands;
 using FitnessTracker.Domain.Aggregates;
 using FitnessTracker.Domain.Exceptions;
-using FitnessTracker.Domain.Interfaces;
 using FitnessTracker.Domain.ValueObjects;
 using MediatR;
 
-namespace FitnessTracker.Application.Workouts.Handlers;
+namespace FitnessTracker.Application.WorkoutSessions.Handlers;
 
 public class LogWorkoutHandler(
     IWorkoutSessionRepository workoutSessionRepository,

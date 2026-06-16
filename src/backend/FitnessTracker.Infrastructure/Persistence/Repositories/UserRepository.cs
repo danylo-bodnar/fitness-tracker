@@ -1,5 +1,5 @@
 using FitnessTracker.Domain.Aggregates;
-using FitnessTracker.Domain.Interfaces;
+using FitnessTracker.Application.Common.Interfaces;
 using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using Microsoft.EntityFrameworkCore;
 

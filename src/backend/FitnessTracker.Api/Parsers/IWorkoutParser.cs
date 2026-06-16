@@ -1,4 +1,4 @@
-using FitnessTracker.Application.Workouts.Commands;
+using FitnessTracker.Application.WorkoutSessions.Commands;
 
 namespace FitnessTracker.Api.Parsers;
 

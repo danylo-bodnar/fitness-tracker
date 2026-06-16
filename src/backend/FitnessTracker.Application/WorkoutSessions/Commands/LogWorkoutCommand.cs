@@ -1,7 +1,7 @@
 using FitnessTracker.Domain.ValueObjects;
 using MediatR;
 
-namespace FitnessTracker.Application.Workouts.Commands;
+namespace FitnessTracker.Application.WorkoutSessions.Commands;
 
 public record LogWorkoutCommand(
     Guid UserId,
