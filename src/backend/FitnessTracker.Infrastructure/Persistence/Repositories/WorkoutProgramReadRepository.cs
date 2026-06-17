@@ -21,7 +21,7 @@ public class WorkoutProgramReadRepository(AppDbContext db)
                     d.Id,
                     d.Name,
                     d.Exercises.Select(e => new ProgramExerciseDto(
-                        e.Id,
+                        e.ExerciseId,
                         e.ExerciseName.Value,
                         e.TargetSets.Value,
                         e.TargetReps.Value,
