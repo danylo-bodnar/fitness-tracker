@@ -30,22 +30,30 @@ const navItems = [
 ];
 
 function AppSidebar() {
-  const { setOpen, isMobile } = useSidebar();
+  const { setOpen, isMobile, setOpenMobile } = useSidebar();
+
+  const handleMouseEnter = () => {
+    if (!isMobile) setOpen(true);
+  };
+  const handleMouseLeave = () => {
+    if (!isMobile) setOpen(false);
+  };
 
   return (
     <Sidebar
       collapsible="icon"
-      onMouseEnter={() => !isMobile && setOpen(true)}
-      onMouseLeave={() => !isMobile && setOpen(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 group-data-[collapsible=icon]:px-0">
+        <div className="flex items-center gap-2 px-2 py-1 group-data-[collapsible=icon]:px-0">
           <Dumbbell className="size-6 shrink-0 text-primary" />
-          <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">
+          <span className="text-lg font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
             FitTrack
           </span>
         </div>
       </SidebarHeader>
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
@@ -53,9 +61,21 @@ function AppSidebar() {
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.to}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.to} end={item.to === "/"}>
-                      <item.icon />
+                  <SidebarMenuButton asChild tooltip={item.label}>
+                    <NavLink
+                      to={item.to}
+                      end={item.to === "/"}
+                      onClick={() => {
+                        // close the drawer after navigating on mobile
+                        if (isMobile) setOpenMobile(false);
+                      }}
+                      className={({ isActive }) =>
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                          : ""
+                      }
+                    >
+                      <item.icon className="size-4 shrink-0" />
                       <span>{item.label}</span>
                     </NavLink>
                   </SidebarMenuButton>
