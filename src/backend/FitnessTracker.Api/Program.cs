@@ -10,6 +10,22 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
+var allowedOrigins = new[]
+{
+    "http://localhost:5173",
+    "https://fitness-tracker-pink-nu.vercel.app",
+};
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -21,6 +37,8 @@ builder.Services.AddSingleton<IUpdateHandler, WorkoutUpdateHandler>();
 builder.Services.AddHostedService<BotService>();
 
 var app = builder.Build();
+
+app.UseCors();
 
 app.MapDefaultEndpoints();
 
