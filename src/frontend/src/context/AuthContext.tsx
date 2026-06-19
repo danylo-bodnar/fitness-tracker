@@ -51,6 +51,18 @@ function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  useEffect(() => {
+    const handler = () => {
+      logout();
+    };
+
+    window.addEventListener("auth:logout", handler);
+
+    return () => {
+      window.removeEventListener("auth:logout", handler);
+    };
+  }, [logout]);
+
   return (
     <AuthContext.Provider
       value={{
