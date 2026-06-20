@@ -1,12 +1,15 @@
 using FitnessTracker.Application.Common.Interfaces;
+using FitnessTracker.Infrastructure.Auth;
 using FitnessTracker.Infrastructure.Messaging.Consumers;
 using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using FitnessTracker.Infrastructure.Persistence.Repositories;
 using FitnessTracker.Infrastructure.Persistence.Services;
+using FitnessTracker.Infrastructure.Services;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 
 namespace FitnessTracker.Infrastructure;
 
@@ -27,10 +30,26 @@ public static class DependencyInjection
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IWorkoutProgramRepository, WorkoutProgramRepository>();
         services.AddScoped<IWorkoutProgramReadRepository, WorkoutProgramReadRepository>();
+        services.AddScoped<ILoginSessionRepository, RedisLoginSessionRepository>();
+        services.AddScoped<ILoginEventPublisher, RedisLoginEventPublisher>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+        services.AddScoped<IJwtService, JwtService>();
+
+        var redisConnection =
+            configuration.GetConnectionString("redis")
+            ?? configuration["REDIS_CONNECTION"]
+            ?? throw new InvalidOperationException("Redis connection string not found");
+
+        services.AddSingleton(_ =>
+        {
+            var options = ConfigurationOptions.Parse(redisConnection);
+            options.AbortOnConnectFail = false;
+            return ConnectionMultiplexer.Connect(options);
+        });
 
         services.AddMassTransit(x =>
         {

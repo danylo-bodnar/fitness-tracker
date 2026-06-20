@@ -4,6 +4,7 @@ using MediatR;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 using DomainUser = FitnessTracker.Domain.Aggregates.User;
 
 namespace FitnessTracker.Api.Telegram;
@@ -29,8 +30,11 @@ public class WorkoutUpdateHandler(
         {
             var text = update.Message.Text;
 
-            if (text == "/start")
+            if (text.StartsWith("/start"))
             {
+                var parts = text.Split(' ', 2, StringSplitOptions.TrimEntries);
+                var nonce = parts.Length > 1 ? parts[1] : null;
+
                 var existingUser = await userRepo.GetByTelegramChatIdAsync(update.Message.Chat.Id, ct);
                 if (existingUser is null)
                 {
@@ -43,13 +47,28 @@ public class WorkoutUpdateHandler(
                     await unitOfWork.CommitAsync(ct);
                 }
 
-                await bot.SendMessage(
-                    update.Message.Chat.Id,
-                    "Welcome to FitnessTracker! 💪\n\n"
-                    + "Log workouts like this:\n"
-                    + "bench press 80kg; 6,6,6\n\n"
-                    + "View your dashboard at https://yourapp.com",
-                    cancellationToken: ct);
+                if (nonce is not null)
+                {
+                    var keyboard = new InlineKeyboardMarkup(
+                        InlineKeyboardButton.WithCallbackData("Approve login", $"login:{nonce}"));
+
+                    await bot.SendMessage(
+                        update.Message.Chat.Id,
+                        "Press the button to log in to the web app.",
+                        replyMarkup: keyboard,
+                        cancellationToken: ct);
+                }
+                else
+                {
+                    await bot.SendMessage(
+                        update.Message.Chat.Id,
+                        "Welcome to FitnessTracker! 💪\n\n"
+                        + "Log workouts like this:\n"
+                        + "bench press 80kg; 6,6,6\n\n"
+                        + "View your dashboard at https://yourapp.com",
+                        cancellationToken: ct);
+                }
+
                 return;
             }
 

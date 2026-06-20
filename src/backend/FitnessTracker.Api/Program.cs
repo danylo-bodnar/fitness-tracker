@@ -1,12 +1,16 @@
+using FitnessTracker.Api.Middleware;
 using FitnessTracker.Api.Parsers;
 using FitnessTracker.Api.Telegram;
 using FitnessTracker.Application;
+using FitnessTracker.Application.Common.Options;
 using FitnessTracker.Infrastructure;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
 
 builder.AddServiceDefaults();
 
@@ -28,17 +32,27 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.Configure<TelegramOptions>(
+    builder.Configuration.GetSection(TelegramOptions.SectionName));
+builder.Services.Configure<JwtOptions>(
+    builder.Configuration.GetSection(JwtOptions.SectionName));
 
 builder.Services.AddSingleton<ITelegramBotClient>(_ =>
     new TelegramBotClient(builder.Configuration["BOT_TOKEN"]!));
 
 builder.Services.AddSingleton<IWorkoutParser, WorkoutTextParser>();
-builder.Services.AddSingleton<IUpdateHandler, WorkoutUpdateHandler>();
+builder.Services.AddSingleton<WorkoutUpdateHandler>();
+builder.Services.AddSingleton<TelegramLoginCallbackHandler>();
+builder.Services.AddSingleton<IUpdateHandler, CompositeUpdateHandler>();
 builder.Services.AddHostedService<BotService>();
 
 var app = builder.Build();
 
 app.UseCors();
+
+app.UseMiddleware<ExceptionMiddleware>();
+
+app.MapControllers();
 
 app.MapDefaultEndpoints();
 
