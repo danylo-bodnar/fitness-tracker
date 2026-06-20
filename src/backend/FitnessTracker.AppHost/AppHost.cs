@@ -6,16 +6,20 @@ var postgres = builder.AddPostgres("postgres")
 var rabbitmq = builder.AddRabbitMQ("rabbitmq")
     .WithManagementPlugin();
 
+var redis = builder.AddRedis("redis");
 
 var migrator = builder.AddProject<Projects.FitnessTracker_Migrator>("migrator")
     .WithReference(postgres)
     .WaitFor(postgres);
 
 var api = builder.AddProject<Projects.FitnessTracker_Api>("api")
+    .WithEndpoint("https", e => e.Port = 7269)
     .WithReference(postgres)
     .WithReference(rabbitmq)
+    .WithReference(redis)
     .WaitFor(postgres)
     .WaitFor(rabbitmq)
-    .WithEnvironment("BOT_TOKEN", builder.Configuration["BOT_TOKEN"]).WaitFor(migrator);
+    .WaitFor(redis)
+    .WaitFor(migrator);
 
 builder.Build().Run();
