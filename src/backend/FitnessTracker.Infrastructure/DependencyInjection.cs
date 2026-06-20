@@ -40,8 +40,8 @@ public static class DependencyInjection
         services.AddScoped<IJwtService, JwtService>();
 
         var redisConnection =
-            configuration.GetConnectionString("redis")
-            ?? configuration["REDIS_CONNECTION"]
+            configuration["REDIS_CONNECTION"]
+            ?? configuration.GetConnectionString("redis")
             ?? throw new InvalidOperationException("Redis connection string not found");
 
         services.AddSingleton(_ =>
