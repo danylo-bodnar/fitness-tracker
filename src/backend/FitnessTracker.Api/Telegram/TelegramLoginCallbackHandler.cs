@@ -11,9 +11,6 @@ public class TelegramLoginCallbackHandler(
     ILogger<TelegramLoginCallbackHandler> logger)
     : IUpdateHandler
 {
-    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-    private readonly ILogger<TelegramLoginCallbackHandler> _logger = logger;
-
     public async Task HandleUpdateAsync(
         ITelegramBotClient bot,
         Update update,
@@ -24,31 +21,39 @@ public class TelegramLoginCallbackHandler(
 
         var data = update.CallbackQuery.Data;
 
-        if (string.IsNullOrEmpty(data))
-            return;
-
-        if (!data.StartsWith("login:"))
+        if (string.IsNullOrEmpty(data) || !data.StartsWith("login:"))
             return;
 
         var nonce = data.Split(':')[1];
         var telegramId = update.CallbackQuery.From.Id;
 
-        using var scope = _scopeFactory.CreateScope();
+        using var scope = scopeFactory.CreateScope();
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-        await mediator.Send(
-            new ApproveTelegramLoginCommand(nonce, telegramId),
-            ct);
+        try
+        {
+            await mediator.Send(new ApproveTelegramLoginCommand(nonce, telegramId), ct);
 
-        await bot.AnswerCallbackQuery(
-            update.CallbackQuery.Id,
-            "Login approved ✅",
-            cancellationToken: ct);
+            await bot.AnswerCallbackQuery(
+                update.CallbackQuery.Id,
+                "Login approved ✅",
+                cancellationToken: ct);
 
-        await bot.SendMessage(
-            telegramId,
-            "You are now logged in. You can return to the web app.",
-            cancellationToken: ct);
+            await bot.SendMessage(
+                telegramId,
+                "You are now logged in. You can return to the web app.",
+                cancellationToken: ct);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Login approval failed for nonce {Nonce}", nonce);
+
+            await bot.AnswerCallbackQuery(
+                update.CallbackQuery.Id,
+                "❌ Login failed or expired. Please request a new code.",
+                showAlert: true,
+                cancellationToken: ct);
+        }
     }
 
     public Task HandleErrorAsync(
@@ -57,7 +62,7 @@ public class TelegramLoginCallbackHandler(
         HandleErrorSource source,
         CancellationToken ct)
     {
-        _logger.LogError(exception, "Callback handler error");
+        logger.LogError(exception, "Callback handler error");
         return Task.CompletedTask;
     }
 }

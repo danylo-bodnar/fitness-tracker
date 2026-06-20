@@ -1,9 +1,12 @@
 using FitnessTracker.Api.Parsers;
 using FitnessTracker.Application.Common.Interfaces;
+using FitnessTracker.Application.Common.Options;
 using MediatR;
+using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using DomainUser = FitnessTracker.Domain.Aggregates.User;
 
@@ -11,16 +14,16 @@ namespace FitnessTracker.Api.Telegram;
 
 public class WorkoutUpdateHandler(
     IServiceScopeFactory scopeFactory,
-    ILogger<WorkoutUpdateHandler> logger) : IUpdateHandler
+    ILogger<WorkoutUpdateHandler> logger,
+    IOptions<AppOptions> appOptions) : IUpdateHandler
 {
-    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-    private readonly ILogger<WorkoutUpdateHandler> _logger = logger;
+    private readonly string _webAppUrl = appOptions.Value.WebAppUrl;
 
     public async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken ct)
     {
         if (update.Message?.Text is null) return;
 
-        using var scope = _scopeFactory.CreateScope();
+        using var scope = scopeFactory.CreateScope();
         var parser = scope.ServiceProvider.GetRequiredService<IWorkoutParser>();
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepository>();
@@ -65,7 +68,8 @@ public class WorkoutUpdateHandler(
                         "Welcome to FitnessTracker! 💪\n\n"
                         + "Log workouts like this:\n"
                         + "bench press 80kg; 6,6,6\n\n"
-                        + "View your dashboard at https://yourapp.com",
+                        + $"View your dashboard at <a href=\"{_webAppUrl}\">{_webAppUrl}</a>",
+                        parseMode: ParseMode.Html,
                         cancellationToken: ct);
                 }
 
@@ -92,7 +96,7 @@ public class WorkoutUpdateHandler(
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to handle message: {Text}", update.Message.Text);
+            logger.LogWarning(ex, "Failed to handle message: {Text}", update.Message.Text);
             await bot.SendMessage(
                 update.Message.Chat.Id,
                 $"❌ {ex.Message}",
@@ -102,7 +106,7 @@ public class WorkoutUpdateHandler(
 
     public Task HandleErrorAsync(ITelegramBotClient bot, Exception exception, HandleErrorSource source, CancellationToken ct)
     {
-        _logger.LogError(exception, "Polling error from {Source}", source);
+        logger.LogError(exception, "Polling error from {Source}", source);
         return Task.CompletedTask;
     }
 }
