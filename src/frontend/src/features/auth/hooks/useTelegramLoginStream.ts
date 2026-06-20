@@ -17,10 +17,9 @@ export function useTelegramLoginStream(
     if (!nonce) return;
 
     const baseUrl = import.meta.env.DEV ? "" : import.meta.env.VITE_API_URL;
-    const eventSource = new EventSource(
-      `${baseUrl}/auth/stream/${nonce}`,
-      { withCredentials: false },
-    );
+    const eventSource = new EventSource(`${baseUrl}/auth/stream/${nonce}`, {
+      withCredentials: false,
+    });
 
     eventSource.addEventListener("pending", () => {
       console.log("waiting for approval...");
