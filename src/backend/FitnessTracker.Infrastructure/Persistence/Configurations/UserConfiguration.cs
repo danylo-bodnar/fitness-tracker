@@ -22,10 +22,5 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.TelegramUsername)
             .HasMaxLength(100)
             .HasColumnName("telegram_username");
-
-        builder.Property(x => x.Timezone)
-            .IsRequired()
-            .HasMaxLength(50)
-            .HasColumnName("timezone");
     }
 }

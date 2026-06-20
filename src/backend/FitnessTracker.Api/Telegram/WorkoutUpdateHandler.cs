@@ -40,8 +40,8 @@ public class WorkoutUpdateHandler(
                 {
                     var newUser = new DomainUser(
                         update.Message.Chat.Id,
-                        update.Message.From?.Username,
-                        "UTC");
+                        update.Message.From?.Username
+                        );
 
                     userRepo.Add(newUser);
                     await unitOfWork.CommitAsync(ct);
