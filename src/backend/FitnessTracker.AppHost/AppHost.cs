@@ -1,6 +1,6 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var postgres = builder.AddPostgres("postgres")
+var postgres = builder.AddPostgres("postgres", port: 51547)
     .AddDatabase("fitness-tracker");
 
 var rabbitmq = builder.AddRabbitMQ("rabbitmq")
