@@ -36,6 +36,8 @@ builder.Services.Configure<TelegramOptions>(
     builder.Configuration.GetSection(TelegramOptions.SectionName));
 builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetSection(JwtOptions.SectionName));
+builder.Services.Configure<AppOptions>(
+    builder.Configuration.GetSection(AppOptions.SectionName));
 
 builder.Services.AddSingleton<ITelegramBotClient>(_ =>
     new TelegramBotClient(builder.Configuration["BOT_TOKEN"]!));
