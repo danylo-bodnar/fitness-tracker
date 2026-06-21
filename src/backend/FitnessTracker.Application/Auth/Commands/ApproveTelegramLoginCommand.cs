@@ -4,5 +4,5 @@ namespace FitnessTracker.Application.Auth.Commands;
 
 public record ApproveTelegramLoginCommand(
     string Nonce,
-    long TelegramId
+    long TelegramChatId
 ) : IRequest;

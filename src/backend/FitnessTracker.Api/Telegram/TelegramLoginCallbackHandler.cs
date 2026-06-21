@@ -25,14 +25,14 @@ public class TelegramLoginCallbackHandler(
             return;
 
         var nonce = data.Split(':')[1];
-        var telegramId = update.CallbackQuery.From.Id;
+        var telegramChatId = update.CallbackQuery.From.Id;
 
         using var scope = scopeFactory.CreateScope();
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
         try
         {
-            await mediator.Send(new ApproveTelegramLoginCommand(nonce, telegramId), ct);
+            await mediator.Send(new ApproveTelegramLoginCommand(nonce, telegramChatId), ct);
 
             await bot.AnswerCallbackQuery(
                 update.CallbackQuery.Id,
@@ -40,7 +40,7 @@ public class TelegramLoginCallbackHandler(
                 cancellationToken: ct);
 
             await bot.SendMessage(
-                telegramId,
+                telegramChatId,
                 "You are now logged in. You can return to the web app.",
                 cancellationToken: ct);
         }
