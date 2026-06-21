@@ -1,12 +1,9 @@
 import { useEffect } from "react";
+import type { User } from "../types";
 
 interface SseSuccessPayload {
   jwt: string;
-  user: {
-    id: string;
-    telegramChatId: number;
-    telegramUsername: string;
-  };
+  user: User;
 }
 
 export function useTelegramLoginStream(

@@ -27,7 +27,7 @@ public sealed class ApproveTelegramLoginHandler(
 
         await loginSessionRepository.UpdateAsync(session, cancellationToken);
 
-        var userDto = new UserDto(user.TelegramChatId, user.TelegramUsername ?? "User");
+        var userDto = new UserDto(user.Id, user.TelegramChatId, user.TelegramUsername ?? "User");
 
         await publisher.PublishApprovedAsync(session.Nonce, jwt, userDto, cancellationToken);
     }
