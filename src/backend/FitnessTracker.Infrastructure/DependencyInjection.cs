@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<IWorkoutProgramReadRepository, WorkoutProgramReadRepository>();
         services.AddScoped<ILoginSessionRepository, RedisLoginSessionRepository>();
         services.AddScoped<ILoginEventPublisher, RedisLoginEventPublisher>();
+        services.AddScoped<ILoginEventSubscriber, RedisLoginEventSubscriber>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -44,12 +45,13 @@ public static class DependencyInjection
             ?? configuration.GetConnectionString("redis")
             ?? throw new InvalidOperationException("Redis connection string not found");
 
-        services.AddSingleton(_ =>
+        services.AddSingleton<ConnectionMultiplexer>(_ =>
         {
             var options = ConfigurationOptions.Parse(redisConnection);
             options.AbortOnConnectFail = false;
             return ConnectionMultiplexer.Connect(options);
         });
+        services.AddSingleton<IConnectionMultiplexer>(s => s.GetRequiredService<ConnectionMultiplexer>());
 
         services.AddMassTransit(x =>
         {
