@@ -1,6 +1,7 @@
 namespace FitnessTracker.Contracts.Dtos;
 
 public record UserDto(
+    Guid Id,
     long TelegramChatId,
-    string DisplayName
+    string TelegramUsername
 );

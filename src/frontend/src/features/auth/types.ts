@@ -1,7 +1,7 @@
 export interface User {
-  telegramId: number;
-  chatId: number;
-  telegramUsername?: string;
+  id: string;
+  telegramChatId: number;
+  telegramUsername: string | null;
 }
 
 export interface AuthState {

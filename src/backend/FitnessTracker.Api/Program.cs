@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FitnessTracker.Api.Middleware;
 using FitnessTracker.Api.Parsers;
 using FitnessTracker.Api.Telegram;
@@ -10,7 +11,8 @@ using Telegram.Bot.Types;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
 builder.AddServiceDefaults();
 

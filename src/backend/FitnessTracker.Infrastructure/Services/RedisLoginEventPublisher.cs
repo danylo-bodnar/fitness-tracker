@@ -7,6 +7,11 @@ namespace FitnessTracker.Infrastructure.Services;
 
 public sealed class RedisLoginEventPublisher : ILoginEventPublisher
 {
+    private static readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly ISubscriber _subscriber;
 
     public RedisLoginEventPublisher(ConnectionMultiplexer multiplexer)
@@ -16,7 +21,7 @@ public sealed class RedisLoginEventPublisher : ILoginEventPublisher
 
     public async Task PublishApprovedAsync(string nonce, string jwt, UserDto user, CancellationToken ct)
     {
-        var payload = JsonSerializer.Serialize(new { nonce, jwt, user });
+        var payload = JsonSerializer.Serialize(new { nonce, jwt, user }, _jsonOptions);
         var channel = new RedisChannel($"login-approved:{nonce}", RedisChannel.PatternMode.Literal);
         await _subscriber.PublishAsync(channel, payload);
     }

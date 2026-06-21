@@ -10,11 +10,7 @@ function LoginPage() {
   const [nonce, setNonce] = useState<string | null>(null);
 
   useTelegramLoginStream(nonce, (jwt, user) => {
-    login(jwt, {
-      telegramId: Number(user.id),
-      chatId: user.telegramChatId,
-      telegramUsername: user.telegramUsername,
-    });
+    login(jwt, user);
     localStorage.removeItem("loginNonce");
     navigate("/", { replace: true });
   });
