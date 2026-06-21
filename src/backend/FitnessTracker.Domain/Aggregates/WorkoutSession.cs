@@ -26,11 +26,8 @@ public class WorkoutSession : AggregateRoot
     public static WorkoutSession Create(Guid userId, DateOnly date)
         => new(Guid.NewGuid(), userId, date);
 
-    public ExerciseLog AddExercise(Guid exerciseId, ExerciseName name, DateOnly today)
+    public ExerciseLog AddExercise(Guid exerciseId, ExerciseName name)
     {
-        if (Date != today)
-            throw new PastSessionModificationException();
-
         if (_exercises.Any(e => e.ExerciseName == name))
             throw new DuplicateExerciseException(name.Value);
 

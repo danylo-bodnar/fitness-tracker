@@ -56,7 +56,6 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         // Workouts
         ExerciseNotFoundException => HttpStatusCode.NotFound,
         DuplicateExerciseException => HttpStatusCode.Conflict,
-        PastSessionModificationException => HttpStatusCode.BadRequest,
 
         // Programs
         ProgramDayNotFoundException => HttpStatusCode.NotFound,

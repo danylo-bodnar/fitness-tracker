@@ -27,7 +27,7 @@ public class LogWorkoutHandler(
             workoutSessionRepository.Add(session);
         }
 
-        var exerciseLog = session.AddExercise(exercise.Id, exercise.Name, cmd.Date);
+        var exerciseLog = session.AddExercise(exercise.Id, exercise.Name);
 
         foreach (var reps in cmd.Reps)
         {

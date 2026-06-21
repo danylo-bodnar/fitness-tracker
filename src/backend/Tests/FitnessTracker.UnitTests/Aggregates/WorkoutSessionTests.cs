@@ -36,7 +36,7 @@ public class WorkoutSessionTests
     {
         var session = WorkoutSession.Create(UserId, Today);
 
-        var exercise = session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), Today);
+        var exercise = session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"));
 
         Assert.Single(session.Exercises);
         Assert.Equal(exercise, session.Exercises[0]);
@@ -46,7 +46,7 @@ public class WorkoutSessionTests
     public void CompleteExercise_FiresExercisePerformedEvent()
     {
         var session = WorkoutSession.Create(UserId, Today);
-        var exerciseLog = session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), Today);
+        var exerciseLog = session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"));
         exerciseLog.LogSet(new Weight(100), new Repetitions(5));
         exerciseLog.LogSet(new Weight(100), new Repetitions(5));
 
@@ -66,27 +66,17 @@ public class WorkoutSessionTests
     {
         var session = WorkoutSession.Create(UserId, Today);
 
-        session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), Today);
+        session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"));
 
         Assert.Throws<DuplicateExerciseException>(() =>
-            session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), Today));
-    }
-
-    [Fact]
-    public void AddExercise_WithPastDate_ThrowsPastSessionModificationException()
-    {
-        var session = WorkoutSession.Create(UserId, Today);
-        var yesterday = Today.AddDays(-1);
-
-        Assert.Throws<PastSessionModificationException>(() =>
-            session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), yesterday));
+            session.AddExercise(Guid.NewGuid(), new ExerciseName("squat")));
     }
 
     [Fact]
     public void PopEvents_ReturnsEventsAndClears()
     {
         var session = WorkoutSession.Create(UserId, Today);
-        var exerciseLog = session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"), Today);
+        var exerciseLog = session.AddExercise(Guid.NewGuid(), new ExerciseName("squat"));
         exerciseLog.LogSet(new Weight(100), new Repetitions(5));
         session.CompleteExercise(exerciseLog);
 
