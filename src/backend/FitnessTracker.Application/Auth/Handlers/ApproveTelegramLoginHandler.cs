@@ -18,12 +18,12 @@ public sealed class ApproveTelegramLoginHandler(
         var session = await loginSessionRepository.GetByNonceAsync(request.Nonce, cancellationToken)
             ?? throw new LoginSessionNotFoundException(request.Nonce);
 
-        var user = await userRepository.GetByTelegramChatIdAsync(request.TelegramId, cancellationToken)
-            ?? throw new UserNotFoundException(request.TelegramId);
+        var user = await userRepository.GetByTelegramChatIdAsync(request.TelegramChatId, cancellationToken)
+            ?? throw new UserNotFoundException(request.TelegramChatId);
 
         var jwt = jwtService.GenerateToken(user.Id);
 
-        session.Approve(request.TelegramId, jwt);
+        session.Approve(request.TelegramChatId, jwt);
 
         await loginSessionRepository.UpdateAsync(session, cancellationToken);
 

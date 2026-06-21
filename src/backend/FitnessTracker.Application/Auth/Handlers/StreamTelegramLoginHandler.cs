@@ -33,7 +33,7 @@ public sealed class StreamTelegramLoginHandler(
 
             if (session.Status == LoginSessionStatus.Approved)
             {
-                var user = await users.GetByTelegramChatIdAsync(session.TelegramId!.Value, ct);
+                var user = await users.GetByTelegramChatIdAsync(session.TelegramChatId!.Value, ct);
 
                 if (user is null)
                 {

@@ -9,5 +9,5 @@ public class LoginSessionExpiredException(string nonce)
 public class LoginSessionAlreadyUsedException(string nonce)
     : DomainException($"Login session '{nonce}' was already used.");
 
-public class UserNotFoundException(long telegramId)
-    : DomainException($"User with Telegram ID '{telegramId}' not found.");
+public class UserNotFoundException(long telegramChatId)
+    : DomainException($"User with Telegram Chat ID '{telegramChatId}' not found.");
