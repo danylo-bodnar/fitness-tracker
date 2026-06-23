@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTelegramLoginStream } from "@/features/auth/hooks/useTelegramLoginStream";
-import { useAuthContext } from "@/context/AuthContext";
 import TelegramLoginButton from "@/features/auth/components/TelegramLoginButton";
+import { toast } from "sonner";
+import { useAuthContext } from "@/context/useAuthContext";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ function LoginPage() {
 
   useTelegramLoginStream(nonce, (jwt, user) => {
     login(jwt, user);
-    localStorage.removeItem("loginNonce");
+    toast.success("Logged in successfully!");
     navigate("/", { replace: true });
   });
 

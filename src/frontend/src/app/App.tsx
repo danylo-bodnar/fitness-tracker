@@ -1,8 +1,8 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "@/context/AuthContext";
 import { queryClient } from "@/lib/queryClient";
 import AppRouter from "@/app/AppRouter";
 import ErrorBoundary from "@/components/feedback/ErrorBoundary";
+import { AuthProvider } from "@/context/AuthProvider";
 
 function App() {
   return (
