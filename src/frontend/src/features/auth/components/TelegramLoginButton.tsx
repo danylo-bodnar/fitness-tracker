@@ -17,7 +17,6 @@ function TelegramLoginButton({ onLoginStart }: TelegramLoginButtonProps) {
 
       const { telegramLink, nonce } = await startTelegramLogin();
 
-      localStorage.setItem("loginNonce", nonce);
       onLoginStart?.(nonce);
 
       window.open(telegramLink, "_blank", "noopener,noreferrer");

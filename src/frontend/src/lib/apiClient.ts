@@ -5,10 +5,10 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const jwt_token = localStorage.getItem("jwt-token");
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (jwt_token) {
+    config.headers.Authorization = `Bearer ${jwt_token}`;
   }
 
   return config;
@@ -18,7 +18,7 @@ apiClient.interceptors.response.use(
   (res) => res,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
+      localStorage.removeItem("jwt-token");
 
       window.dispatchEvent(new Event("auth:logout"));
     }

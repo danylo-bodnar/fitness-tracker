@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+// src/features/auth/hooks/useTelegramLoginStream.ts
+import { useEffect, useRef } from "react";
 import type { User } from "../types";
 
 interface SseSuccessPayload {
@@ -8,8 +9,14 @@ interface SseSuccessPayload {
 
 export function useTelegramLoginStream(
   nonce: string | null,
-  onSuccess: (jwt: string, user: SseSuccessPayload["user"]) => void,
+  onSuccess: (jwt: string, user: User) => void,
 ) {
+  const onSuccessRef = useRef(onSuccess);
+
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+  }, [onSuccess]);
+
   useEffect(() => {
     if (!nonce) return;
 
@@ -19,29 +26,29 @@ export function useTelegramLoginStream(
     });
 
     eventSource.addEventListener("pending", () => {
-      console.log("waiting for approval...");
+      console.log("Waiting for Telegram approval...");
     });
 
     eventSource.addEventListener("success", (event) => {
       const data: SseSuccessPayload = JSON.parse(event.data);
-
-      localStorage.setItem("jwt", data.jwt);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      onSuccess(data.jwt, data.user);
-
+      onSuccessRef.current(data.jwt, data.user);
       eventSource.close();
     });
 
     eventSource.addEventListener("expired", () => {
-      console.log("login expired");
+      console.warn("Login session expired");
       eventSource.close();
     });
 
-    eventSource.addEventListener("error", () => {
-      console.log("SSE error");
+    eventSource.addEventListener("login-error", (event) => {
+      console.error("Login error:", event.data);
       eventSource.close();
     });
+
+    eventSource.onerror = () => {
+      console.error("SSE connection lost");
+      eventSource.close();
+    };
 
     return () => {
       eventSource.close();
