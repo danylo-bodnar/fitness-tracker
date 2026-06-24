@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using FitnessTracker.Application.Common.Interfaces;
 using StackExchange.Redis;
 
-namespace FitnessTracker.Infrastructure.Services;
+namespace FitnessTracker.Infrastructure.Auth;
 
 public sealed class RedisAuthCodeStore : IAuthCodeStore
 {
