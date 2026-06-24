@@ -2,6 +2,7 @@ export interface User {
   id: string;
   telegramChatId: number;
   telegramUsername: string | null;
+  role: "user" | "admin";
 }
 
 export interface AuthState {

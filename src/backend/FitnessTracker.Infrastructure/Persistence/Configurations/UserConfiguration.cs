@@ -22,5 +22,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.TelegramUsername)
             .HasMaxLength(100)
             .HasColumnName("telegram_username");
+
+        builder.Property(x => x.Role)
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .IsRequired()
+            .HasColumnName("role");
     }
 }

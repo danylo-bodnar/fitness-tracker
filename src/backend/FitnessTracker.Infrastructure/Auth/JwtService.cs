@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using FitnessTracker.Application.Common.Interfaces;
 using FitnessTracker.Application.Common.Options;
+using FitnessTracker.Domain.Aggregates;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -12,7 +13,7 @@ public class JwtService(IOptions<JwtOptions> jwtOptions) : IJwtService
 {
     private readonly JwtOptions _options = jwtOptions.Value;
 
-    public string GenerateToken(Guid userId)
+    public string GenerateToken(Guid userId, UserRole role)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -20,6 +21,7 @@ public class JwtService(IOptions<JwtOptions> jwtOptions) : IJwtService
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Role, role.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat,
                 DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),

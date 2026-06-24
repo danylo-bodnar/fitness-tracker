@@ -45,7 +45,7 @@ public sealed class RefreshTokenHandler(
 
         await refreshRepo.CreateAsync(newRefreshSession, ct);
 
-        var newAccessToken = jwtService.GenerateToken(user.Id);
+        var newAccessToken = jwtService.GenerateToken(user.Id, user.Role);
 
         return new RefreshTokenResult(newAccessToken, newRefreshSession.Token);
     }
