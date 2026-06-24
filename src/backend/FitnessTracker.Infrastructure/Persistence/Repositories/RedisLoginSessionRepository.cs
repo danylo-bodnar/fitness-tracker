@@ -4,7 +4,7 @@ using FitnessTracker.Domain.Entities;
 using FitnessTracker.Domain.Exceptions;
 using StackExchange.Redis;
 
-namespace FitnessTracker.Infrastructure.Services;
+namespace FitnessTracker.Infrastructure.Persistence.Repositories;
 
 public sealed class RedisLoginSessionRepository : ILoginSessionRepository
 {
