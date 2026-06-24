@@ -10,8 +10,8 @@ function LoginPage() {
   const { login } = useAuthContext();
   const [nonce, setNonce] = useState<string | null>(null);
 
-  useTelegramLoginStream(nonce, (jwt, user) => {
-    login(jwt, user);
+  useTelegramLoginStream(nonce, (accessToken, user) => {
+    login(accessToken, user);
     toast.success("Logged in successfully!");
     navigate("/", { replace: true });
   });

@@ -9,6 +9,11 @@ public class UserRepository(AppDbContext db) : IUserRepository
 {
     private readonly AppDbContext _db = db;
 
+    public async Task<User?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        return await _db.Users.FindAsync([id], ct);
+    }
+
     public async Task<User?> GetByTelegramChatIdAsync(long telegramChatId, CancellationToken ct = default)
     {
         return await _db.Users

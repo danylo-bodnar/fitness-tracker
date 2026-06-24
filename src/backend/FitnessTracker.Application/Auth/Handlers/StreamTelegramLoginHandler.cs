@@ -1,6 +1,5 @@
-using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using FitnessTracker.Application.Auth.Commands;
+using FitnessTracker.Application.Auth.Queries;
 using FitnessTracker.Application.Common.Interfaces;
 using FitnessTracker.Contracts.Dtos;
 using FitnessTracker.Domain.Entities;
@@ -66,8 +65,9 @@ public sealed class StreamTelegramLoginHandler(
             }
 
             yield return new SseEvent("success", new TelegramLoginResultDto(
-                approval.Jwt,
-                new UserDto(user.Id, user.TelegramChatId, user.TelegramUsername ?? "User")
+                approval.AccessToken,
+                new UserDto(user.Id, user.TelegramChatId, user.TelegramUsername ?? "User"),
+                approval.RefreshToken
             ));
         }
         else
@@ -105,11 +105,12 @@ public sealed class StreamTelegramLoginHandler(
     {
         if (session.Status != LoginSessionStatus.Approved)
             return null;
-        if (session.TelegramChatId is null || session.Jwt is null)
+        if (session.TelegramChatId is null || session.AccessToken is null || session.RefreshToken is null)
             return null;
-        return new ApprovalInfo(session.TelegramChatId.Value, session.Jwt);
+
+        return new ApprovalInfo(session.TelegramChatId.Value, session.AccessToken, session.RefreshToken);
     }
 
-    private sealed record ApprovalInfo(long TelegramChatId, string Jwt);
+    private sealed record ApprovalInfo(long TelegramChatId, string AccessToken, string RefreshToken);
 }
 
