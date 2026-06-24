@@ -13,9 +13,11 @@ public sealed class LoginSession
     [JsonInclude]
     public LoginSessionStatus Status { get; private set; } = LoginSessionStatus.Pending;
     [JsonInclude]
-    public string? Jwt { get; private set; }
+    public string? AccessToken { get; private set; }
     [JsonInclude]
     public long? TelegramChatId { get; private set; }
+    [JsonInclude]
+    public string? RefreshToken { get; private set; }
     [JsonInclude]
     public DateTime ExpiresAt { get; private set; }
 
@@ -34,7 +36,7 @@ public sealed class LoginSession
 
     public bool IsExpired => DateTime.UtcNow > ExpiresAt;
 
-    public void Approve(long telegramChatId, string jwt)
+    public void Approve(long telegramChatId, string accessToken, string refreshToekn)
     {
         if (IsExpired)
         {
@@ -47,7 +49,8 @@ public sealed class LoginSession
         }
 
         TelegramChatId = telegramChatId;
-        Jwt = jwt;
+        AccessToken = accessToken;
+        RefreshToken = refreshToekn;
         Status = LoginSessionStatus.Approved;
     }
 }

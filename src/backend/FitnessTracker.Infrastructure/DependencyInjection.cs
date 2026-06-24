@@ -31,13 +31,16 @@ public static class DependencyInjection
         services.AddScoped<IWorkoutProgramRepository, WorkoutProgramRepository>();
         services.AddScoped<IWorkoutProgramReadRepository, WorkoutProgramReadRepository>();
         services.AddScoped<ILoginSessionRepository, RedisLoginSessionRepository>();
-        services.AddSingleton<ILoginSessionNotifier, LoginSessionNotifier>();
+        services.AddScoped<IRefreshSessionRepository, RedisRefreshSessionRepository>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
         services.AddScoped<IJwtService, JwtService>();
+
+        services.AddSingleton<ILoginSessionNotifier, LoginSessionNotifier>();
+        services.AddSingleton<IAuthCodeStore, RedisAuthCodeStore>();
 
         var redisConnection =
             configuration["REDIS_CONNECTION"]
