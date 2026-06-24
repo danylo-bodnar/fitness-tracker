@@ -12,6 +12,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const isAdmin = user?.role === "admin";
 
   const login = useCallback((newToken: string, newUser: User) => {
     tokenStore.set(newToken);
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         token,
         isAuthenticated: !!token && !!user,
+        isAdmin,
         login,
         logout,
       }}

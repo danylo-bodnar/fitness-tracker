@@ -14,6 +14,6 @@ public sealed class GetCurrentUserHandler(IUserRepository userRepo)
         var user = await userRepo.GetByIdAsync(request.UserId, ct)
             ?? throw new UserNotFoundException(request.UserId);
 
-        return new UserDto(user.Id, user.TelegramChatId, user.TelegramUsername ?? "User");
+        return new UserDto(user.Id, user.TelegramChatId, user.TelegramUsername ?? "User", user.Role.ToString());
     }
 }

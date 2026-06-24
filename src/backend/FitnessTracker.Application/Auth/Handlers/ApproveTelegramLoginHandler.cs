@@ -22,7 +22,7 @@ public sealed class ApproveTelegramLoginHandler(
         var user = await userRepository.GetByTelegramChatIdAsync(request.TelegramChatId, cancellationToken)
             ?? throw new UserNotFoundException(request.TelegramChatId);
 
-        var accessToken = jwtService.GenerateToken(user.Id);
+        var accessToken = jwtService.GenerateToken(user.Id, user.Role);
 
         var refreshSession = RefreshSession.Create(user.Id, user.TelegramChatId, TimeSpan.FromDays(30));
         await refreshSessionRepository.CreateAsync(refreshSession, cancellationToken);

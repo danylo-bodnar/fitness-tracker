@@ -66,7 +66,7 @@ public sealed class StreamTelegramLoginHandler(
 
             yield return new SseEvent("success", new TelegramLoginResultDto(
                 approval.AccessToken,
-                new UserDto(user.Id, user.TelegramChatId, user.TelegramUsername ?? "User"),
+                new UserDto(user.Id, user.TelegramChatId, user.TelegramUsername ?? "User", user.Role.ToString()),
                 approval.RefreshToken
             ));
         }

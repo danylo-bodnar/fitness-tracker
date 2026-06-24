@@ -5,6 +5,7 @@ interface AuthContextValue {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   login: (token: string, user: User) => void;
   logout: () => void;
 }
