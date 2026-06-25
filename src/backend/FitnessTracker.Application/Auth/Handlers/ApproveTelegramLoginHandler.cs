@@ -27,7 +27,13 @@ public sealed class ApproveTelegramLoginHandler(
         var refreshSession = RefreshSession.Create(user.Id, user.TelegramChatId, TimeSpan.FromDays(30));
         await refreshSessionRepository.CreateAsync(refreshSession, cancellationToken);
 
-        session.Approve(request.TelegramChatId, accessToken, refreshSession.Token);
+        session.Approve(
+            user.Id,
+            user.TelegramChatId,
+            user.TelegramUsername ?? "User",
+            user.Role.ToString(),
+            accessToken,
+            refreshSession.Token);
 
         await loginSessionRepository.UpdateAsync(session, cancellationToken);
 
