@@ -11,9 +11,10 @@ public sealed class LoginSessionNotifier : ILoginSessionNotifier
     {
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        _waiters.TryRemove(nonce, out var existing);
-        existing?.TrySetResult();
-        _waiters.TryAdd(nonce, tcs);
+        if (!_waiters.TryAdd(nonce, tcs))
+        {
+            throw new InvalidOperationException($"A waiter for nonce '{nonce}' already exists.");
+        }
 
         var reg = ct.Register(() =>
         {
