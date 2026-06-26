@@ -25,7 +25,7 @@ public class CreateProgramHandler : IRequestHandler<CreateProgramCommand, Guid>
             cmd.Name,
             cmd.ProgramDays.Select(d => new ProgramDay(d.Name, d.Exercises.Select(e =>
             new ProgramExercise(e.ExerciseId,
-            new ExerciseName(e.ExerciseName), new Sets(e.TargetSets), new Repetitions(e.TargetReps), e.Order))
+            new ExerciseName(e.ExerciseName), e.TargetSets, e.TargetReps, e.Order))
             .ToList())).ToList()
         );
 

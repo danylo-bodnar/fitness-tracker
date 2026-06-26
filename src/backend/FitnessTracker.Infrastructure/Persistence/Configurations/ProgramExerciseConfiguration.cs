@@ -30,15 +30,9 @@ public class ProgramExerciseConfiguration : IEntityTypeConfiguration<ProgramExer
                 v => new ExerciseName(v));
 
         builder.Property(x => x.TargetSets)
-            .IsRequired()
-            .HasConversion(
-                v => v.Value,
-                v => new Sets(v));
+            .IsRequired();
 
         builder.Property(x => x.TargetReps)
-            .IsRequired()
-            .HasConversion(
-                v => v.Value,
-                v => new Repetitions(v));
+            .IsRequired();
     }
 }
