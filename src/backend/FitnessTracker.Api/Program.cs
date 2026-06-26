@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using FitnessTracker.Api.Middleware;
 using FitnessTracker.Api.Parsers;
@@ -5,6 +6,8 @@ using FitnessTracker.Api.Telegram;
 using FitnessTracker.Application;
 using FitnessTracker.Application.Common.Options;
 using FitnessTracker.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -15,6 +18,29 @@ builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
 builder.AddServiceDefaults();
+
+builder.Services.Configure<JwtOptions>(
+    builder.Configuration.GetSection(JwtOptions.SectionName));
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(o =>
+    {
+        var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
+            ?? throw new InvalidOperationException("Jwt configuration is missing");
+
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidIssuer = jwt.Issuer,
+            ValidAudience = jwt.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Secret)),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 var allowedOrigins = new[]
 {
@@ -37,8 +63,6 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.Configure<TelegramOptions>(
     builder.Configuration.GetSection(TelegramOptions.SectionName));
-builder.Services.Configure<JwtOptions>(
-    builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.Configure<AppOptions>(
     builder.Configuration.GetSection(AppOptions.SectionName));
 
@@ -54,6 +78,9 @@ builder.Services.AddHostedService<BotService>();
 var app = builder.Build();
 
 app.UseCors();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseMiddleware<ExceptionMiddleware>();
 

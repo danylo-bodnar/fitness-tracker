@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IWorkoutProgramRepository, WorkoutProgramRepository>();
         services.AddScoped<IWorkoutProgramReadRepository, WorkoutProgramReadRepository>();
+        services.AddScoped<IStatsRepository, StatsRepository>();
         services.AddScoped<ILoginSessionRepository, RedisLoginSessionRepository>();
         services.AddScoped<IRefreshSessionRepository, RedisRefreshSessionRepository>();
 
