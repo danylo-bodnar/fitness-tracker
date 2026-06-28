@@ -1,0 +1,10 @@
+{
+  "debug": {
+    "adapters": {
+      "coreclr": {
+        "type": "coreclr",
+        "executable": "/usr/local/bin/netcoredbg"
+      }
+    }
+  }
+}

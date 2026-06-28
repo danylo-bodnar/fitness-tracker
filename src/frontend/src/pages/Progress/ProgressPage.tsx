@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { usePersonalRecords, useExerciseProgress, useWeeklyVolume } from "@/features/stats";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  usePersonalRecords,
+  useExerciseProgress,
+  useWeeklyVolume,
+} from "@/features/stats";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -70,11 +69,15 @@ function PersonalRecordsSection() {
             <TableBody>
               {records.map((r) => (
                 <TableRow key={r.id}>
-                  <TableCell className="font-medium">{r.exerciseName}</TableCell>
+                  <TableCell className="font-medium">
+                    {r.exerciseName}
+                  </TableCell>
                   <TableCell>{r.weightKg} kg</TableCell>
                   <TableCell>{r.reps}</TableCell>
                   <TableCell>{r.estimated1Rm} kg</TableCell>
-                  <TableCell>{new Date(r.achievedAt).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {new Date(r.achievedAt).toLocaleDateString()}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -93,7 +96,10 @@ function ExerciseProgressSection() {
   const exerciseOptions = records
     ? Array.from(
         new Map(
-          records.map((r) => [r.exerciseId, { id: r.exerciseId, name: r.exerciseName }]),
+          records.map((r) => [
+            r.exerciseId,
+            { id: r.exerciseId, name: r.exerciseName },
+          ]),
         ).values(),
       )
     : [];
@@ -104,7 +110,10 @@ function ExerciseProgressSection() {
         <CardTitle>Exercise Progress</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Select value={selectedExerciseId} onValueChange={setSelectedExerciseId}>
+        <Select
+          value={selectedExerciseId}
+          onValueChange={setSelectedExerciseId}
+        >
           <SelectTrigger className="w-full sm:w-64">
             <SelectValue placeholder="Select an exercise" />
           </SelectTrigger>
@@ -128,7 +137,9 @@ function ExerciseProgressSection() {
             ))}
           </div>
         ) : !progress || progress.length === 0 ? (
-          <p className="text-muted-foreground">No progress data for this exercise.</p>
+          <p className="text-muted-foreground">
+            No progress data for this exercise.
+          </p>
         ) : (
           <Table>
             <TableHeader>
@@ -142,7 +153,9 @@ function ExerciseProgressSection() {
             <TableBody>
               {progress.map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell>{new Date(p.workoutDate).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {new Date(p.workoutDate).toLocaleDateString()}
+                  </TableCell>
                   <TableCell>{p.maxWeightKg} kg</TableCell>
                   <TableCell>{p.totalVolume} kg</TableCell>
                   <TableCell>{p.setCount}</TableCell>
@@ -185,7 +198,9 @@ function WeeklyVolumeSection() {
             <TableBody>
               {volume.map((w) => (
                 <TableRow key={w.id}>
-                  <TableCell>{new Date(w.weekStart).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {new Date(w.weekStart).toLocaleDateString()}
+                  </TableCell>
                   <TableCell>{w.totalVolume} kg</TableCell>
                   <TableCell>{w.sessionCount}</TableCell>
                 </TableRow>
