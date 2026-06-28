@@ -1,16 +1,24 @@
-export interface Program {
+export interface WorkoutProgramDto {
   id: string;
   name: string;
-  description: string;
-  weeks: ProgramWeek[];
+  days: ProgramDayDto[];
 }
 
-export interface ProgramWeek {
+export interface ProgramDayDto {
+  id: string;
   name: string;
-  sessions: ProgramSession[];
+  exercises: ProgramExerciseDto[];
 }
 
-export interface ProgramSession {
+export interface ProgramExerciseDto {
+  exerciseId: string;
+  exerciseName: string;
+  targetSets: number;
+  targetReps: number;
+  order: number;
+}
+
+export interface CreateProgramRequest {
   name: string;
-  exercises: string[];
+  programDays: ProgramDayDto[];
 }
