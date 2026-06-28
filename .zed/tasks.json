@@ -1,0 +1,48 @@
+[
+  {
+    "label": "Debug AppHost (Aspire)",
+    "adapter": "coreclr",
+    "config": {
+      "request": "launch",
+      "program": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "src/backend/FitnessTracker.AppHost/FitnessTracker.AppHost.csproj",
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_ENVIRONMENT": "Development",
+      },
+    },
+  },
+  {
+    "label": "Debug API only (no Aspire deps)",
+    "adapter": "coreclr",
+    "config": {
+      "request": "launch",
+      "program": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "src/backend/FitnessTracker.Api/FitnessTracker.Api.csproj",
+        "--launch-profile",
+        "https",
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_ENVIRONMENT": "Development",
+      },
+    },
+  },
+  {
+    "label": "Attach to process",
+    "adapter": "coreclr",
+    "config": {
+      "request": "attach",
+      "processId": "${command:pickProcess}",
+    },
+  },
+]

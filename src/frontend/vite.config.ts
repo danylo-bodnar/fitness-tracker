@@ -19,6 +19,22 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_API_URL,
           secure: false,
         },
+        "/stats": {
+          target: env.VITE_API_URL,
+          secure: false,
+        },
+        "/workouts": {
+          target: env.VITE_API_URL,
+          secure: false,
+        },
+        "/exercises": {
+          target: env.VITE_API_URL,
+          secure: false,
+        },
+        "/programs": {
+          target: env.VITE_API_URL,
+          secure: false,
+        },
       },
     },
   };

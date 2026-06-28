@@ -1,0 +1,39 @@
+[
+  {
+    "adapter": "netcoredbg",
+    "name": "Launch Aspire AppHost",
+    "type": "coreclr",
+    "request": "launch",
+    "program": "dotnet",
+    "args": [
+      "run",
+      "--project",
+      "src/backend/FitnessTracker.AppHost/FitnessTracker.AppHost.csproj"
+    ],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "stopAtEntry": false
+  },
+  {
+    "adapter": "netcoredbg",
+    "name": "Launch API only",
+    "type": "coreclr",
+    "request": "launch",
+    "program": "dotnet",
+    "args": [
+      "run",
+      "--project",
+      "src/backend/FitnessTracker.Api/FitnessTracker.Api.csproj",
+      "--launch-profile",
+      "https"
+    ],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "stopAtEntry": false
+  },
+  {
+    "adapter": "netcoredbg",
+    "name": "Attach to process",
+    "type": "coreclr",
+    "request": "attach",
+    "processId": "${command:pickProcess}"
+  }
+]
