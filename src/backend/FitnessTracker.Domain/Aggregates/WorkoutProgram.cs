@@ -36,7 +36,7 @@ public class WorkoutProgram : AggregateRoot
 
         if (existingDay != null)
         {
-            throw new ProgramDayAlreadyExists(name);
+            throw new ProgramDayAlreadyExistsException(name);
         }
 
         var day = new ProgramDay(name, exercises);
