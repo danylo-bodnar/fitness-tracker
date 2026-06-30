@@ -6,7 +6,7 @@ public class ProgramDay
     public string Name { get; private set; } = null!;
 
     private readonly List<ProgramExercise> _exercises = new();
-    public IReadOnlyList<ProgramExercise> Exercises => _exercises;
+    public IReadOnlyList<ProgramExercise> Exercises => _exercises.AsReadOnly();
 
     private ProgramDay() { }
 

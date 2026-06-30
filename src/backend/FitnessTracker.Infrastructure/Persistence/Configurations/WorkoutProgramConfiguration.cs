@@ -23,6 +23,8 @@ public class WorkoutProgramConfiguration : IEntityTypeConfiguration<WorkoutProgr
             .IsRequired()
             .HasMaxLength(100);
 
+        builder.Ignore(x => x.Days);
+
         builder.HasMany<ProgramDay>("_days")
             .WithOne()
             .HasForeignKey("WorkoutProgramId")
