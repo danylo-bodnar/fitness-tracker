@@ -59,7 +59,7 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
 
         // Programs
         ProgramDayNotFoundException => HttpStatusCode.NotFound,
-        ProgramDayAlreadyExists => HttpStatusCode.Conflict,
+        ProgramDayAlreadyExistsException => HttpStatusCode.Conflict,
 
         // Value object validation
         InvalidExerciseNameException => HttpStatusCode.BadRequest,
