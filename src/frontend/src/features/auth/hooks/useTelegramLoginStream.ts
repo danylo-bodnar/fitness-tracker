@@ -19,7 +19,7 @@ export function useTelegramLoginStream(
   useEffect(() => {
     if (!nonce) return;
 
-    const baseUrl = import.meta.env.DEV ? "" : import.meta.env.VITE_API_URL;
+    const baseUrl = import.meta.env.VITE_API_URL;
     const eventSource = new EventSource(`${baseUrl}/auth/stream/${nonce}`, {
       withCredentials: true,
     });
