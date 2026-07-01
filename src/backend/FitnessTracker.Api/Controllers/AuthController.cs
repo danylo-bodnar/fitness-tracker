@@ -14,7 +14,7 @@ namespace FitnessTracker.API.Controllers;
 
 [ApiController]
 [Route("auth")]
-public class AuthController(IMediator mediator, IAuthCodeStore authCodeStore, ILogger<AuthController> logger, IWebHostEnvironment env) : ControllerBase
+public class AuthController(IMediator mediator, IAuthCodeStore authCodeStore, ILogger<AuthController> logger) : ControllerBase
 {
     private const string RefreshTokenCookie = "X-Refresh-Token";
 
@@ -138,15 +138,13 @@ public class AuthController(IMediator mediator, IAuthCodeStore authCodeStore, IL
         return NoContent();
     }
 
-    private bool IsProduction => env.IsProduction();
-
     private void SetRefreshTokenCookie(string token)
     {
         Response.Cookies.Append(RefreshTokenCookie, token, new CookieOptions
         {
             HttpOnly = true,
-            Secure = IsProduction,
-            SameSite = IsProduction ? SameSiteMode.None : SameSiteMode.Lax,
+            Secure = true,
+            SameSite = SameSiteMode.None,
             Expires = DateTimeOffset.UtcNow.AddDays(30),
             Path = "/auth"
         });
@@ -157,8 +155,8 @@ public class AuthController(IMediator mediator, IAuthCodeStore authCodeStore, IL
         Response.Cookies.Delete(RefreshTokenCookie, new CookieOptions
         {
             HttpOnly = true,
-            Secure = IsProduction,
-            SameSite = IsProduction ? SameSiteMode.None : SameSiteMode.Lax,
+            Secure = true,
+            SameSite = SameSiteMode.None,
             Path = "/auth"
         });
     }

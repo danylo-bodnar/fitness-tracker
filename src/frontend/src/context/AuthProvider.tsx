@@ -6,7 +6,7 @@ import type { User } from "@/features/auth";
 import { tokenStore } from "@/lib/apiClient";
 import { LoadingSpinner } from "@/components/feedback/Spinner";
 
-const BASE_URL = import.meta.env.DEV ? "" : import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
