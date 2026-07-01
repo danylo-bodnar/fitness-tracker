@@ -8,18 +8,6 @@ namespace FitnessTracker.Infrastructure.Persistence.Repositories;
 
 public class ExerciseRepository(AppDbContext db) : IExerciseRepository
 {
-    public async Task<List<Exercise>> GetAllAsync(string? muscleGroup = null, CancellationToken ct = default)
-    {
-        var query = db.Exercises.AsNoTracking();
-
-        if (muscleGroup is not null)
-            query = query.Where(e => e.MuscleGroup == muscleGroup);
-
-        return await query
-            .OrderBy(e => e.Name.Value)
-            .ToListAsync(ct);
-    }
-
     public async Task<Exercise?> FindByNameAsync(string name, CancellationToken ct = default)
         => await db.Exercises
             .FirstOrDefaultAsync(e => e.Name == new ExerciseName(name), ct);

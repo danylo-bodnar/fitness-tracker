@@ -14,14 +14,17 @@ public class WorkoutProgramConfiguration : IEntityTypeConfiguration<WorkoutProgr
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .ValueGeneratedNever();
+            .ValueGeneratedNever()
+            .HasColumnName("id");
 
         builder.Property(x => x.UserId)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnName("user_id");
 
         builder.Property(x => x.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(100)
+            .HasColumnName("name");
 
         builder.Ignore(x => x.Days);
 

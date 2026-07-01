@@ -59,6 +59,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.AddNpgsqlDataSource("fitness-tracker");
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.Configure<TelegramOptions>(

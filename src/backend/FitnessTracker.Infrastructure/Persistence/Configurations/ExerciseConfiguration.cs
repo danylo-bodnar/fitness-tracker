@@ -14,7 +14,8 @@ public class ExerciseConfiguration : IEntityTypeConfiguration<Exercise>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .ValueGeneratedNever();
+            .ValueGeneratedNever()
+            .HasColumnName("id");
 
         builder.Property(x => x.Name)
             .HasConversion(
@@ -24,7 +25,8 @@ public class ExerciseConfiguration : IEntityTypeConfiguration<Exercise>
             .HasMaxLength(100);
 
         builder.Property(x => x.MuscleGroup)
-            .HasMaxLength(50);
+            .HasMaxLength(50)
+            .HasColumnName("muscle_group");
 
         builder.HasData(
              // ── Biceps ───────────────────────────────────────────

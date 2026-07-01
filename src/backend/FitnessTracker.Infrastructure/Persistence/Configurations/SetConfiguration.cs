@@ -13,18 +13,24 @@ public class SetConfiguration : IEntityTypeConfiguration<Set>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .ValueGeneratedNever();
+            .ValueGeneratedNever()
+            .HasColumnName("id");
 
         builder.Property(x => x.Weight)
             .HasConversion(
                 weight => weight.Kg,
                 value => new(value))
-            .HasColumnType("decimal(5,2)");
+            .HasColumnType("decimal(5,2)")
+            .HasColumnName("weight");
 
         builder.Property(x => x.Repetitions)
             .HasConversion(
                 reps => reps.Value,
-                value => new(value));
+                value => new(value))
+            .HasColumnName("repetitions");
+
+        builder.Property("ExerciseLogId")
+            .HasColumnName("exercise_log_id");
 
         builder.HasOne<ExerciseLog>()
             .WithMany(x => x.Sets)
