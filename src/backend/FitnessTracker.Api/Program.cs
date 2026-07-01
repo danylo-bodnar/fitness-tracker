@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Npgsql;
 using FitnessTracker.Api.Middleware;
 using FitnessTracker.Api.Parsers;
 using FitnessTracker.Api.Telegram;
@@ -59,7 +60,11 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.AddNpgsqlDataSource("fitness-tracker");
+var connectionString = builder.Configuration.GetConnectionString("fitness-tracker")
+    ?? Environment.GetEnvironmentVariable("DATABASE_CONNECTION")
+    ?? throw new InvalidOperationException("No database connection string found");
+
+builder.Services.AddSingleton(NpgsqlDataSource.Create(connectionString));
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
