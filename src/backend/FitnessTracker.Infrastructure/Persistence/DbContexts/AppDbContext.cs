@@ -22,6 +22,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.ApplyConfiguration(new SetConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new ExerciseConfiguration());
+        modelBuilder.ApplyConfiguration(new WorkoutProgramConfiguration());
         modelBuilder.ApplyConfiguration(new ProgramDayConfiguration());
         modelBuilder.ApplyConfiguration(new ProgramExerciseConfiguration());
 

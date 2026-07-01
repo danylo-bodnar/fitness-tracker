@@ -13,11 +13,16 @@ public class ProgramDayConfiguration : IEntityTypeConfiguration<ProgramDay>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .ValueGeneratedNever();
+            .ValueGeneratedNever()
+            .HasColumnName("id");
 
         builder.Property(x => x.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(100)
+            .HasColumnName("name");
+
+        builder.Property("WorkoutProgramId")
+            .HasColumnName("workout_program_id");
 
         builder.HasMany<ProgramExercise>("_exercises")
             .WithOne()

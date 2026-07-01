@@ -5,17 +5,11 @@ using MediatR;
 
 namespace FitnessTracker.Application.Exercises.Handlers;
 
-public sealed class GetExercisesHandler(IExerciseRepository repo)
+public sealed class GetExercisesHandler(IExerciseReadRepository repo)
     : IRequestHandler<GetExercisesQuery, List<ExerciseDto>>
 {
     public async Task<List<ExerciseDto>> Handle(GetExercisesQuery request, CancellationToken ct)
     {
-        var exercises = await repo.GetAllAsync(request.MuscleGroup, ct);
-
-        return exercises.Select(e => new ExerciseDto(
-            e.Id,
-            e.Name.Value,
-            e.MuscleGroup))
-            .ToList();
+        return await repo.GetAllDefaultAsync(ct);
     }
 }

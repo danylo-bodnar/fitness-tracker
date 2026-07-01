@@ -14,25 +14,34 @@ public class ProgramExerciseConfiguration : IEntityTypeConfiguration<ProgramExer
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .ValueGeneratedNever();
+            .ValueGeneratedNever()
+            .HasColumnName("id");
 
         builder.Property(x => x.ExerciseId)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnName("exercise_id");
 
         builder.Property(x => x.Order)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnName("order");
 
         builder.Property(x => x.ExerciseName)
             .IsRequired()
             .HasMaxLength(100)
+            .HasColumnName("exercise_name")
             .HasConversion(
                 v => v.Value,
                 v => new ExerciseName(v));
 
         builder.Property(x => x.TargetSets)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnName("target_sets");
 
         builder.Property(x => x.TargetReps)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnName("target_reps");
+
+        builder.Property("ProgramDayId")
+            .HasColumnName("program_day_id");
     }
 }

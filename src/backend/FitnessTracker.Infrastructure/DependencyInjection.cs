@@ -17,16 +17,12 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString =
-            configuration.GetConnectionString("fitness-tracker")
-            ?? configuration["DATABASE_CONNECTION"]
-            ?? throw new InvalidOperationException("No connection string");
-
-        services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
-        services.AddDbContext<ProjectionsDbContext>(o => o.UseNpgsql(connectionString));
+        services.AddDbContext<AppDbContext>(o => o.UseNpgsql());
+        services.AddDbContext<ProjectionsDbContext>(o => o.UseNpgsql());
 
         services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IExerciseReadRepository, ExerciseReadRepository>();
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IWorkoutProgramRepository, WorkoutProgramRepository>();
         services.AddScoped<IWorkoutProgramReadRepository, WorkoutProgramReadRepository>();

@@ -14,13 +14,16 @@ public class WorkoutSessionConfiguration : IEntityTypeConfiguration<WorkoutSessi
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .ValueGeneratedNever();
+            .ValueGeneratedNever()
+            .HasColumnName("id");
 
         builder.Property(x => x.UserId)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnName("user_id");
 
         builder.Property(x => x.Date)
-            .HasColumnType("date");
+            .HasColumnType("date")
+            .HasColumnName("date");
 
         builder.HasMany(typeof(ExerciseLog), "_exercises")
             .WithOne()

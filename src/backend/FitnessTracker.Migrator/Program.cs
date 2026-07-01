@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
-        var cs = context.Configuration.GetConnectionString("fitness-tracker");
+        var cs = context.Configuration.GetConnectionString("fitness-tracker")
+            ?? context.Configuration["DATABASE_CONNECTION"]
+            ?? throw new InvalidOperationException("No connection string");
 
         services.AddDbContext<AppDbContext>(o =>
             o.UseNpgsql(cs));

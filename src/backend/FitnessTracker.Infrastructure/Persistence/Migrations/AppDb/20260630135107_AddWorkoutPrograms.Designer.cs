@@ -3,17 +3,20 @@ using System;
 using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
+namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260630135107_AddWorkoutPrograms")]
+    partial class AddWorkoutPrograms
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,8 +28,7 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
             modelBuilder.Entity("FitnessTracker.Domain.Aggregates.User", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -51,18 +53,15 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
             modelBuilder.Entity("FitnessTracker.Domain.Aggregates.WorkoutProgram", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -72,16 +71,13 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
             modelBuilder.Entity("FitnessTracker.Domain.Aggregates.WorkoutSession", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<DateOnly>("Date")
-                        .HasColumnType("date")
-                        .HasColumnName("date");
+                        .HasColumnType("date");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -91,13 +87,11 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
             modelBuilder.Entity("FitnessTracker.Domain.Entities.Exercise", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("MuscleGroup")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("muscle_group");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -319,12 +313,10 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ExerciseLog", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("ExerciseId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("exercise_id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ExerciseName")
                         .IsRequired()
@@ -333,8 +325,7 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
                         .HasColumnName("exercise_name");
 
                     b.Property<Guid>("WorkoutSessionId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("workout_session_id");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -348,18 +339,15 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ProgramDay", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid?>("WorkoutProgramId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("workout_program_id");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -371,34 +359,27 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ProgramExercise", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("ExerciseId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("exercise_id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ExerciseName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("exercise_name");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int>("Order")
-                        .HasColumnType("integer")
-                        .HasColumnName("order");
+                        .HasColumnType("integer");
 
                     b.Property<Guid?>("ProgramDayId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("program_day_id");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("TargetReps")
-                        .HasColumnType("integer")
-                        .HasColumnName("target_reps");
+                        .HasColumnType("integer");
 
                     b.Property<int>("TargetSets")
-                        .HasColumnType("integer")
-                        .HasColumnName("target_sets");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -410,20 +391,16 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
             modelBuilder.Entity("FitnessTracker.Domain.Entities.Set", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("ExerciseLogId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("exercise_log_id");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Repetitions")
-                        .HasColumnType("integer")
-                        .HasColumnName("repetitions");
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Weight")
-                        .HasColumnType("decimal(5,2)")
-                        .HasColumnName("weight");
+                        .HasColumnType("decimal(5,2)");
 
                     b.HasKey("Id");
 

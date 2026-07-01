@@ -14,7 +14,11 @@ public class ExerciseLogConfiguration : IEntityTypeConfiguration<ExerciseLog>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .ValueGeneratedNever();
+            .ValueGeneratedNever()
+            .HasColumnName("id");
+
+        builder.Property(x => x.ExerciseId)
+            .HasColumnName("exercise_id");
 
         builder.Property(x => x.ExerciseName)
             .HasConversion(
@@ -22,6 +26,9 @@ public class ExerciseLogConfiguration : IEntityTypeConfiguration<ExerciseLog>
                 value => new(value))
             .HasColumnName("exercise_name")
             .HasMaxLength(100);
+
+        builder.Property("WorkoutSessionId")
+            .HasColumnName("workout_session_id");
 
         builder.HasOne<WorkoutSession>()
             .WithMany(x => x.Exercises)
