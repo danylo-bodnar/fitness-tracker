@@ -17,8 +17,12 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<AppDbContext>(o => o.UseNpgsql());
-        services.AddDbContext<ProjectionsDbContext>(o => o.UseNpgsql());
+        var connectionString = configuration.GetConnectionString("fitness-tracker")
+            ?? Environment.GetEnvironmentVariable("DATABASE_CONNECTION")
+            ?? throw new InvalidOperationException("No database connection string found");
+
+        services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
+        services.AddDbContext<ProjectionsDbContext>(o => o.UseNpgsql(connectionString));
 
         services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
