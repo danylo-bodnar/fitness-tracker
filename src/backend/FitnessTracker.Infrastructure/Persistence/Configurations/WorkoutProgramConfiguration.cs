@@ -26,14 +26,12 @@ public class WorkoutProgramConfiguration : IEntityTypeConfiguration<WorkoutProgr
             .HasMaxLength(100)
             .HasColumnName("name");
 
-        builder.Ignore(x => x.Days);
-
-        builder.HasMany<ProgramDay>("_days")
+        builder.HasMany(x => x.Days)
             .WithOne()
             .HasForeignKey("WorkoutProgramId")
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Navigation("_days")
+        builder.Navigation(x => x.Days)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

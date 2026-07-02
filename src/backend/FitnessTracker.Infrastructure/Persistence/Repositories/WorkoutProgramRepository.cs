@@ -17,10 +17,11 @@ public class WorkoutProgramRepository : IWorkoutProgramRepository
     public async Task<WorkoutProgram?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         return await _db.WorkoutPrograms
-            .Include(p => p.Days)
-            .ThenInclude(d => d.Exercises)
+            .Include(x => x.Days)
+            .ThenInclude(x => x.Exercises)
             .AsSplitQuery()
             .FirstOrDefaultAsync(p => p.Id == id, ct);
+
     }
 
     public async Task<int> CountByUserAsync(Guid userId, CancellationToken ct = default)
