@@ -23,6 +23,9 @@ public class WorkoutProgramRepository : IWorkoutProgramRepository
             .FirstOrDefaultAsync(p => p.Id == id, ct);
     }
 
+    public async Task<int> CountByUserAsync(Guid userId, CancellationToken ct = default)
+        => await _db.WorkoutPrograms.CountAsync(p => p.UserId == userId, ct);
+
     public void Add(WorkoutProgram program)
         => _db.WorkoutPrograms.Add(program);
 

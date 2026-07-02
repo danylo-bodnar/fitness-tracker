@@ -4,7 +4,7 @@ using FitnessTracker.Infrastructure.Persistence.ReadModels;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
-namespace FitnessTracker.Infrastructure.Messaging.Consumers;
+namespace FitnessTracker.Infastructure.Messaging.Consumers;
 
 public class AnalyticsConsumer(ProjectionsDbContext db) : IConsumer<ExerciseLoggedEvent>
 {
