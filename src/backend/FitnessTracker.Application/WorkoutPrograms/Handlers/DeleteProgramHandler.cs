@@ -4,16 +4,10 @@ using MediatR;
 
 namespace FitnessTracker.Application.WorkoutPrograms.Handlers;
 
-public class DeleteProgramHandler : IRequestHandler<DeleteProgramCommand>
+public class DeleteProgramHandler(IWorkoutProgramRepository repository, IUnitOfWork unitOfWork) : IRequestHandler<DeleteProgramCommand>
 {
-    private readonly IWorkoutProgramRepository _workoutProgramRepository;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public DeleteProgramHandler(IWorkoutProgramRepository repository, IUnitOfWork unitOfWork)
-    {
-        _workoutProgramRepository = repository;
-        _unitOfWork = unitOfWork;
-    }
+    private readonly IWorkoutProgramRepository _workoutProgramRepository = repository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task Handle(DeleteProgramCommand request, CancellationToken cancellationToken)
     {

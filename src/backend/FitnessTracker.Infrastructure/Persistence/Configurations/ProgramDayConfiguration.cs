@@ -24,14 +24,12 @@ public class ProgramDayConfiguration : IEntityTypeConfiguration<ProgramDay>
         builder.Property("WorkoutProgramId")
             .HasColumnName("workout_program_id");
 
-        builder.HasMany<ProgramExercise>("_exercises")
+        builder.HasMany(x => x.Exercises)
             .WithOne()
             .HasForeignKey("ProgramDayId")
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Navigation("_exercises")
+        builder.Navigation(x => x.Exercises)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
-
-        builder.Ignore(x => x.Exercises);
     }
 }
