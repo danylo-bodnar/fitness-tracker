@@ -2,6 +2,8 @@ using FitnessTracker.Application.WorkoutPrograms.Commands;
 using FitnessTracker.Application.Common.Interfaces;
 using MediatR;
 
+namespace FitnessTracker.Application.WorkoutPrograms.Handlers;
+
 public class DeleteProgramHandler : IRequestHandler<DeleteProgramCommand>
 {
     private readonly IWorkoutProgramRepository _workoutProgramRepository;
