@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/apiClient";
-import type { WorkoutProgramDto, CreateProgramRequest } from "../types";
+import type { WorkoutProgramDto, CreateProgramRequest, UpdateProgramRequest } from "../types";
 
 export async function getPrograms(): Promise<WorkoutProgramDto[]> {
   const res = await apiClient.get("/programs");
@@ -11,6 +11,13 @@ export async function createProgram(
 ): Promise<string> {
   const res = await apiClient.post("/programs", data);
   return res.data;
+}
+
+export async function updateProgram(
+  id: string,
+  data: UpdateProgramRequest,
+): Promise<void> {
+  await apiClient.put(`/programs/${id}`, data);
 }
 
 export async function deleteProgram(id: string): Promise<void> {
