@@ -3,6 +3,17 @@ export type {
   ProgramDayDto,
   ProgramExerciseDto,
   CreateProgramRequest,
+  UpdateProgramRequest,
 } from "./types";
-export { getPrograms, createProgram, deleteProgram } from "./api/programsApi";
-export { usePrograms, useCreateProgram, useDeleteProgram } from "./hooks/usePrograms";
+export {
+  getPrograms,
+  createProgram,
+  updateProgram,
+  deleteProgram,
+} from "./api/programsApi";
+export {
+  usePrograms,
+  useCreateProgram,
+  useUpdateProgram,
+  useDeleteProgram,
+} from "./hooks/usePrograms";

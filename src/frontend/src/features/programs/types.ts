@@ -22,3 +22,8 @@ export interface CreateProgramRequest {
   name: string;
   programDays: ProgramDayDto[];
 }
+
+export interface UpdateProgramRequest {
+  name: string;
+  programDays: ProgramDayDto[];
+}
