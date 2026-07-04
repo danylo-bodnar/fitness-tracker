@@ -41,6 +41,7 @@ export function ProgramDayCard({
 
   const handleAddExercise = (exerciseId: string, exerciseName: string) => {
     const newExercise: ProgramExerciseDto = {
+      id: crypto.randomUUID(),
       exerciseId,
       exerciseName,
       targetSets: 3,
