@@ -1,9 +1,5 @@
 namespace FitnessTracker.Domain.Exceptions;
 
-public class ProgramDayAlreadyExistsException : DomainException
+public class ProgramDayAlreadyExistsException(string name) : DomainException($"A program day with the name '{name}' already exists.")
 {
-    public ProgramDayAlreadyExistsException(string name)
-        : base($"A program day with the name '{name}' already exists.")
-    {
-    }
 }

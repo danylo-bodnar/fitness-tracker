@@ -15,26 +15,32 @@ public class WorkoutProgram : AggregateRoot
     private WorkoutProgram() { }
 
     public WorkoutProgram(Guid userId, string name)
+        : this(userId, name, [])
+    {
+    }
+
+    public WorkoutProgram(
+        Guid userId,
+        string name,
+        List<ProgramDay> programDays)
     {
         Id = Guid.NewGuid();
         UserId = userId;
         Name = name;
+
+        ReplaceDays(programDays);
     }
 
-    public WorkoutProgram(Guid userId, string name, List<ProgramDay> programDays)
+    public ProgramDay AddDay(
+        string name,
+        List<ProgramExercise> exercises)
     {
-        Id = Guid.NewGuid();
-        UserId = userId;
-        Name = name;
+        var existingDay = _days.FirstOrDefault(
+            d => d.Name.Equals(
+                name,
+                StringComparison.OrdinalIgnoreCase));
 
-        _days.AddRange(programDays);
-    }
-
-    public ProgramDay AddDay(string name, List<ProgramExercise> exercises)
-    {
-        var existingDay = _days.FirstOrDefault(d => d.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-
-        if (existingDay != null)
+        if (existingDay is not null)
         {
             throw new ProgramDayAlreadyExistsException(name);
         }
@@ -44,6 +50,17 @@ public class WorkoutProgram : AggregateRoot
         _days.Add(day);
 
         return day;
+    }
+
+    public void Rename(string newName)
+    {
+        Name = newName;
+    }
+
+    public void ReplaceDays(List<ProgramDay> newDays)
+    {
+        _days.Clear();
+        _days.AddRange(newDays);
     }
 
     public void RemoveDay(Guid dayId)

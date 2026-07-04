@@ -1,5 +1,7 @@
 using System.Net;
 using System.Text.Json;
+using FitnessTracker.Api.Parsers;
+using FitnessTracker.Application.Common.Exceptions;
 using FitnessTracker.Domain.Exceptions;
 
 namespace FitnessTracker.Api.Middleware;
@@ -60,6 +62,9 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         // Programs
         ProgramDayNotFoundException => HttpStatusCode.NotFound,
         ProgramDayAlreadyExistsException => HttpStatusCode.Conflict,
+        ProgramDayLimitExceededException => HttpStatusCode.Conflict,
+        ProgramNameEmptyException => HttpStatusCode.BadRequest,
+        ProgramNameTooLongException => HttpStatusCode.BadRequest,
         WorkoutProgramLimitReachedException => HttpStatusCode.Conflict,
 
         // Value object validation
@@ -67,6 +72,13 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         InvalidRepetitionsException => HttpStatusCode.BadRequest,
         InvalidSetsException => HttpStatusCode.BadRequest,
         InvalidWeightException => HttpStatusCode.BadRequest,
+
+        // Application layer
+        NotFoundException => HttpStatusCode.NotFound,
+        ForbiddenException => HttpStatusCode.Forbidden,
+
+        // API layer
+        ParseException => HttpStatusCode.BadRequest,
 
         // Generic domain rule violation
         DomainException => HttpStatusCode.BadRequest,

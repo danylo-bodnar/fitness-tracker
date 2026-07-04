@@ -73,7 +73,7 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
             splitOn: "DayId,ExerciseId"
         );
 
-        return programLookup.Values.ToList();
+        return [.. programLookup.Values];
     }
 
     private record ProgramRow(Guid Id, string Name);
