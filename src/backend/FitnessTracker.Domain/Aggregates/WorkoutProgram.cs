@@ -59,8 +59,24 @@ public class WorkoutProgram : AggregateRoot
 
     public void ReplaceDays(List<ProgramDay> newDays)
     {
-        _days.Clear();
-        _days.AddRange(newDays);
+        var toRemove = _days.Where(d => !newDays.Any(n => n.Id == d.Id)).ToList();
+        foreach (var day in toRemove)
+            _days.Remove(day);
+
+        foreach (var newDay in newDays)
+        {
+            var existing = _days.FirstOrDefault(d => d.Id == newDay.Id);
+            if (existing is not null)
+            {
+                existing.Name = newDay.Name;
+                existing.Order = newDay.Order;
+                existing.ReplaceExercises(newDay.Exercises.ToList());
+            }
+            else
+            {
+                _days.Add(newDay);
+            }
+        }
     }
 
     public void RemoveDay(Guid dayId)
