@@ -1,8 +1,13 @@
 import { apiClient } from "@/lib/apiClient";
-import type { WorkoutProgramDto, CreateProgramRequest, UpdateProgramRequest } from "../types";
+import type {
+  WorkoutProgramDto,
+  CreateProgramRequest,
+  UpdateProgramRequest,
+} from "../types";
 
 export async function getPrograms(): Promise<WorkoutProgramDto[]> {
   const res = await apiClient.get("/programs");
+  debugger;
   return res.data;
 }
 

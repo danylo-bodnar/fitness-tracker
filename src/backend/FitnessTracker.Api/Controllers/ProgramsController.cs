@@ -20,6 +20,16 @@ public class ProgramsController(ISender sender) : ControllerBase
         return Ok(programs);
     }
 
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateProgram(Guid id,
+        UpdateProgramRequest request, CancellationToken ct)
+    {
+        await sender.Send(
+           new UpdateProgramCommand(User.GetUserId(), id, request.Name, request.ProgramDays), ct);
+
+        return NoContent();
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateProgram(
         CreateProgramRequest request,
@@ -46,3 +56,4 @@ public class ProgramsController(ISender sender) : ControllerBase
 }
 
 public record CreateProgramRequest(string Name, IReadOnlyList<ProgramDayDto> ProgramDays);
+public record UpdateProgramRequest(string Name, IReadOnlyList<ProgramDayDto> ProgramDays);
