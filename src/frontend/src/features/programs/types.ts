@@ -7,6 +7,7 @@ export interface WorkoutProgramDto {
 export interface ProgramDayDto {
   id: string;
   name: string;
+  order: number;
   exercises: ProgramExerciseDto[];
 }
 

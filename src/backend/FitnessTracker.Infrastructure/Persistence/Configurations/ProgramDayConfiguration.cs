@@ -21,6 +21,10 @@ public class ProgramDayConfiguration : IEntityTypeConfiguration<ProgramDay>
             .HasMaxLength(100)
             .HasColumnName("name");
 
+        builder.Property(x => x.Order)
+            .IsRequired()
+            .HasColumnName("order");
+
         builder.Property("WorkoutProgramId")
             .HasColumnName("workout_program_id");
 

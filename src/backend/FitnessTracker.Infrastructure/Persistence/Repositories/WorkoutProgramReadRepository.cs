@@ -15,6 +15,7 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
             p.name       AS "Name",
             d.id         AS "DayId",
             d.name       AS "DayName",
+            d.order      AS "DayOrder",
             e.exercise_id   AS "ExerciseId",
             e.exercise_name AS "ExerciseName",
             e.target_sets   AS "TargetSets",
@@ -24,7 +25,7 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
         LEFT JOIN program_days      d ON d.workout_program_id = p.id
         LEFT JOIN program_exercises e ON e.program_day_id     = d.id
         WHERE p.user_id = @userId
-        ORDER BY p.id, d.id, e.order
+        ORDER BY p.id, d.order, e.order
         """;
 
         await using var connection = await dataSource.OpenConnectionAsync(ct);
@@ -53,7 +54,7 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
                 if (!dayLookup.TryGetValue(day.DayId, out var exercises))
                 {
                     exercises = [];
-                    var dayDto = new ProgramDayDto(day.DayId, day.DayName, exercises);
+                    var dayDto = new ProgramDayDto(day.DayId, day.DayName, day.DayOrder, exercises);
                     dayLookup[day.DayId] = exercises;
                     programDto.Days.Add(dayDto);
                 }
@@ -77,6 +78,6 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
     }
 
     private record ProgramRow(Guid Id, string Name);
-    private record DayRow(Guid DayId, string DayName);
+    private record DayRow(Guid DayId, string DayName, int DayOrder);
     private record ExerciseRow(Guid ExerciseId, string ExerciseName, int TargetSets, int TargetReps, int Order);
 }
