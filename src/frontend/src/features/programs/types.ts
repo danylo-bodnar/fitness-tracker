@@ -12,6 +12,7 @@ export interface ProgramDayDto {
 }
 
 export interface ProgramExerciseDto {
+  id: string;
   exerciseId: string;
   exerciseName: string;
   targetSets: number;

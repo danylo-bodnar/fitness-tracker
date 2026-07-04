@@ -17,6 +17,7 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
             d.name       AS "DayName",
             d.order      AS "DayOrder",
             e.exercise_id   AS "ExerciseId",
+            e.id            AS "ExercisePk",
             e.exercise_name AS "ExerciseName",
             e.target_sets   AS "TargetSets",
             e.target_reps   AS "TargetReps",
@@ -62,6 +63,7 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
                 if (exercise is not null)
                 {
                     exercises.Add(new ProgramExerciseDto(
+                        exercise.ExercisePk,
                         exercise.ExerciseId,
                         exercise.ExerciseName,
                         exercise.TargetSets,
@@ -79,5 +81,5 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
 
     private record ProgramRow(Guid Id, string Name);
     private record DayRow(Guid DayId, string DayName, int DayOrder);
-    private record ExerciseRow(Guid ExerciseId, string ExerciseName, int TargetSets, int TargetReps, int Order);
+    private record ExerciseRow(Guid ExerciseId, Guid ExercisePk, string ExerciseName, int TargetSets, int TargetReps, int Order);
 }
