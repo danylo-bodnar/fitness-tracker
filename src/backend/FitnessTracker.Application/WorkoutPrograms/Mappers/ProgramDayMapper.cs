@@ -10,7 +10,7 @@ public static class ProgramDayMapper
         => [.. days.Select(ToProgramDay)];
 
     public static ProgramDay ToProgramDay(ProgramDayDto dto)
-        => new(dto.Name, [.. dto.Exercises.Select(ToProgramExercise)]);
+        => new(dto.Name, dto.Order, [.. dto.Exercises.Select(ToProgramExercise)]);
 
     private static ProgramExercise ToProgramExercise(ProgramExerciseDto dto)
         => new(dto.ExerciseId, new ExerciseName(dto.ExerciseName),

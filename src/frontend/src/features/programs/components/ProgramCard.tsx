@@ -57,7 +57,9 @@ export function ProgramCard({
   const handleDayRemove = (index: number) => {
     setDraft((prev) => ({
       ...prev,
-      days: prev.days.filter((_, i) => i !== index),
+      days: prev.days
+        .filter((_, i) => i !== index)
+        .map((day, i) => ({ ...day, order: i + 1 })),
     }));
   };
 
@@ -66,7 +68,7 @@ export function ProgramCard({
       ...prev,
       days: [
         ...prev.days,
-        { id: crypto.randomUUID(), name, exercises: [] },
+        { id: crypto.randomUUID(), name, order: prev.days.length + 1, exercises: [] },
       ],
     }));
   };

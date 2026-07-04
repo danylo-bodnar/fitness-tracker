@@ -17,6 +17,7 @@ public class UpdateProgramCommandValidator : AbstractValidator<UpdateProgramComm
         RuleForEach(x => x.ProgramDays).ChildRules(day =>
         {
             day.RuleFor(d => d.Name).NotEmpty();
+            day.RuleFor(d => d.Order).GreaterThanOrEqualTo(0);
 
             day.RuleFor(d => d.Exercises)
                 .NotEmpty().WithMessage("Each program day must have at least one exercise.");

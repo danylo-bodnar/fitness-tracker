@@ -7,7 +7,6 @@ import type {
 
 export async function getPrograms(): Promise<WorkoutProgramDto[]> {
   const res = await apiClient.get("/programs");
-  debugger;
   return res.data;
 }
 
