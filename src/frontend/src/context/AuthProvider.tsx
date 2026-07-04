@@ -10,8 +10,11 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [user, setUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem("user");
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [isInitializing, setIsInitializing] = useState(() => !!localStorage.getItem("user"));
   const isAdmin = user?.role === "admin";
 
   const login = useCallback((newToken: string, newUser: User) => {
@@ -29,12 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-
-    if (!savedUser) {
-      setIsInitializing(false);
-      return;
-    }
+    if (!user) return;
 
     axios
       .post<{ accessToken: string }>(
@@ -45,15 +43,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then((res) => {
         tokenStore.set(res.data.accessToken);
         setToken(res.data.accessToken);
-        setUser(JSON.parse(savedUser));
       })
       .catch(() => {
         localStorage.removeItem("user");
+        setUser(null);
       })
       .finally(() => {
         setIsInitializing(false);
       });
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const handler = () => logout();
