@@ -54,40 +54,42 @@ export function ProgramDayCard({
   return (
     <>
       <Collapsible open={open} onOpenChange={setOpen}>
-        <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium hover:bg-muted/50 transition-colors">
-          {editing ? (
-            <Input
-              value={day.name}
-              onChange={(e) => onUpdate?.({ ...day, name: e.target.value })}
-              className="h-6 text-sm font-medium"
-              onClick={(e) => e.stopPropagation()}
-            />
-          ) : (
-            <span>{day.name}</span>
-          )}
-          <div className="flex items-center gap-2">
-            {editing && (
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                className="size-6 text-muted-foreground hover:text-destructive"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemove?.();
-                }}
-              >
-                <Trash2 className="size-3" />
-              </Button>
+        <div className="flex items-center gap-1">
+          <CollapsibleTrigger className="flex flex-1 items-center justify-between rounded-md px-3 py-2 text-sm font-medium hover:bg-muted/50 transition-colors">
+            {editing ? (
+              <Input
+                value={day.name}
+                onChange={(e) => onUpdate?.({ ...day, name: e.target.value })}
+                className="h-6 text-sm font-medium"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <span>{day.name}</span>
             )}
-            <span className="text-xs text-muted-foreground">
-              {day.exercises.length} exercise
-              {day.exercises.length !== 1 ? "s" : ""}
-            </span>
-            <ChevronDown
-              className={`size-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
-            />
-          </div>
-        </CollapsibleTrigger>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">
+                {day.exercises.length} exercise
+                {day.exercises.length !== 1 ? "s" : ""}
+              </span>
+              <ChevronDown
+                className={`size-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+              />
+            </div>
+          </CollapsibleTrigger>
+          {editing && (
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="mr-1 size-6 shrink-0 text-muted-foreground hover:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove?.();
+              }}
+            >
+              <Trash2 className="size-3" />
+            </Button>
+          )}
+        </div>
         <CollapsibleContent className="px-3 pb-2">
           <ProgramExerciseList
             exercises={day.exercises}
