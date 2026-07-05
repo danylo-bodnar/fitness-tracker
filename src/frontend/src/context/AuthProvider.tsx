@@ -5,6 +5,7 @@ import { AuthContext } from "./AuthContext";
 import type { User } from "@/features/auth";
 import { tokenStore } from "@/lib/apiClient";
 import { LoadingSpinner } from "@/components/feedback/Spinner";
+import { toast } from "sonner";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -14,7 +15,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem("user");
     return saved ? JSON.parse(saved) : null;
   });
-  const [isInitializing, setIsInitializing] = useState(() => !!localStorage.getItem("user"));
+  const [isInitializing, setIsInitializing] = useState(
+    () => !!localStorage.getItem("user"),
+  );
   const isAdmin = user?.role === "admin";
 
   const login = useCallback((newToken: string, newUser: User) => {
@@ -27,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     tokenStore.clear();
     localStorage.removeItem("user");
+    toast.error("Session expired. Please log in again.");
     setToken(null);
     setUser(null);
   }, []);

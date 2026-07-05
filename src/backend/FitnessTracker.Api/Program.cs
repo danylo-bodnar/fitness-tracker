@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
+using FitnessTracker.Api.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +77,10 @@ builder.Services.Configure<AppOptions>(
 builder.Services.AddSingleton<ITelegramBotClient>(_ =>
     new TelegramBotClient(builder.Configuration["BOT_TOKEN"]!));
 
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddSingleton<IWorkoutParser, WorkoutTextParser>();
 builder.Services.AddSingleton<WorkoutUpdateHandler>();
 builder.Services.AddSingleton<TelegramLoginCallbackHandler>();
@@ -89,7 +94,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseExceptionHandler();
 
 app.MapControllers();
 

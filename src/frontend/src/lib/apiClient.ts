@@ -1,5 +1,7 @@
 // lib/apiClient.ts
 import axios from "axios";
+import { toast } from "sonner";
+import { getErrorMessage } from "./apiError";
 
 let accessToken: string | null = null;
 
@@ -61,6 +63,10 @@ apiClient.interceptors.response.use(
         window.dispatchEvent(new Event("auth:logout"));
         return Promise.reject(error);
       }
+    }
+
+    if (!original._silentError) {
+      toast.error(getErrorMessage(error));
     }
 
     return Promise.reject(error);
