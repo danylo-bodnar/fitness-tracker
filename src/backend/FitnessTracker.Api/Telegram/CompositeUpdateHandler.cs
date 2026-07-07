@@ -7,6 +7,7 @@ namespace FitnessTracker.Api.Telegram;
 
 public class CompositeUpdateHandler(
     WorkoutUpdateHandler workoutHandler,
+    WorkoutConversationHandler conversationHandler,
     TelegramLoginCallbackHandler loginHandler,
     ILogger<CompositeUpdateHandler> logger)
     : IUpdateHandler
@@ -15,26 +16,32 @@ public class CompositeUpdateHandler(
 
     public async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken ct)
     {
-        IUpdateHandler? handler = update.Type switch
-        {
-            UpdateType.CallbackQuery => loginHandler,
-            UpdateType.Message => workoutHandler,
-            _ => null
-        };
-
-        if (handler is null)
-        {
-            _logger.LogDebug("Ignored unsupported update type: {Type}", update.Type);
-            return;
-        }
-
         try
         {
-            await handler.HandleUpdateAsync(bot, update, ct);
+            if (update.Type == UpdateType.CallbackQuery && update.CallbackQuery?.Data is { } data)
+            {
+                if (data.StartsWith("login:"))
+                {
+                    await loginHandler.HandleUpdateAsync(bot, update, ct);
+                }
+                else
+                {
+                    await conversationHandler.HandleCallbackAsync(bot, update.CallbackQuery, ct);
+                }
+                return;
+            }
+
+            if (update.Type == UpdateType.Message)
+            {
+                await workoutHandler.HandleUpdateAsync(bot, update, ct);
+                return;
+            }
+
+            _logger.LogDebug("Ignored unsupported update type: {Type}", update.Type);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Handler {Handler} failed", handler.GetType().Name);
+            _logger.LogWarning(ex, "Handler failed for update {Type}", update.Type);
         }
     }
 

@@ -2,7 +2,6 @@ using System.Text;
 using System.Text.Json;
 using Npgsql;
 using FitnessTracker.Api.Middleware;
-using FitnessTracker.Api.Parsers;
 using FitnessTracker.Api.Telegram;
 using FitnessTracker.Application;
 using FitnessTracker.Application.Common.Options;
@@ -81,7 +80,8 @@ builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-builder.Services.AddSingleton<IWorkoutParser, WorkoutTextParser>();
+builder.Services.AddSingleton<WorkoutStateService>();
+builder.Services.AddSingleton<WorkoutConversationHandler>();
 builder.Services.AddSingleton<WorkoutUpdateHandler>();
 builder.Services.AddSingleton<TelegramLoginCallbackHandler>();
 builder.Services.AddSingleton<IUpdateHandler, CompositeUpdateHandler>();
