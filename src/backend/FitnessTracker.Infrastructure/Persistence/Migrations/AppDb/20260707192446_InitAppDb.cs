@@ -6,10 +6,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
+namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
 {
     /// <inheritdoc />
-    public partial class InitApp : Migration
+    public partial class InitAppDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,13 +18,13 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
                 name: "exercises",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     exercise_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    MuscleGroup = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true)
+                    muscle_group = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_exercises", x => x.Id);
+                    table.PrimaryKey("PK_exercises", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -102,103 +102,85 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
                 name: "users",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     telegram_chat_id = table.Column<long>(type: "bigint", nullable: false),
                     telegram_username = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    timezone = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
+                    role = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_users", x => x.Id);
+                    table.PrimaryKey("PK_users", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "workout_programs",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_workout_programs", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "workout_sessions",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Date = table.Column<DateOnly>(type: "date", nullable: false)
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    date = table.Column<DateOnly>(type: "date", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_workout_sessions", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "WorkoutPrograms",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_WorkoutPrograms", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "exercise_logs",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ExerciseId = table.Column<Guid>(type: "uuid", nullable: false),
-                    exercise_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    WorkoutSessionId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_exercise_logs", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_exercise_logs_exercises_ExerciseId",
-                        column: x => x.ExerciseId,
-                        principalTable: "exercises",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_exercise_logs_workout_sessions_WorkoutSessionId",
-                        column: x => x.WorkoutSessionId,
-                        principalTable: "workout_sessions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_workout_sessions", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "program_days",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    WorkoutProgramId = table.Column<Guid>(type: "uuid", nullable: true)
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    order = table.Column<int>(type: "integer", nullable: false),
+                    workout_program_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_program_days", x => x.Id);
+                    table.PrimaryKey("PK_program_days", x => x.id);
                     table.ForeignKey(
-                        name: "FK_program_days_WorkoutPrograms_WorkoutProgramId",
-                        column: x => x.WorkoutProgramId,
-                        principalTable: "WorkoutPrograms",
-                        principalColumn: "Id");
+                        name: "FK_program_days_workout_programs_workout_program_id",
+                        column: x => x.workout_program_id,
+                        principalTable: "workout_programs",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "sets",
+                name: "exercise_logs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Weight = table.Column<decimal>(type: "numeric(5,2)", nullable: false),
-                    Repetitions = table.Column<int>(type: "integer", nullable: false),
-                    ExerciseLogId = table.Column<Guid>(type: "uuid", nullable: false)
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    exercise_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    exercise_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    workout_session_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_sets", x => x.Id);
+                    table.PrimaryKey("PK_exercise_logs", x => x.id);
                     table.ForeignKey(
-                        name: "FK_sets_exercise_logs_ExerciseLogId",
-                        column: x => x.ExerciseLogId,
-                        principalTable: "exercise_logs",
-                        principalColumn: "Id",
+                        name: "FK_exercise_logs_exercises_exercise_id",
+                        column: x => x.exercise_id,
+                        principalTable: "exercises",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_exercise_logs_workout_sessions_workout_session_id",
+                        column: x => x.workout_session_id,
+                        principalTable: "workout_sessions",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -206,28 +188,48 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
                 name: "program_exercises",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ExerciseId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ExerciseName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    TargetSets = table.Column<int>(type: "integer", nullable: false),
-                    TargetReps = table.Column<int>(type: "integer", nullable: false),
-                    Order = table.Column<int>(type: "integer", nullable: false),
-                    ProgramDayId = table.Column<Guid>(type: "uuid", nullable: true)
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    exercise_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    exercise_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    target_sets = table.Column<int>(type: "integer", nullable: false),
+                    target_reps = table.Column<int>(type: "integer", nullable: false),
+                    order = table.Column<int>(type: "integer", nullable: false),
+                    program_day_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_program_exercises", x => x.Id);
+                    table.PrimaryKey("PK_program_exercises", x => x.id);
                     table.ForeignKey(
-                        name: "FK_program_exercises_program_days_ProgramDayId",
-                        column: x => x.ProgramDayId,
+                        name: "FK_program_exercises_program_days_program_day_id",
+                        column: x => x.program_day_id,
                         principalTable: "program_days",
-                        principalColumn: "Id",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "sets",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    weight = table.Column<decimal>(type: "numeric(5,2)", nullable: false),
+                    repetitions = table.Column<int>(type: "integer", nullable: false),
+                    exercise_log_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_sets", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_sets_exercise_logs_exercise_log_id",
+                        column: x => x.exercise_log_id,
+                        principalTable: "exercise_logs",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
                 table: "exercises",
-                columns: new[] { "Id", "MuscleGroup", "exercise_name" },
+                columns: new[] { "id", "muscle_group", "exercise_name" },
                 values: new object[,]
                 {
                     { new Guid("00000001-0000-0000-0000-000000000001"), "Biceps", "bicep curl" },
@@ -267,14 +269,14 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_exercise_logs_ExerciseId",
+                name: "IX_exercise_logs_exercise_id",
                 table: "exercise_logs",
-                column: "ExerciseId");
+                column: "exercise_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_exercise_logs_WorkoutSessionId",
+                name: "IX_exercise_logs_workout_session_id",
                 table: "exercise_logs",
-                column: "WorkoutSessionId");
+                column: "workout_session_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InboxState_Delivered",
@@ -309,19 +311,19 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
                 column: "Created");
 
             migrationBuilder.CreateIndex(
-                name: "IX_program_days_WorkoutProgramId",
+                name: "IX_program_days_workout_program_id",
                 table: "program_days",
-                column: "WorkoutProgramId");
+                column: "workout_program_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_program_exercises_ProgramDayId",
+                name: "IX_program_exercises_program_day_id",
                 table: "program_exercises",
-                column: "ProgramDayId");
+                column: "program_day_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_sets_ExerciseLogId",
+                name: "IX_sets_exercise_log_id",
                 table: "sets",
-                column: "ExerciseLogId");
+                column: "exercise_log_id");
         }
 
         /// <inheritdoc />
@@ -352,7 +354,7 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.App
                 name: "exercise_logs");
 
             migrationBuilder.DropTable(
-                name: "WorkoutPrograms");
+                name: "workout_programs");
 
             migrationBuilder.DropTable(
                 name: "exercises");

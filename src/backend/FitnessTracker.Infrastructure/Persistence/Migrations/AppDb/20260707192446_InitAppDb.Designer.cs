@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260620224236_RemoveTimezoneFromUser")]
-    partial class RemoveTimezoneFromUser
+    [Migration("20260707192446_InitAppDb")]
+    partial class InitAppDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,7 +28,14 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
             modelBuilder.Entity("FitnessTracker.Domain.Aggregates.User", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("role");
 
                     b.Property<long>("TelegramChatId")
                         .HasColumnType("bigint")
@@ -47,31 +54,37 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
             modelBuilder.Entity("FitnessTracker.Domain.Aggregates.WorkoutProgram", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
-                    b.ToTable("WorkoutPrograms");
+                    b.ToTable("workout_programs", (string)null);
                 });
 
             modelBuilder.Entity("FitnessTracker.Domain.Aggregates.WorkoutSession", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("date");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
@@ -81,11 +94,13 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
             modelBuilder.Entity("FitnessTracker.Domain.Entities.Exercise", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<string>("MuscleGroup")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("muscle_group");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -307,10 +322,12 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ExerciseLog", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<Guid>("ExerciseId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("exercise_id");
 
                     b.Property<string>("ExerciseName")
                         .IsRequired()
@@ -319,7 +336,8 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
                         .HasColumnName("exercise_name");
 
                     b.Property<Guid>("WorkoutSessionId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("workout_session_id");
 
                     b.HasKey("Id");
 
@@ -333,15 +351,22 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ProgramDay", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
 
                     b.Property<Guid?>("WorkoutProgramId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("workout_program_id");
 
                     b.HasKey("Id");
 
@@ -353,27 +378,34 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ProgramExercise", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<Guid>("ExerciseId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("exercise_id");
 
                     b.Property<string>("ExerciseName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("exercise_name");
 
                     b.Property<int>("Order")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
 
                     b.Property<Guid?>("ProgramDayId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("program_day_id");
 
                     b.Property<int>("TargetReps")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("target_reps");
 
                     b.Property<int>("TargetSets")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("target_sets");
 
                     b.HasKey("Id");
 
@@ -385,16 +417,20 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
             modelBuilder.Entity("FitnessTracker.Domain.Entities.Set", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<Guid>("ExerciseLogId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("exercise_log_id");
 
                     b.Property<int>("Repetitions")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("repetitions");
 
                     b.Property<decimal>("Weight")
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(5,2)")
+                        .HasColumnName("weight");
 
                     b.HasKey("Id");
 
@@ -592,13 +628,14 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
                 {
                     b.HasOne("FitnessTracker.Domain.Aggregates.WorkoutProgram", null)
                         .WithMany("Days")
-                        .HasForeignKey("WorkoutProgramId");
+                        .HasForeignKey("WorkoutProgramId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ProgramExercise", b =>
                 {
                     b.HasOne("FitnessTracker.Domain.Entities.ProgramDay", null)
-                        .WithMany("_exercises")
+                        .WithMany("Exercises")
                         .HasForeignKey("ProgramDayId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -629,7 +666,7 @@ namespace FitnessTracker.Infrastructure.Persistence.Migrations.AppDb
 
             modelBuilder.Entity("FitnessTracker.Domain.Entities.ProgramDay", b =>
                 {
-                    b.Navigation("_exercises");
+                    b.Navigation("Exercises");
                 });
 #pragma warning restore 612, 618
         }

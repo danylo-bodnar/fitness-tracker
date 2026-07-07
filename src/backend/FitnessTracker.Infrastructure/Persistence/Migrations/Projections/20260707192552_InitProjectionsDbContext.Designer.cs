@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FitnessTracker.Infrastructure.Persistence.Migrations.Projections
 {
     [DbContext(typeof(ProjectionsDbContext))]
-    [Migration("20260616221004_InitProjections")]
-    partial class InitProjections
+    [Migration("20260707192552_InitProjectionsDbContext")]
+    partial class InitProjectionsDbContext
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
