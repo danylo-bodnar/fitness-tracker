@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FitnessTracker.Infrastructure.Persistence.Migrations.Projections
 {
     /// <inheritdoc />
-    public partial class InitProjections : Migration
+    public partial class InitProjectionsDbContext : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
