@@ -1,7 +1,5 @@
-using FitnessTracker.Api.Parsers;
 using FitnessTracker.Application.Common.Interfaces;
 using FitnessTracker.Application.Common.Options;
-using MediatR;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -14,6 +12,8 @@ namespace FitnessTracker.Api.Telegram;
 
 public class WorkoutUpdateHandler(
     IServiceScopeFactory scopeFactory,
+    WorkoutConversationHandler conversationHandler,
+    WorkoutStateService stateService,
     ILogger<WorkoutUpdateHandler> logger,
     IOptions<AppOptions> appOptions) : IUpdateHandler
 {
@@ -23,90 +23,85 @@ public class WorkoutUpdateHandler(
     {
         if (update.Message?.Text is null) return;
 
+        var chatId = update.Message.Chat.Id;
+        var text = update.Message.Text;
+
         using var scope = scopeFactory.CreateScope();
-        var parser = scope.ServiceProvider.GetRequiredService<IWorkoutParser>();
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepository>();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
         try
         {
-            var text = update.Message.Text;
-
             if (text.StartsWith("/start"))
             {
-                var parts = text.Split(' ', 2, StringSplitOptions.TrimEntries);
-                var nonce = parts.Length > 1 ? parts[1] : null;
-
-                var existingUser = await userRepo.GetByTelegramChatIdAsync(update.Message.Chat.Id, ct);
-                if (existingUser is null)
-                {
-                    var newUser = new DomainUser(
-                        update.Message.Chat.Id,
-                        update.Message.From?.Username
-                        );
-
-                    userRepo.Add(newUser);
-                    await unitOfWork.CommitAsync(ct);
-
-                    var programRepo = scope.ServiceProvider.GetRequiredService<IWorkoutProgramRepository>();
-
-                    var program = DefaultWorkoutProgramFactory.Create(newUser.Id);
-                    programRepo.Add(program);
-                    await unitOfWork.CommitAsync(ct);
-                }
-
-                if (nonce is not null)
-                {
-                    var keyboard = new InlineKeyboardMarkup(
-                        InlineKeyboardButton.WithCallbackData("Approve login", $"login:{nonce}"));
-
-                    await bot.SendMessage(
-                        update.Message.Chat.Id,
-                        "Press the button to log in to the web app.",
-                        replyMarkup: keyboard,
-                        cancellationToken: ct);
-                }
-                else
-                {
-                    await bot.SendMessage(
-                        update.Message.Chat.Id,
-                        "Welcome to FitnessTracker! 💪\n\n"
-                        + "Log workouts like this:\n"
-                        + "bench press 80kg; 6,6,6\n\n"
-                        + $"View your dashboard at <a href=\"{_webAppUrl}\">{_webAppUrl}</a>",
-                        parseMode: ParseMode.Html,
-                        cancellationToken: ct);
-                }
-
+                await HandleStartCommand(bot, chatId, text, update.Message.From?.Username, scope, userRepo, unitOfWork, ct);
                 return;
             }
 
-            var domainUser = await userRepo.GetByTelegramChatIdAsync(update.Message.Chat.Id, ct);
-            if (domainUser is null)
+            if (text == "/log")
             {
-                await bot.SendMessage(
-                    update.Message.Chat.Id,
-                    "Please send /start first to register.",
-                    cancellationToken: ct);
+                var user = await userRepo.GetByTelegramChatIdAsync(chatId, ct);
+                if (user is null)
+                {
+                    await bot.SendMessage(chatId, "Please send /start first to register.", cancellationToken: ct);
+                    return;
+                }
+
+                await conversationHandler.StartConversationAsync(bot, chatId, user.Id, ct);
                 return;
             }
 
-            var cmd = parser.Parse(text, domainUser.Id, DateOnly.FromDateTime(DateTime.UtcNow));
-            var sessionId = await mediator.Send(cmd, ct);
+            if (await stateService.ExistsAsync(chatId))
+            {
+                await conversationHandler.HandleTextAsync(bot, chatId, text, ct);
+                return;
+            }
 
-            await bot.SendMessage(
-                update.Message.Chat.Id,
-                $"Logged ✅ ({sessionId})",
+            await bot.SendMessage(chatId,
+                "Send /log to log a workout, or /start for help.",
                 cancellationToken: ct);
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Failed to handle message: {Text}", update.Message.Text);
-            await bot.SendMessage(
-                update.Message.Chat.Id,
-                $"❌ {ex.Message}",
-                cancellationToken: ct);
+            logger.LogWarning(ex, "Failed to handle message: {Text}", text);
+            await bot.SendMessage(chatId, $"❌ {ex.Message}", cancellationToken: ct);
+        }
+    }
+
+    private async Task HandleStartCommand(ITelegramBotClient bot, long chatId, string text,
+        string? username, IServiceScope scope, IUserRepository userRepo, IUnitOfWork unitOfWork, CancellationToken ct)
+    {
+        var parts = text.Split(' ', 2, StringSplitOptions.TrimEntries);
+        var nonce = parts.Length > 1 ? parts[1] : null;
+
+        var existingUser = await userRepo.GetByTelegramChatIdAsync(chatId, ct);
+        if (existingUser is null)
+        {
+            var newUser = new DomainUser(chatId, username);
+            userRepo.Add(newUser);
+            await unitOfWork.CommitAsync(ct);
+
+            var programRepo = scope.ServiceProvider.GetRequiredService<IWorkoutProgramRepository>();
+            var program = DefaultWorkoutProgramFactory.Create(newUser.Id);
+            programRepo.Add(program);
+            await unitOfWork.CommitAsync(ct);
+        }
+
+        if (nonce is not null)
+        {
+            var keyboard = new InlineKeyboardMarkup(
+                InlineKeyboardButton.WithCallbackData("Approve login", $"login:{nonce}"));
+
+            await bot.SendMessage(chatId, "Press the button to log in to the web app.",
+                replyMarkup: keyboard, cancellationToken: ct);
+        }
+        else
+        {
+            await bot.SendMessage(chatId,
+                $"Welcome to FitnessTracker! 💪\n\n"
+                + $"Send /log to log a workout with interactive menus.\n\n"
+                + $"View your dashboard at <a href=\"{_webAppUrl}\">{_webAppUrl}</a>",
+                parseMode: ParseMode.Html, cancellationToken: ct);
         }
     }
 

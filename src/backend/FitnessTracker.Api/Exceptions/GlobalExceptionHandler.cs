@@ -1,6 +1,4 @@
-using System.Net;
 using System.Text.Json;
-using FitnessTracker.Api.Parsers;
 using FitnessTracker.Application.Common.Exceptions;
 using FitnessTracker.Domain.Exceptions;
 using FluentValidation;
@@ -77,9 +75,6 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
         NotFoundException => StatusCodes.Status404NotFound,
         ForbiddenException => StatusCodes.Status403Forbidden,
         ValidationException => StatusCodes.Status400BadRequest,
-
-        // API layer
-        ParseException => StatusCodes.Status400BadRequest,
 
         // Domain
         DomainException => StatusCodes.Status400BadRequest,
