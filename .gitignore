@@ -1,1 +1,5 @@
 .zed/
+<<<<<<< HEAD
+=======
+.DS_Store
+>>>>>>> 9c36b3f (Remove .zed from tracking, add root .gitignore)

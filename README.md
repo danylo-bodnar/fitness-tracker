@@ -4,7 +4,6 @@
     <img src="https://img.shields.io/badge/LiftLog-6366f1?style=for-the-badge&logo=dotnet&logoColor=white">
   </picture>
 </p>
-
 <p align="center">
   <i>A full-stack fitness tracking app with Telegram bot integration — built with Clean Architecture, CQRS, event-driven messaging, and modern full-stack tooling.</i>
 </p>
