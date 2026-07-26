@@ -9,6 +9,7 @@ public class ProjectionsDbContext(DbContextOptions<ProjectionsDbContext> options
     public DbSet<ExerciseProgressReadModel> ExerciseProgress => Set<ExerciseProgressReadModel>();
     public DbSet<WeeklyVolumeReadModel> WeeklyVolume => Set<WeeklyVolumeReadModel>();
     public DbSet<DashboardStatsReadModel> DashboardStats => Set<DashboardStatsReadModel>();
+    public DbSet<ProcessedMessage> ProcessedMessages => Set<ProcessedMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +48,13 @@ public class ProjectionsDbContext(DbContextOptions<ProjectionsDbContext> options
 
             b.Property(x => x.TotalVolumeKg)
                 .HasPrecision(10, 2);
+        });
+
+        modelBuilder.Entity<ProcessedMessage>(b =>
+        {
+            b.ToTable("processed_messages");
+            b.HasKey(x => x.MessageId);
+            b.Property(x => x.ProcessedAt).IsRequired();
         });
     }
 }
