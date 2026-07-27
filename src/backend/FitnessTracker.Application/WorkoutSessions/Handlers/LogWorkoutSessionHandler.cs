@@ -22,7 +22,7 @@ public class LogWorkoutSessionHandler(
 
         foreach (var exercise in cmd.Exercises)
         {
-            var exerciseLog = session.AddExercise(exercise.ExerciseId, new ExerciseName(exercise.ExerciseName));
+            var exerciseLog = session.AddExercise(exercise.ExerciseId, new ExerciseName(exercise.ExerciseName), exercise.SupersetGroupId);
 
             foreach (var set in exercise.Sets)
                 exerciseLog.LogSet(new Weight(set.WeightKg), new Repetitions(set.Reps));

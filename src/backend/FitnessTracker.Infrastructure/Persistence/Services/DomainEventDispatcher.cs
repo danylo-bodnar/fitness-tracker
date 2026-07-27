@@ -43,7 +43,8 @@ public class DomainEventDispatcher(
             Date: e.Date,
             MaxWeightKg: e.Sets.Max(s => s.WeightKg),
             TotalVolume: e.Sets.Sum(s => s.WeightKg * s.Reps),
-            SetCount: e.Sets.Count
+            SetCount: e.Sets.Count,
+            SupersetGroupId: e.SupersetGroupId
         ), ct);
     }
 }

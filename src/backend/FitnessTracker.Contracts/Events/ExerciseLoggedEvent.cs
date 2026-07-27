@@ -7,5 +7,6 @@ public record ExerciseLoggedEvent(
     DateOnly Date,
     decimal MaxWeightKg,
     decimal TotalVolume,
-    int SetCount
+    int SetCount,
+    int? SupersetGroupId = null
 );

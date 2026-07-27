@@ -40,6 +40,7 @@ public class ProgramDay
                 existing.TargetSets = newEx.TargetSets;
                 existing.TargetReps = newEx.TargetReps;
                 existing.Order = newEx.Order;
+                existing.SupersetGroupId = newEx.SupersetGroupId;
             }
             else
             {

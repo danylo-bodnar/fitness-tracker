@@ -14,5 +14,5 @@ public static class ProgramDayMapper
 
     private static ProgramExercise ToProgramExercise(ProgramExerciseDto dto)
         => new(dto.Id, dto.ExerciseId, new ExerciseName(dto.ExerciseName),
-               dto.TargetSets, dto.TargetReps, dto.Order);
+               dto.TargetSets, dto.TargetReps, dto.Order, dto.SupersetGroupId);
 }

@@ -11,7 +11,8 @@ public record LogWorkoutSessionCommand(
 public record ExerciseEntry(
     Guid ExerciseId,
     string ExerciseName,
-    IReadOnlyList<SetEntry> Sets
+    IReadOnlyList<SetEntry> Sets,
+    int? SupersetGroupId = null
 );
 
 public record SetEntry(decimal WeightKg, int Reps);

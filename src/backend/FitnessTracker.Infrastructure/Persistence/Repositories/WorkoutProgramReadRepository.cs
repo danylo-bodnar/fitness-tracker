@@ -21,7 +21,8 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
             e.exercise_name AS "ExerciseName",
             e.target_sets   AS "TargetSets",
             e.target_reps   AS "TargetReps",
-            e.order         AS "Order"
+            e.order         AS "Order",
+            e.superset_group_id AS "SupersetGroupId"
         FROM workout_programs p
         LEFT JOIN program_days      d ON d.workout_program_id = p.id
         LEFT JOIN program_exercises e ON e.program_day_id     = d.id
@@ -68,7 +69,8 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
                         exercise.ExerciseName,
                         exercise.TargetSets,
                         exercise.TargetReps,
-                        exercise.Order));
+                        exercise.Order,
+                        exercise.SupersetGroupId));
                 }
 
                 return programDto;
@@ -81,5 +83,5 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
 
     private record ProgramRow(Guid Id, string Name);
     private record DayRow(Guid DayId, string DayName, int DayOrder);
-    private record ExerciseRow(Guid ExerciseId, Guid ExercisePk, string ExerciseName, int TargetSets, int TargetReps, int Order);
+    private record ExerciseRow(Guid ExerciseId, Guid ExercisePk, string ExerciseName, int TargetSets, int TargetReps, int Order, int? SupersetGroupId);
 }
