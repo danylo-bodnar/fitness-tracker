@@ -6,5 +6,6 @@ public record ProgramExerciseDto(
     string ExerciseName,
     int TargetSets,
     int TargetReps,
-    int Order
+    int Order,
+    int? SupersetGroupId = null
 );

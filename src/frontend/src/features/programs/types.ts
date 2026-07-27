@@ -18,6 +18,7 @@ export interface ProgramExerciseDto {
   targetSets: number;
   targetReps: number;
   order: number;
+  supersetGroupId?: number | null;
 }
 
 export interface CreateProgramRequest {

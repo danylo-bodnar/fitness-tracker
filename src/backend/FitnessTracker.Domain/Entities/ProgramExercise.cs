@@ -10,15 +10,16 @@ public class ProgramExercise
     public int TargetSets { get; internal set; }
     public int TargetReps { get; internal set; }
     public int Order { get; internal set; }
+    public int? SupersetGroupId { get; internal set; }
 
     private ProgramExercise() { }
 
-    public ProgramExercise(Guid exerciseId, ExerciseName exerciseName, int targetSets, int targetReps, int order)
-        : this(Guid.NewGuid(), exerciseId, exerciseName, targetSets, targetReps, order)
+    public ProgramExercise(Guid exerciseId, ExerciseName exerciseName, int targetSets, int targetReps, int order, int? supersetGroupId = null)
+        : this(Guid.NewGuid(), exerciseId, exerciseName, targetSets, targetReps, order, supersetGroupId)
     {
     }
 
-    public ProgramExercise(Guid id, Guid exerciseId, ExerciseName exerciseName, int targetSets, int targetReps, int order)
+    public ProgramExercise(Guid id, Guid exerciseId, ExerciseName exerciseName, int targetSets, int targetReps, int order, int? supersetGroupId = null)
     {
         Id = id;
         ExerciseId = exerciseId;
@@ -26,5 +27,6 @@ public class ProgramExercise
         TargetSets = targetSets;
         TargetReps = targetReps;
         Order = order;
+        SupersetGroupId = supersetGroupId;
     }
 }

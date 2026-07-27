@@ -41,6 +41,9 @@ public class ProgramExerciseConfiguration : IEntityTypeConfiguration<ProgramExer
             .IsRequired()
             .HasColumnName("target_reps");
 
+        builder.Property(x => x.SupersetGroupId)
+            .HasColumnName("superset_group_id");
+
         builder.Property("ProgramDayId")
             .HasColumnName("program_day_id");
     }

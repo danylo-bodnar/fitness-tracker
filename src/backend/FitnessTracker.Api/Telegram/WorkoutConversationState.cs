@@ -18,14 +18,22 @@ public class WorkoutConversationState
     public string ProgramName { get; set; } = null!;
     public Guid DayId { get; set; }
     public string DayName { get; set; } = null!;
-    public int CurrentExerciseIndex { get; set; }
-    public int TotalSetsForExercise { get; set; }
-    public int CurrentSetIndex { get; set; }
     public decimal PendingWeight { get; set; }
 
-    public List<ConversationExercise> DayExercises { get; set; } = [];
-    public List<LoggedSet> CurrentExerciseSets { get; set; } = [];
+    public List<ConversationGroup> Groups { get; set; } = [];
+    public int CurrentGroupIndex { get; set; }
+    public int CurrentRound { get; set; }
+    public int CurrentExerciseInGroup { get; set; }
+
+    public List<ExerciseAccumulator> GroupAccumulators { get; set; } = [];
     public List<CompletedExercise> CompletedExercises { get; set; } = [];
+}
+
+public class ConversationGroup
+{
+    public int? SupersetGroupId { get; set; }
+    public int MaxRounds { get; set; }
+    public List<ConversationExercise> Exercises { get; set; } = [];
 }
 
 public class ConversationExercise
@@ -34,6 +42,14 @@ public class ConversationExercise
     public string ExerciseName { get; set; } = null!;
     public int TargetSets { get; set; }
     public int TargetReps { get; set; }
+    public decimal? AssignedWeight { get; set; }
+}
+
+public class ExerciseAccumulator
+{
+    public Guid ExerciseId { get; set; }
+    public string ExerciseName { get; set; } = null!;
+    public List<LoggedSet> Sets { get; set; } = [];
 }
 
 public class LoggedSet

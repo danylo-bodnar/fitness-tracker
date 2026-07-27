@@ -9,7 +9,8 @@ public record ExercisePerformed(
     Guid ExerciseId,
     ExerciseName ExerciseName,
     DateOnly Date,
-    IReadOnlyList<SetRecord> Sets
+    IReadOnlyList<SetRecord> Sets,
+    int? SupersetGroupId = null
 ) : IDomainEvent;
 
 public record SetRecord(decimal WeightKg, int Reps);

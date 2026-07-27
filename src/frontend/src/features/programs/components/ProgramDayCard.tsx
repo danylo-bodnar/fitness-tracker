@@ -51,6 +51,32 @@ export function ProgramDayCard({
     onUpdate?.({ ...day, exercises: [...day.exercises, newExercise] });
   };
 
+  const handleDragDrop = (dragIndex: number, dropIndex: number) => {
+    const exercises = day.exercises.map(ex => ({ ...ex }));
+    const dragged = exercises[dragIndex];
+    const dropped = exercises[dropIndex];
+
+    if (dropped.supersetGroupId != null) {
+      exercises[dragIndex] = { ...dragged, supersetGroupId: dropped.supersetGroupId };
+    } else {
+      const used = exercises
+        .map(e => e.supersetGroupId)
+        .filter((id): id is number => id != null);
+      const nextId = used.length > 0 ? Math.max(...used) + 1 : 1;
+      exercises[dragIndex] = { ...dragged, supersetGroupId: nextId };
+      exercises[dropIndex] = { ...dropped, supersetGroupId: nextId };
+    }
+
+    onUpdate?.({ ...day, exercises });
+  };
+
+  const handleUngroup = (index: number) => {
+    const exercises = day.exercises.map((ex, i) =>
+      i === index ? { ...ex, supersetGroupId: null } : ex
+    );
+    onUpdate?.({ ...day, exercises });
+  };
+
   return (
     <>
       <Collapsible open={open} onOpenChange={setOpen}>
@@ -96,6 +122,8 @@ export function ProgramDayCard({
             editing={editing}
             onUpdate={handleExerciseUpdate}
             onRemove={handleExerciseRemove}
+            onDragDrop={handleDragDrop}
+            onUngroup={handleUngroup}
           />
           {editing && (
             <Button

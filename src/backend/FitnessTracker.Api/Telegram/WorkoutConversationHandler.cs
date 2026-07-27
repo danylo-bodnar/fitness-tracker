@@ -167,26 +167,39 @@ public class WorkoutConversationHandler(
 
         state.DayId = day.Id;
         state.DayName = day.Name;
-        state.CurrentExerciseIndex = 0;
-        state.CurrentExerciseSets.Clear();
-        state.DayExercises = [.. day.Exercises.Select(e => new ConversationExercise
-        {
-            ExerciseId = e.ExerciseId,
-            ExerciseName = e.ExerciseName,
-            TargetSets = e.TargetSets,
-            TargetReps = e.TargetReps
-        })];
 
-        var exercise = state.DayExercises[0];
-        state.TotalSetsForExercise = exercise.TargetSets;
-        state.CurrentSetIndex = 1;
-        state.Step = WorkoutStep.AwaitingWeight;
+        var grouped = day.Exercises
+            .GroupBy(e => e.SupersetGroupId)
+            .OrderBy(g => day.Exercises
+                .Where(e => e.SupersetGroupId == g.Key)
+                .Min(e => e.Order));
+
+        state.Groups = [];
+        foreach (var grp in grouped)
+        {
+            var exercises = grp.Select(e => new ConversationExercise
+            {
+                ExerciseId = e.ExerciseId,
+                ExerciseName = e.ExerciseName,
+                TargetSets = e.TargetSets,
+                TargetReps = e.TargetReps,
+            }).ToList();
+
+            state.Groups.Add(new ConversationGroup
+            {
+                SupersetGroupId = grp.Key,
+                MaxRounds = exercises.Max(e => e.TargetSets),
+                Exercises = exercises
+            });
+        }
+
+        state.CurrentGroupIndex = 0;
+        state.CurrentRound = 1;
+        state.CurrentExerciseInGroup = 0;
+        state.GroupAccumulators.Clear();
 
         await stateService.SaveAsync(chatId, state);
-
-        await bot.SendMessage(chatId,
-            $"Day: {day.Name}\nExercise 1/{day.Exercises.Count}: {exercise.ExerciseName}\nEnter weight (kg) for {exercise.TargetSets} sets:",
-            cancellationToken: ct);
+        await SendCurrentPrompt(bot, chatId, state, ct);
     }
 
     private async Task HandleWeight(ITelegramBotClient bot, long chatId, string text,
@@ -198,11 +211,15 @@ public class WorkoutConversationHandler(
             return;
         }
 
+        var group = state.Groups[state.CurrentGroupIndex];
+        var exercise = group.Exercises[state.CurrentExerciseInGroup];
+
         state.PendingWeight = weight;
+        exercise.AssignedWeight = weight;
         state.Step = WorkoutStep.AwaitingReps;
 
         await stateService.SaveAsync(chatId, state);
-        await bot.SendMessage(chatId, $"Set 1 of {state.TotalSetsForExercise} — enter reps:", cancellationToken: ct);
+        await bot.SendMessage(chatId, $"Set {state.CurrentRound} of {exercise.TargetSets} — enter reps:", cancellationToken: ct);
     }
 
     private async Task HandleReps(ITelegramBotClient bot, long chatId, string text,
@@ -214,68 +231,148 @@ public class WorkoutConversationHandler(
             return;
         }
 
-        state.CurrentExerciseSets.Add(new LoggedSet { WeightKg = state.PendingWeight, Reps = reps });
+        var group = state.Groups[state.CurrentGroupIndex];
+        var exercise = group.Exercises[state.CurrentExerciseInGroup];
 
-        if (state.CurrentSetIndex < state.TotalSetsForExercise)
+        var acc = state.GroupAccumulators.FirstOrDefault(a => a.ExerciseId == exercise.ExerciseId);
+        if (acc is null)
         {
-            state.CurrentSetIndex++;
+            acc = new ExerciseAccumulator
+            {
+                ExerciseId = exercise.ExerciseId,
+                ExerciseName = exercise.ExerciseName,
+            };
+            state.GroupAccumulators.Add(acc);
+        }
 
-            await stateService.SaveAsync(chatId, state);
-            await bot.SendMessage(chatId,
-                $"✓ {state.PendingWeight}kg × {reps}. Set {state.CurrentSetIndex} of {state.TotalSetsForExercise} — enter reps:",
-                cancellationToken: ct);
-        }
-        else
+        acc.Sets.Add(new LoggedSet
         {
-            await FinalizeCurrentExercise(bot, chatId, state, ct);
-        }
+            WeightKg = state.PendingWeight,
+            Reps = reps
+        });
+
+        await stateService.SaveAsync(chatId, state);
+        await AdvanceToNextInput(bot, chatId, state, ct);
     }
 
-    private async Task FinalizeCurrentExercise(ITelegramBotClient bot, long chatId,
+    private async Task AdvanceToNextInput(ITelegramBotClient bot, long chatId,
         WorkoutConversationState state, CancellationToken ct)
     {
-        var exercise = state.DayExercises.ElementAtOrDefault(state.CurrentExerciseIndex);
-        if (exercise is null)
+        var group = state.Groups[state.CurrentGroupIndex];
+
+        // Move to next exercise in this round
+        state.CurrentExerciseInGroup++;
+
+        if (state.CurrentExerciseInGroup < group.Exercises.Count)
         {
-            await bot.SendMessage(chatId, "Error loading exercise data. Send /log to start over.", cancellationToken: ct);
+            await SendCurrentPrompt(bot, chatId, state, ct);
             return;
         }
 
-        state.CompletedExercises.Add(new CompletedExercise
+        // All exercises in this round done — move to next round
+        state.CurrentExerciseInGroup = 0;
+        state.CurrentRound++;
+
+        if (state.CurrentRound <= group.MaxRounds)
         {
-            ExerciseId = exercise.ExerciseId,
-            ExerciseName = exercise.ExerciseName,
-            Sets = [.. state.CurrentExerciseSets]
-        });
+            await SendCurrentPrompt(bot, chatId, state, ct);
+            return;
+        }
 
-        state.CurrentExerciseSets.Clear();
-        state.CurrentExerciseIndex++;
+        // All rounds done — finalize group
+        await FinalizeGroup(bot, chatId, state, ct);
+    }
 
-        if (state.DayExercises.Count > state.CurrentExerciseIndex)
+    private async Task FinalizeGroup(ITelegramBotClient bot, long chatId,
+        WorkoutConversationState state, CancellationToken ct)
+    {
+        var group = state.Groups[state.CurrentGroupIndex];
+
+        foreach (var acc in state.GroupAccumulators)
         {
-            var next = state.DayExercises[state.CurrentExerciseIndex];
-            state.TotalSetsForExercise = next.TargetSets;
-            state.CurrentSetIndex = 1;
-            state.CurrentExerciseSets.Clear();
-            state.Step = WorkoutStep.AwaitingWeight;
+            state.CompletedExercises.Add(new CompletedExercise
+            {
+                ExerciseId = acc.ExerciseId,
+                ExerciseName = acc.ExerciseName,
+                Sets = [.. acc.Sets]
+            });
+        }
 
-            await stateService.SaveAsync(chatId, state);
-            await bot.SendMessage(chatId,
-                $"✓ {exercise.ExerciseName} done.\n\nExercise {state.CurrentExerciseIndex + 1}/{state.DayExercises.Count}: {next.ExerciseName}\nEnter weight (kg) for {next.TargetSets} sets:",
-                cancellationToken: ct);
+        state.GroupAccumulators.Clear();
+
+        if (group.SupersetGroupId.HasValue && group.Exercises.Count > 1)
+        {
+            var names = string.Join(" + ", group.Exercises.Select(e => e.ExerciseName));
+            await bot.SendMessage(chatId, $"✓ Superset complete: {names}", cancellationToken: ct);
+        }
+
+        // Move to next group
+        state.CurrentGroupIndex++;
+        state.CurrentRound = 1;
+        state.CurrentExerciseInGroup = 0;
+
+        if (state.CurrentGroupIndex < state.Groups.Count)
+        {
+            await SendCurrentPrompt(bot, chatId, state, ct);
         }
         else
         {
             state.Step = WorkoutStep.Confirming;
             await stateService.SaveAsync(chatId, state);
-            await ShowSummaryAndConfirm(bot, chatId, state, exercise.ExerciseName, ct);
+            await ShowSummaryAndConfirm(bot, chatId, state, ct);
         }
     }
 
-    private async Task ShowSummaryAndConfirm(ITelegramBotClient bot, long chatId,
-        WorkoutConversationState state, string lastExerciseName, CancellationToken ct)
+    private async Task SendCurrentPrompt(ITelegramBotClient bot, long chatId,
+        WorkoutConversationState state, CancellationToken ct)
     {
-        var summary = $"✓ {lastExerciseName} done.\n\n";
+        var group = state.Groups[state.CurrentGroupIndex];
+        var exercise = group.Exercises[state.CurrentExerciseInGroup];
+
+        state.Step = exercise.AssignedWeight.HasValue
+            ? WorkoutStep.AwaitingReps
+            : WorkoutStep.AwaitingWeight;
+
+        string message;
+
+        if (group.SupersetGroupId.HasValue && group.Exercises.Count > 1)
+        {
+            if (exercise.AssignedWeight.HasValue)
+            {
+                message = $"Round {state.CurrentRound}/{group.MaxRounds} — {exercise.ExerciseName} — Set {state.CurrentRound} — enter reps:";
+            }
+            else
+            {
+                message = $"Round {state.CurrentRound}/{group.MaxRounds} — {exercise.ExerciseName} — Enter weight (kg) for {exercise.TargetSets} sets:";
+            }
+        }
+        else
+        {
+            if (exercise.AssignedWeight.HasValue)
+            {
+                message = $"Set {state.CurrentRound} of {exercise.TargetSets} — enter reps:";
+            }
+            else
+            {
+                var dayProgress = state.Groups
+                    .TakeWhile(g => g != group)
+                    .Sum(g => g.Exercises.Count);
+
+                var total = state.Groups.Sum(g => g.Exercises.Count);
+                var exerciseNum = dayProgress + state.CurrentExerciseInGroup + 1;
+
+                message = $"Day: {state.DayName}\nExercise {exerciseNum}/{total}: {exercise.ExerciseName}\nEnter weight (kg) for {exercise.TargetSets} sets:";
+            }
+        }
+
+        await stateService.SaveAsync(chatId, state);
+        await bot.SendMessage(chatId, message, cancellationToken: ct);
+    }
+
+    private async Task ShowSummaryAndConfirm(ITelegramBotClient bot, long chatId,
+        WorkoutConversationState state, CancellationToken ct)
+    {
+        var summary = "";
 
         foreach (var ex in state.CompletedExercises)
         {

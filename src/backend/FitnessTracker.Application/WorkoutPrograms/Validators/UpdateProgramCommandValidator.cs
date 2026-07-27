@@ -11,16 +11,10 @@ public class UpdateProgramCommandValidator : AbstractValidator<UpdateProgramComm
             .NotEmpty().WithMessage("Program name cannot be empty.")
             .MaximumLength(100).WithMessage("Program name cannot exceed 100 characters.");
 
-        RuleFor(x => x.ProgramDays)
-            .NotEmpty().WithMessage("At least one program day is required.");
-
         RuleForEach(x => x.ProgramDays).ChildRules(day =>
         {
             day.RuleFor(d => d.Name).NotEmpty();
             day.RuleFor(d => d.Order).GreaterThanOrEqualTo(0);
-
-            day.RuleFor(d => d.Exercises)
-                .NotEmpty().WithMessage("Each program day must have at least one exercise.");
 
             day.When(d => d.Exercises.Count != 0, () =>
             {

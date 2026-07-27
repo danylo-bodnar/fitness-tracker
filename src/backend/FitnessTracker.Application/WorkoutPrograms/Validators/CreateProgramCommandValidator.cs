@@ -12,7 +12,6 @@ public class CreateProgramCommandValidator : AbstractValidator<CreateProgramComm
             .MaximumLength(100).WithMessage("Program name cannot exceed 100 characters.");
 
         RuleFor(x => x.ProgramDays)
-            .NotEmpty().WithMessage("At least one program day is required.")
             .Must(days => days.Count <= 4)
             .WithMessage("A program cannot contain more than 4 days.");
 
@@ -20,9 +19,6 @@ public class CreateProgramCommandValidator : AbstractValidator<CreateProgramComm
         {
             day.RuleFor(d => d.Name).NotEmpty();
             day.RuleFor(d => d.Order).GreaterThanOrEqualTo(0);
-
-            day.RuleFor(d => d.Exercises)
-                .NotEmpty().WithMessage("Each program day must have at least one exercise.");
 
             day.When(d => d.Exercises.Count != 0, () =>
             {

@@ -26,12 +26,12 @@ public class WorkoutSession : AggregateRoot
     public static WorkoutSession Create(Guid userId, DateOnly date)
         => new(Guid.NewGuid(), userId, date);
 
-    public ExerciseLog AddExercise(Guid exerciseId, ExerciseName name)
+    public ExerciseLog AddExercise(Guid exerciseId, ExerciseName name, int? supersetGroupId = null)
     {
-        if (_exercises.Any(e => e.ExerciseName == name))
+        if (_exercises.Any(e => e.ExerciseName == name && e.SupersetGroupId == supersetGroupId))
             throw new DuplicateExerciseException(name.Value);
 
-        var log = new ExerciseLog(exerciseId, name);
+        var log = new ExerciseLog(exerciseId, name, supersetGroupId);
         _exercises.Add(log);
 
         return log;
@@ -48,7 +48,8 @@ public class WorkoutSession : AggregateRoot
             [.. log.Sets.Select(s => new SetRecord(
                 s.Weight.Kg,
                 s.Repetitions.Value
-            ))]
+            ))],
+            log.SupersetGroupId
         ));
     }
 

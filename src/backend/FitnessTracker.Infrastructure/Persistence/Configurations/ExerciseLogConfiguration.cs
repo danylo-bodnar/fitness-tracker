@@ -27,6 +27,9 @@ public class ExerciseLogConfiguration : IEntityTypeConfiguration<ExerciseLog>
             .HasColumnName("exercise_name")
             .HasMaxLength(100);
 
+        builder.Property(x => x.SupersetGroupId)
+            .HasColumnName("superset_group_id");
+
         builder.Property("WorkoutSessionId")
             .HasColumnName("workout_session_id");
 
