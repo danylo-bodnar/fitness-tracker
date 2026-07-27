@@ -109,13 +109,12 @@ public class WorkoutConversationHandler(
         if (!Guid.TryParse(programIdStr, out var programId))
             return;
 
-        WorkoutProgramDto program;
+        WorkoutProgramDto? program;
 
         using (var scope = scopeFactory.CreateScope())
         {
             var repo = scope.ServiceProvider.GetRequiredService<IWorkoutProgramReadRepository>();
-            var programs = await repo.GetByUserAsync(state.UserId, ct);
-            program = programs.FirstOrDefault(p => p.Id == programId)!;
+            program = await repo.GetByIdAsync(programId, state.UserId, ct);
         }
 
         if (program is null)
@@ -148,8 +147,7 @@ public class WorkoutConversationHandler(
         using (var scope = scopeFactory.CreateScope())
         {
             var repo = scope.ServiceProvider.GetRequiredService<IWorkoutProgramReadRepository>();
-            var programs = await repo.GetByUserAsync(state.UserId, ct);
-            program = programs.FirstOrDefault(p => p.Id == state.ProgramId);
+            program = await repo.GetByIdAsync(state.ProgramId, state.UserId, ct);
         }
 
         var day = program?.Days.FirstOrDefault(d => d.Id == dayId);
@@ -170,9 +168,10 @@ public class WorkoutConversationHandler(
 
         var grouped = day.Exercises
             .GroupBy(e => e.SupersetGroupId)
-            .OrderBy(g => day.Exercises
-                .Where(e => e.SupersetGroupId == g.Key)
-                .Min(e => e.Order));
+            .SelectMany(g => g.Key == null
+                ? g.Select(e => new List<ProgramExerciseDto> { e })
+                : [g.ToList()])
+            .OrderBy(g => g.Min(e => e.Order));
 
         state.Groups = [];
         foreach (var grp in grouped)
@@ -187,7 +186,7 @@ public class WorkoutConversationHandler(
 
             state.Groups.Add(new ConversationGroup
             {
-                SupersetGroupId = grp.Key,
+                SupersetGroupId = grp.Count > 1 ? grp[0].SupersetGroupId : null,
                 MaxRounds = exercises.Max(e => e.TargetSets),
                 Exercises = exercises
             });
@@ -263,7 +262,7 @@ public class WorkoutConversationHandler(
         // Move to next exercise in this round
         state.CurrentExerciseInGroup++;
 
-        if (state.CurrentExerciseInGroup < group.Exercises.Count)
+        if (NextUnfinishedExerciseInRound(group, state) is { } success && success)
         {
             await SendCurrentPrompt(bot, chatId, state, ct);
             return;
@@ -273,7 +272,7 @@ public class WorkoutConversationHandler(
         state.CurrentExerciseInGroup = 0;
         state.CurrentRound++;
 
-        if (state.CurrentRound <= group.MaxRounds)
+        if (state.CurrentRound <= group.MaxRounds && NextUnfinishedExerciseInRound(group, state) is { } next && next)
         {
             await SendCurrentPrompt(bot, chatId, state, ct);
             return;
@@ -281,6 +280,17 @@ public class WorkoutConversationHandler(
 
         // All rounds done — finalize group
         await FinalizeGroup(bot, chatId, state, ct);
+    }
+
+    private static bool? NextUnfinishedExerciseInRound(ConversationGroup group, WorkoutConversationState state)
+    {
+        while (state.CurrentExerciseInGroup < group.Exercises.Count &&
+               group.Exercises[state.CurrentExerciseInGroup].TargetSets < state.CurrentRound)
+        {
+            state.CurrentExerciseInGroup++;
+        }
+
+        return state.CurrentExerciseInGroup < group.Exercises.Count;
     }
 
     private async Task FinalizeGroup(ITelegramBotClient bot, long chatId,

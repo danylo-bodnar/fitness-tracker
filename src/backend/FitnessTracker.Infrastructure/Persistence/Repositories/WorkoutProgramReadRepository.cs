@@ -9,26 +9,7 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
 {
     public async Task<List<WorkoutProgramDto>> GetByUserAsync(Guid userId, CancellationToken ct = default)
     {
-        const string sql = """
-        SELECT
-            p.id         AS "Id",
-            p.name       AS "Name",
-            d.id         AS "DayId",
-            d.name       AS "DayName",
-            d.order      AS "DayOrder",
-            e.exercise_id   AS "ExerciseId",
-            e.id            AS "ExercisePk",
-            e.exercise_name AS "ExerciseName",
-            e.target_sets   AS "TargetSets",
-            e.target_reps   AS "TargetReps",
-            e.order         AS "Order",
-            e.superset_group_id AS "SupersetGroupId"
-        FROM workout_programs p
-        LEFT JOIN program_days      d ON d.workout_program_id = p.id
-        LEFT JOIN program_exercises e ON e.program_day_id     = d.id
-        WHERE p.user_id = @userId
-        ORDER BY p.id, d.order, e.order
-        """;
+        var sql = GetByUserSql() + " WHERE p.user_id = @userId ORDER BY p.id, d.order, e.order";
 
         await using var connection = await dataSource.OpenConnectionAsync(ct);
 
@@ -80,6 +61,76 @@ public class WorkoutProgramReadRepository(NpgsqlDataSource dataSource) : IWorkou
 
         return [.. programLookup.Values];
     }
+
+    public async Task<WorkoutProgramDto?> GetByIdAsync(Guid programId, Guid userId, CancellationToken ct = default)
+    {
+        var sql = GetByUserSql() + " AND p.id = @programId";
+
+        await using var connection = await dataSource.OpenConnectionAsync(ct);
+
+        WorkoutProgramDto? result = null;
+        var dayLookup = new Dictionary<Guid, List<ProgramExerciseDto>>();
+
+        await connection.QueryAsync<ProgramRow, DayRow, ExerciseRow, WorkoutProgramDto>(
+            new CommandDefinition(sql, new { userId, programId }, cancellationToken: ct),
+            (program, day, exercise) =>
+            {
+                result ??= new WorkoutProgramDto
+                {
+                    Id = program.Id,
+                    Name = program.Name,
+                    Days = []
+                };
+
+                if (day is null)
+                    return result;
+
+                if (!dayLookup.TryGetValue(day.DayId, out var exercises))
+                {
+                    exercises = [];
+                    var dayDto = new ProgramDayDto(day.DayId, day.DayName, day.DayOrder, exercises);
+                    dayLookup[day.DayId] = exercises;
+                    result.Days.Add(dayDto);
+                }
+
+                if (exercise is not null)
+                {
+                    exercises.Add(new ProgramExerciseDto(
+                        exercise.ExercisePk,
+                        exercise.ExerciseId,
+                        exercise.ExerciseName,
+                        exercise.TargetSets,
+                        exercise.TargetReps,
+                        exercise.Order,
+                        exercise.SupersetGroupId));
+                }
+
+                return result;
+            },
+            splitOn: "DayId,ExerciseId"
+        );
+
+        return result;
+    }
+
+    private static string GetByUserSql() => """
+        SELECT
+            p.id         AS "Id",
+            p.name       AS "Name",
+            d.id         AS "DayId",
+            d.name       AS "DayName",
+            d.order      AS "DayOrder",
+            e.exercise_id   AS "ExerciseId",
+            e.id            AS "ExercisePk",
+            e.exercise_name AS "ExerciseName",
+            e.target_sets   AS "TargetSets",
+            e.target_reps   AS "TargetReps",
+            e.order         AS "Order",
+            e.superset_group_id AS "SupersetGroupId"
+        FROM workout_programs p
+        LEFT JOIN program_days      d ON d.workout_program_id = p.id
+        LEFT JOIN program_exercises e ON e.program_day_id     = d.id
+        """;
 
     private record ProgramRow(Guid Id, string Name);
     private record DayRow(Guid DayId, string DayName, int DayOrder);
