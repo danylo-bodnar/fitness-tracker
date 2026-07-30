@@ -12,8 +12,20 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using FitnessTracker.Api.Exceptions;
+using Serilog;
+using FitnessTracker.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, config) =>
+{
+    config
+        .MinimumLevel.Information()
+        .Enrich.FromLogContext()
+        .Enrich.WithEnvironmentName()
+        .Enrich.WithMachineName()
+        .WriteTo.Console();
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
@@ -88,6 +100,9 @@ builder.Services.AddSingleton<IUpdateHandler, CompositeUpdateHandler>();
 builder.Services.AddHostedService<BotService>();
 
 var app = builder.Build();
+
+app.UseCorrelationId();
+app.UseSerilogRequestLogging();
 
 app.UseCors();
 
