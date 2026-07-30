@@ -13,7 +13,9 @@ public static class DependencyInjection
         services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<LogWorkoutHandler>());
 
         services.AddValidatorsFromAssemblyContaining<LogWorkoutHandler>();
+
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
         return services;
     }
