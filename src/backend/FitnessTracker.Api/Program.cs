@@ -14,6 +14,7 @@ using Telegram.Bot.Types;
 using FitnessTracker.Api.Exceptions;
 using Serilog;
 using FitnessTracker.Api.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,15 +102,26 @@ builder.Services.AddHostedService<BotService>();
 
 var app = builder.Build();
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 app.UseCorrelationId();
+
 app.UseSerilogRequestLogging();
+
+app.UseExceptionHandler();
+
+app.UseRouting();
 
 app.UseCors();
 
 app.UseAuthentication();
-app.UseAuthorization();
 
-app.UseExceptionHandler();
+app.UseRateLimiting();
+
+app.UseAuthorization();
 
 app.MapControllers();
 
@@ -117,6 +129,7 @@ app.MapDefaultEndpoints();
 
 app.MapGet("/health", () => "ok");
 
+//TODO: Move this to a separate controller && protect it, since it is wide open now 
 app.MapPost("/bot", async (
     Update update,
     ITelegramBotClient bot,
