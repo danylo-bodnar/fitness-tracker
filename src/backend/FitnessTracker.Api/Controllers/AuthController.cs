@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using FitnessTracker.Api.RateLimiting;
 using FitnessTracker.Application.Auth.Commands;
 using FitnessTracker.Application.Auth.Queries;
 using FitnessTracker.Application.Common.Interfaces;
@@ -10,7 +11,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FitnessTracker.API.Controllers;
+namespace FitnessTracker.Api.Controllers;
 
 [ApiController]
 [Route("auth")]
@@ -24,6 +25,7 @@ public class AuthController(IMediator mediator, IAuthCodeStore authCodeStore, IL
     };
 
     [HttpPost("start-telegram-login")]
+    [RateLimit(RateLimitPolicy.Authentication)]
     public async Task<IActionResult> Start(CancellationToken ct)
     {
         var result = await mediator.Send(new StartTelegramLoginCommand(), ct);
@@ -31,6 +33,7 @@ public class AuthController(IMediator mediator, IAuthCodeStore authCodeStore, IL
     }
 
     [HttpGet("stream/{nonce}")]
+    [RateLimit(RateLimitPolicy.Authentication)]
     public async Task Stream(string nonce, CancellationToken ct)
     {
         Response.ContentType = "text/event-stream";
@@ -69,6 +72,7 @@ public class AuthController(IMediator mediator, IAuthCodeStore authCodeStore, IL
     }
 
     [HttpPost("exchange")]
+    [RateLimit(RateLimitPolicy.Authentication)]
     public IActionResult Exchange(ExchangeCodeRequest request)
     {
         var refreshToken = authCodeStore.Consume(request.Code);
@@ -80,6 +84,7 @@ public class AuthController(IMediator mediator, IAuthCodeStore authCodeStore, IL
     }
 
     [HttpPost("refresh")]
+    [RateLimit(RateLimitPolicy.Authentication)]
     public async Task<IActionResult> Refresh(CancellationToken ct)
     {
         var refreshToken = Request.Cookies[RefreshTokenCookie];

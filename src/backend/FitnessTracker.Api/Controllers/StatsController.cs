@@ -1,10 +1,11 @@
-using FitnessTracker.API.Extensions;
+using FitnessTracker.Api.Extensions;
+using FitnessTracker.Api.RateLimiting;
 using FitnessTracker.Application.Stats.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FitnessTracker.API.Controllers;
+namespace FitnessTracker.Api.Controllers;
 
 [ApiController]
 [Route("stats")]
@@ -12,6 +13,7 @@ namespace FitnessTracker.API.Controllers;
 public class StatsController(ISender sender) : ControllerBase
 {
     [HttpGet("dashboard")]
+    [RateLimit(RateLimitPolicy.Api)]
     public async Task<IActionResult> GetDashboard(CancellationToken ct)
     {
         var stats = await sender.Send(new GetDashboardQuery(User.GetUserId()), ct);
@@ -19,6 +21,7 @@ public class StatsController(ISender sender) : ControllerBase
     }
 
     [HttpGet("personal-records")]
+    [RateLimit(RateLimitPolicy.Api)]
     public async Task<IActionResult> GetPersonalRecords(
         [FromQuery] Guid? exerciseId,
         CancellationToken ct)
@@ -29,6 +32,7 @@ public class StatsController(ISender sender) : ControllerBase
     }
 
     [HttpGet("exercise-progress")]
+    [RateLimit(RateLimitPolicy.Api)]
     public async Task<IActionResult> GetExerciseProgress(
         [FromQuery] Guid exerciseId,
         CancellationToken ct)
@@ -39,6 +43,7 @@ public class StatsController(ISender sender) : ControllerBase
     }
 
     [HttpGet("weekly-volume")]
+    [RateLimit(RateLimitPolicy.Api)]
     public async Task<IActionResult> GetWeeklyVolume(
         [FromQuery] int weeks = 12,
         CancellationToken ct = default)

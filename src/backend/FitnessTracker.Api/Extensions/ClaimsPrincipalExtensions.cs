@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace FitnessTracker.API.Extensions;
+namespace FitnessTracker.Api.Extensions;
 
 public static class ClaimsPrincipalExtensions
 {
