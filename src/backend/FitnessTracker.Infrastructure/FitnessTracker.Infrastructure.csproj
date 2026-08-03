@@ -18,8 +18,16 @@
     <PackageVersion Include="MassTransit.RabbitMQ" Version="8.2.5" />
     <PackageVersion Include="MassTransit.EntityFrameworkCore" Version="8.2.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.8" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
     <PackageReference Include="Telegram.Bot" Version="22.10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="RateLimiting\Lua\*.lua">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <PropertyGroup>

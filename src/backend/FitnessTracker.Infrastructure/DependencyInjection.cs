@@ -4,11 +4,15 @@ using FitnessTracker.Infrastructure.Messaging.Consumers;
 using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using FitnessTracker.Infrastructure.Persistence.Repositories;
 using FitnessTracker.Infrastructure.Persistence.Services;
+using FitnessTracker.Infrastructure.RateLimiting;
+using FitnessTracker.Infrastructure.RateLimiting.SlidingWindow;
+using FitnessTracker.Infrastructure.RateLimiting.TokenBucket;
 using FitnessTracker.Infrastructure.Services;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
 namespace FitnessTracker.Infrastructure;
@@ -80,6 +84,33 @@ public static class DependencyInjection
              });
 
         });
+
+        services.Configure<SlidingWindowOptions>(
+            configuration.GetSection(SlidingWindowOptions.SectionName));
+        services.Configure<TokenBucketOptions>(
+            configuration.GetSection(TokenBucketOptions.SectionName));
+
+        services.AddSingleton<ISlidingWindowRateLimiter>(sp =>
+        {
+            var redis = sp.GetRequiredService<IConnectionMultiplexer>();
+            var options = sp.GetRequiredService<IOptions<SlidingWindowOptions>>().Value;
+            var scriptPath = Path.Combine(AppContext.BaseDirectory, "RateLimiting", "Lua", "sliding_window_counter.lua");
+
+            return new RedisSlidingWindowCounterRateLimiter(
+                new RedisScriptRunner(redis, scriptPath),
+                options);
+        });
+
+        services.AddSingleton<ITokenBucketRateLimiter>(sp =>
+            {
+                var redis = sp.GetRequiredService<IConnectionMultiplexer>();
+                var options = sp.GetRequiredService<IOptions<TokenBucketOptions>>().Value;
+                var scriptPath = Path.Combine(AppContext.BaseDirectory, "RateLimiting", "Lua", "token_bucket.lua");
+
+                return new RedisTokenBucketRateLimiter(
+                    new RedisScriptRunner(redis, scriptPath),
+                    options);
+            });
 
         return services;
     }

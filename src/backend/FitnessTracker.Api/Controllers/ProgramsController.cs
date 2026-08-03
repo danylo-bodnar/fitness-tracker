@@ -1,4 +1,5 @@
-using FitnessTracker.API.Extensions;
+using FitnessTracker.Api.Extensions;
+using FitnessTracker.Api.RateLimiting;
 using FitnessTracker.Application.WorkoutPrograms.Commands;
 using FitnessTracker.Application.WorkoutPrograms.Queries;
 using FitnessTracker.Contracts.Dtos;
@@ -6,7 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FitnessTracker.API.Controllers;
+namespace FitnessTracker.Api.Controllers;
 
 [ApiController]
 [Route("programs")]
@@ -14,6 +15,7 @@ namespace FitnessTracker.API.Controllers;
 public class ProgramsController(ISender sender) : ControllerBase
 {
     [HttpGet]
+    [RateLimit(RateLimitPolicy.Api)]
     public async Task<IActionResult> GetPrograms(CancellationToken ct)
     {
         var programs = await sender.Send(new GetProgramsQuery(User.GetUserId()), ct);
@@ -21,6 +23,7 @@ public class ProgramsController(ISender sender) : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [RateLimit(RateLimitPolicy.Api)]
     public async Task<IActionResult> UpdateProgram(Guid id,
         UpdateProgramRequest request, CancellationToken ct)
     {
@@ -31,6 +34,7 @@ public class ProgramsController(ISender sender) : ControllerBase
     }
 
     [HttpPost]
+    [RateLimit(RateLimitPolicy.Api)]
     public async Task<IActionResult> CreateProgram(
         CreateProgramRequest request,
         CancellationToken ct)
@@ -41,6 +45,7 @@ public class ProgramsController(ISender sender) : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [RateLimit(RateLimitPolicy.Api)]
     public async Task<IActionResult> DeleteProgram(Guid id, CancellationToken ct)
     {
         try

@@ -1,9 +1,10 @@
+using FitnessTracker.Api.RateLimiting;
 using FitnessTracker.Application.Exercises.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FitnessTracker.API.Controllers;
+namespace FitnessTracker.Api.Controllers;
 
 [ApiController]
 [Route("exercises")]
@@ -11,6 +12,7 @@ namespace FitnessTracker.API.Controllers;
 public class ExercisesController(ISender sender) : ControllerBase
 {
     [HttpGet]
+    [RateLimit(RateLimitPolicy.Api)]
     public async Task<IActionResult> GetExercises(
         [FromQuery] string? muscleGroup,
         CancellationToken ct)
@@ -20,6 +22,7 @@ public class ExercisesController(ISender sender) : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
+    [RateLimit(RateLimitPolicy.Api)]
     public async Task<IActionResult> GetExercise(Guid id, CancellationToken ct)
     {
         try
