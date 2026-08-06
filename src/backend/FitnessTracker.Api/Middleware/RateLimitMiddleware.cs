@@ -6,21 +6,15 @@ using FitnessTracker.Infrastructure.RateLimiting.TokenBucket;
 
 namespace FitnessTracker.Api.Middleware;
 
-public sealed class RateLimitMiddleware
+public sealed class RateLimitMiddleware(
+    RequestDelegate next,
+    ITokenBucketRateLimiter tokenBucket,
+    ISlidingWindowRateLimiter slidingWindow)
 {
-    private readonly RequestDelegate _next;
-    private readonly ITokenBucketRateLimiter _tokenBucket;
-    private readonly ISlidingWindowRateLimiter _slidingWindow;
+    private readonly RequestDelegate _next = next;
+    private readonly ITokenBucketRateLimiter _tokenBucket = tokenBucket;
+    private readonly ISlidingWindowRateLimiter _slidingWindow = slidingWindow;
 
-    public RateLimitMiddleware(
-        RequestDelegate next,
-        ITokenBucketRateLimiter tokenBucket,
-        ISlidingWindowRateLimiter slidingWindow)
-    {
-        _next = next;
-        _tokenBucket = tokenBucket;
-        _slidingWindow = slidingWindow;
-    }
     public async Task InvokeAsync(HttpContext context)
     {
         var endpoint = context.GetEndpoint();

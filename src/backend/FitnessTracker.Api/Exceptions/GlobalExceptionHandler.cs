@@ -15,18 +15,23 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
     };
 
     public async ValueTask<bool> TryHandleAsync(
-        HttpContext httpContext,
-        Exception exception,
-        CancellationToken cancellationToken)
+    HttpContext httpContext,
+    Exception exception,
+    CancellationToken cancellationToken)
     {
         var statusCode = MapStatusCode(exception);
+        var isServerError = statusCode == StatusCodes.Status500InternalServerError;
 
-        if (statusCode == StatusCodes.Status500InternalServerError)
+        if (isServerError)
+        {
             logger.LogError(exception, "Unhandled exception on {Method} {Path}",
                 httpContext.Request.Method, httpContext.Request.Path);
+        }
         else
-            logger.LogWarning(exception, "Handled exception on {Method} {Path}: {Message}",
+        {
+            logger.LogWarning("Handled exception on {Method} {Path}: {Message}",
                 httpContext.Request.Method, httpContext.Request.Path, exception.Message);
+        }
 
         httpContext.Response.ContentType = "application/json";
         httpContext.Response.StatusCode = statusCode;
@@ -35,8 +40,10 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
         {
             status = statusCode,
             title = "Request failed",
-            type = exception.GetType().Name,
-            detail = exception.Message
+            type = isServerError ? "InternalServerError" : exception.GetType().Name,
+            detail = isServerError
+                ? "An unexpected error occurred."
+                : exception.Message
         };
 
         await httpContext.Response.WriteAsync(
