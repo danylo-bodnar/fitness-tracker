@@ -5,4 +5,6 @@ public class TelegramOptions
     public const string SectionName = "Telegram";
 
     public string BotUsername { get; set; } = default!;
+
+    public string WebhookSecret { get; set; } = "";
 }

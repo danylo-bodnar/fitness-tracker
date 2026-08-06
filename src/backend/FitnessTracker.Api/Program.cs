@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
-using Telegram.Bot.Types;
 using FitnessTracker.Api.Exceptions;
 using Serilog;
 using FitnessTracker.Api.Extensions;
@@ -129,14 +128,6 @@ app.MapDefaultEndpoints();
 
 app.MapGet("/health", () => "ok");
 
-//TODO: Move this to a separate controller && protect it, since it is wide open now 
-app.MapPost("/bot", async (
-    Update update,
-    ITelegramBotClient bot,
-    IUpdateHandler handler,
-    CancellationToken ct) =>
-{
-    await handler.HandleUpdateAsync(bot, update, ct);
-});
-
 app.Run();
+
+public partial class Program { }

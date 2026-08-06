@@ -2,16 +2,10 @@ using StackExchange.Redis;
 
 namespace FitnessTracker.Infrastructure.RateLimiting.SlidingWindow;
 
-public sealed class RedisSlidingWindowCounterRateLimiter : ISlidingWindowRateLimiter
+public sealed class RedisSlidingWindowCounterRateLimiter(RedisScriptRunner runner, SlidingWindowOptions options) : ISlidingWindowRateLimiter
 {
-    private readonly RedisScriptRunner _runner;
-    private readonly SlidingWindowOptions _options;
-
-    public RedisSlidingWindowCounterRateLimiter(RedisScriptRunner runner, SlidingWindowOptions options)
-    {
-        _runner = runner;
-        _options = options;
-    }
+    private readonly RedisScriptRunner _runner = runner;
+    private readonly SlidingWindowOptions _options = options;
 
     public async Task<RateLimitResult> AllowAsync(string key)
     {
