@@ -2,6 +2,7 @@ using FitnessTracker.Application.Common.Options;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
+using Telegram.Bot.Types;
 
 namespace FitnessTracker.Api.Telegram;
 
@@ -14,6 +15,8 @@ public class BotService(
 {
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
+        await SetMyCommandsAsync(ct);
+
         if (env.IsDevelopment())
         {
             logger.LogInformation("Starting bot polling...");
@@ -40,5 +43,17 @@ public class BotService(
         }
 
         await Task.Delay(Timeout.Infinite, ct);
+    }
+
+    private async Task SetMyCommandsAsync(CancellationToken ct)
+    {
+        await bot.SetMyCommands([
+            new BotCommand { Command = "log", Description = "Log a workout" },
+            new BotCommand { Command = "start", Description = "Register / show help" },
+            new BotCommand { Command = "cancel", Description = "Cancel current workout entry" },
+            new BotCommand { Command = "help", Description = "Show what I can do" },
+        ], cancellationToken: ct);
+
+        logger.LogInformation("Telegram command menu registered");
     }
 }
