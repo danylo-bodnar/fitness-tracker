@@ -28,9 +28,6 @@ public class PersonalRecordConsumer(ProjectionsDbContext db)
             return;
         }
 
-        //TODO: adjust this formula
-        var estimated1RM = msg.MaxWeightKg * (1 + msg.SetCount / 30m);
-
         var existing = await db.UserPRs
             .FirstOrDefaultAsync(x =>
                 x.UserId == msg.UserId &&
@@ -52,15 +49,16 @@ public class PersonalRecordConsumer(ProjectionsDbContext db)
                 ExerciseId = msg.ExerciseId,
                 ExerciseName = msg.ExerciseName,
                 WeightKg = msg.MaxWeightKg,
-                Reps = msg.SetCount,
-                Estimated1RM = estimated1RM,
+                Reps = msg.BestSetReps,
+                Estimated1RM = msg.Estimated1Rm,
                 AchievedAt = msg.Date
             });
         }
         else
         {
             existing.WeightKg = msg.MaxWeightKg;
-            existing.Estimated1RM = estimated1RM;
+            existing.Reps = msg.BestSetReps;
+            existing.Estimated1RM = msg.Estimated1Rm;
             existing.AchievedAt = msg.Date;
         }
 
@@ -72,8 +70,8 @@ public class PersonalRecordConsumer(ProjectionsDbContext db)
             ExerciseId: msg.ExerciseId,
             ExerciseName: msg.ExerciseName,
             WeightKg: msg.MaxWeightKg,
-            Reps: msg.SetCount,
-            Estimated1RM: estimated1RM,
+            Reps: msg.BestSetReps,
+            Estimated1RM: msg.Estimated1Rm,
             AchievedAt: msg.Date
         ));
 
