@@ -13,12 +13,20 @@ public class AnalyticsConsumer(ProjectionsDbContext db) : IConsumer<ExerciseLogg
         var msg = context.Message;
         var ct = context.CancellationToken;
 
-        var messageId = context.MessageId ?? Guid.NewGuid();
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
 
-        var alreadyProcessed = await db.ProcessedMessages
-            .AnyAsync(x => x.MessageId == messageId, ct);
-        if (alreadyProcessed)
+        var claimed = await db.Database.ExecuteSqlInterpolatedAsync(
+            $"""
+             INSERT INTO processed_messages (consumer_name, event_id, processed_at)
+             VALUES ({nameof(AnalyticsConsumer)}, {msg.EventId}, {DateTime.UtcNow})
+             ON CONFLICT DO NOTHING
+             """, ct);
+
+        if (claimed == 0)
+        {
+            await tx.RollbackAsync(ct);
             return;
+        }
 
         var progress = await db.ExerciseProgress
             .FirstOrDefaultAsync(x =>
@@ -95,13 +103,8 @@ public class AnalyticsConsumer(ProjectionsDbContext db) : IConsumer<ExerciseLogg
             stats.UpdatedAt = DateTime.UtcNow;
         }
 
-        db.ProcessedMessages.Add(new ProcessedMessage
-        {
-            MessageId = messageId,
-            ProcessedAt = DateTime.UtcNow
-        });
-
         await db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
     }
 
     private static DateOnly GetWeekStart(DateOnly date)

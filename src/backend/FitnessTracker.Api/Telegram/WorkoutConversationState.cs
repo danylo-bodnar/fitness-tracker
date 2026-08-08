@@ -25,8 +25,8 @@ public class WorkoutConversationState
     public int CurrentRound { get; set; }
     public int CurrentExerciseInGroup { get; set; }
 
-    public List<ExerciseAccumulator> GroupAccumulators { get; set; } = [];
-    public List<CompletedExercise> CompletedExercises { get; set; } = [];
+    public List<ExerciseLog> GroupAccumulators { get; set; } = [];
+    public List<ExerciseLog> CompletedExercises { get; set; } = [];
 }
 
 public class ConversationGroup
@@ -45,7 +45,7 @@ public class ConversationExercise
     public decimal? AssignedWeight { get; set; }
 }
 
-public class ExerciseAccumulator
+public class ExerciseLog
 {
     public Guid ExerciseId { get; set; }
     public string ExerciseName { get; set; } = null!;
@@ -56,11 +56,4 @@ public class LoggedSet
 {
     public decimal WeightKg { get; set; }
     public int Reps { get; set; }
-}
-
-public class CompletedExercise
-{
-    public Guid ExerciseId { get; set; }
-    public string ExerciseName { get; set; } = null!;
-    public List<LoggedSet> Sets { get; set; } = [];
 }

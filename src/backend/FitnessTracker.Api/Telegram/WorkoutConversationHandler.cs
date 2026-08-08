@@ -14,13 +14,7 @@ public class WorkoutConversationHandler(
 {
     public async Task StartConversationAsync(ITelegramBotClient bot, long chatId, Guid userId, CancellationToken ct)
     {
-        WorkoutProgramDto[] programs;
-
-        using (var scope = scopeFactory.CreateScope())
-        {
-            var repo = scope.ServiceProvider.GetRequiredService<IWorkoutProgramReadRepository>();
-            programs = [.. await repo.GetByUserAsync(userId, ct)];
-        }
+        var programs = await GetProgramsAsync(userId, ct);
 
         if (programs.Length == 0)
         {
@@ -103,19 +97,27 @@ public class WorkoutConversationHandler(
         }
     }
 
+    private async Task<WorkoutProgramDto[]> GetProgramsAsync(Guid userId, CancellationToken ct)
+    {
+        using var scope = scopeFactory.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IWorkoutProgramReadRepository>();
+        return [.. await repo.GetByUserAsync(userId, ct)];
+    }
+
+    private async Task<WorkoutProgramDto?> GetProgramAsync(Guid programId, Guid userId, CancellationToken ct)
+    {
+        using var scope = scopeFactory.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IWorkoutProgramReadRepository>();
+        return await repo.GetByIdAsync(programId, userId, ct);
+    }
+
     private async Task HandleProgramSelection(ITelegramBotClient bot, long chatId, string programIdStr,
         WorkoutConversationState state, CancellationToken ct)
     {
         if (!Guid.TryParse(programIdStr, out var programId))
             return;
 
-        WorkoutProgramDto? program;
-
-        using (var scope = scopeFactory.CreateScope())
-        {
-            var repo = scope.ServiceProvider.GetRequiredService<IWorkoutProgramReadRepository>();
-            program = await repo.GetByIdAsync(programId, state.UserId, ct);
-        }
+        var program = await GetProgramAsync(programId, state.UserId, ct);
 
         if (program is null)
         {
@@ -142,14 +144,7 @@ public class WorkoutConversationHandler(
         if (!Guid.TryParse(dayIdStr, out var dayId))
             return;
 
-        WorkoutProgramDto? program;
-
-        using (var scope = scopeFactory.CreateScope())
-        {
-            var repo = scope.ServiceProvider.GetRequiredService<IWorkoutProgramReadRepository>();
-            program = await repo.GetByIdAsync(state.ProgramId, state.UserId, ct);
-        }
-
+        var program = await GetProgramAsync(state.ProgramId, state.UserId, ct);
         var day = program?.Days.FirstOrDefault(d => d.Id == dayId);
         if (day is null)
         {
@@ -166,11 +161,16 @@ public class WorkoutConversationHandler(
         state.DayId = day.Id;
         state.DayName = day.Name;
 
-        var grouped = day.Exercises
+        var supersets = day.Exercises
+            .Where(e => e.SupersetGroupId != null)
             .GroupBy(e => e.SupersetGroupId)
-            .SelectMany(g => g.Key == null
-                ? g.Select(e => new List<ProgramExerciseDto> { e })
-                : [g.ToList()])
+            .Select(g => g.ToList());
+
+        var singles = day.Exercises
+            .Where(e => e.SupersetGroupId == null)
+            .Select(e => new List<ProgramExerciseDto> { e });
+
+        var grouped = supersets.Concat(singles)
             .OrderBy(g => g.Min(e => e.Order));
 
         state.Groups = [];
@@ -218,7 +218,9 @@ public class WorkoutConversationHandler(
         state.Step = WorkoutStep.AwaitingReps;
 
         await stateService.SaveAsync(chatId, state);
-        await bot.SendMessage(chatId, $"Set {state.CurrentRound} of {exercise.TargetSets} — enter reps:", cancellationToken: ct);
+        await bot.SendMessage(chatId,
+            $"Set {state.CurrentRound} of {exercise.TargetSets} — enter reps (or /cancel):",
+            cancellationToken: ct);
     }
 
     private async Task HandleReps(ITelegramBotClient bot, long chatId, string text,
@@ -236,7 +238,7 @@ public class WorkoutConversationHandler(
         var acc = state.GroupAccumulators.FirstOrDefault(a => a.ExerciseId == exercise.ExerciseId);
         if (acc is null)
         {
-            acc = new ExerciseAccumulator
+            acc = new ExerciseLog
             {
                 ExerciseId = exercise.ExerciseId,
                 ExerciseName = exercise.ExerciseName,
@@ -258,39 +260,31 @@ public class WorkoutConversationHandler(
         WorkoutConversationState state, CancellationToken ct)
     {
         var group = state.Groups[state.CurrentGroupIndex];
-
-        // Move to next exercise in this round
         state.CurrentExerciseInGroup++;
 
-        if (NextUnfinishedExerciseInRound(group, state) is { } success && success)
+        while (true)
         {
-            await SendCurrentPrompt(bot, chatId, state, ct);
-            return;
+            while (state.CurrentExerciseInGroup < group.Exercises.Count &&
+                   group.Exercises[state.CurrentExerciseInGroup].TargetSets < state.CurrentRound)
+            {
+                state.CurrentExerciseInGroup++;
+            }
+
+            if (state.CurrentExerciseInGroup < group.Exercises.Count)
+            {
+                await SendCurrentPrompt(bot, chatId, state, ct);
+                return;
+            }
+
+            state.CurrentRound++;
+            state.CurrentExerciseInGroup = 0;
+
+            if (state.CurrentRound > group.MaxRounds)
+            {
+                await FinalizeGroup(bot, chatId, state, ct);
+                return;
+            }
         }
-
-        // All exercises in this round done — move to next round
-        state.CurrentExerciseInGroup = 0;
-        state.CurrentRound++;
-
-        if (state.CurrentRound <= group.MaxRounds && NextUnfinishedExerciseInRound(group, state) is { } next && next)
-        {
-            await SendCurrentPrompt(bot, chatId, state, ct);
-            return;
-        }
-
-        // All rounds done — finalize group
-        await FinalizeGroup(bot, chatId, state, ct);
-    }
-
-    private static bool? NextUnfinishedExerciseInRound(ConversationGroup group, WorkoutConversationState state)
-    {
-        while (state.CurrentExerciseInGroup < group.Exercises.Count &&
-               group.Exercises[state.CurrentExerciseInGroup].TargetSets < state.CurrentRound)
-        {
-            state.CurrentExerciseInGroup++;
-        }
-
-        return state.CurrentExerciseInGroup < group.Exercises.Count;
     }
 
     private async Task FinalizeGroup(ITelegramBotClient bot, long chatId,
@@ -298,16 +292,7 @@ public class WorkoutConversationHandler(
     {
         var group = state.Groups[state.CurrentGroupIndex];
 
-        foreach (var acc in state.GroupAccumulators)
-        {
-            state.CompletedExercises.Add(new CompletedExercise
-            {
-                ExerciseId = acc.ExerciseId,
-                ExerciseName = acc.ExerciseName,
-                Sets = [.. acc.Sets]
-            });
-        }
-
+        state.CompletedExercises.AddRange(state.GroupAccumulators);
         state.GroupAccumulators.Clear();
 
         if (group.SupersetGroupId.HasValue && group.Exercises.Count > 1)
@@ -349,11 +334,11 @@ public class WorkoutConversationHandler(
         {
             if (exercise.AssignedWeight.HasValue)
             {
-                message = $"Round {state.CurrentRound}/{group.MaxRounds} — {exercise.ExerciseName} — Set {state.CurrentRound} — enter reps:";
+                message = $"Round {state.CurrentRound}/{group.MaxRounds} — {exercise.ExerciseName} — Set {state.CurrentRound} — enter reps (or /cancel):";
             }
             else
             {
-                message = $"Round {state.CurrentRound}/{group.MaxRounds} — {exercise.ExerciseName} — Enter weight (kg) for {exercise.TargetSets} sets:";
+                message = $"Round {state.CurrentRound}/{group.MaxRounds} — {exercise.ExerciseName} — Enter weight (kg) for {exercise.TargetSets} sets (or /cancel):";
             }
         }
         else
@@ -371,7 +356,7 @@ public class WorkoutConversationHandler(
                 var total = state.Groups.Sum(g => g.Exercises.Count);
                 var exerciseNum = dayProgress + state.CurrentExerciseInGroup + 1;
 
-                message = $"Day: {state.DayName}\nExercise {exerciseNum}/{total}: {exercise.ExerciseName}\nEnter weight (kg) for {exercise.TargetSets} sets:";
+                message = $"Day: {state.DayName}\nExercise {exerciseNum}/{total}: {exercise.ExerciseName}\nEnter weight (kg) for {exercise.TargetSets} sets (or /cancel):";
             }
         }
 

@@ -16,17 +16,17 @@ public static class DefaultWorkoutProgramFactory
                 Guid.Parse("00000008-0000-0000-0000-000000000001"),
                 new ExerciseName("bench press"), 3, 6, 1),
             new ProgramExercise(
-                Guid.Parse("0000000f-0000-0000-0000-000000000001"),
-                new ExerciseName("barbell row"), 3, 6, 2),
+                Guid.Parse("00000005-0000-0000-0000-000000000002"),
+                new ExerciseName("incline bench press"), 3, 8, 2),
             new ProgramExercise(
                 Guid.Parse("00000009-0000-0000-0000-000000000001"),
                 new ExerciseName("incline dumbbell press"), 2, 8, 3),
             new ProgramExercise(
                 Guid.Parse("00000001-0000-0000-0000-000000000001"),
-                new ExerciseName("bicep curl"), 2, 8, 4),
+                new ExerciseName("bicep curl"), 2, 8, 4, 1),
             new ProgramExercise(
                 Guid.Parse("0000000c-0000-0000-0000-000000000001"),
-                new ExerciseName("triceps pushdown"), 2, 8, 4),
+                new ExerciseName("triceps pushdown"), 2, 8, 4, 1),
             new ProgramExercise(
                 Guid.Parse("0000000b-0000-0000-0000-000000000001"),
                 new ExerciseName("lateral raises"), 2, 12, 5),
@@ -57,14 +57,14 @@ public static class DefaultWorkoutProgramFactory
                 Guid.Parse("0000000e-0000-0000-0000-000000000002"),
                 new ExerciseName("t-bar row"), 3, 6, 2),
             new ProgramExercise(
-                Guid.Parse("00000005-0000-0000-0000-000000000002"),
-                new ExerciseName("incline bench press"), 3, 8, 3),
-            new ProgramExercise(
-                Guid.Parse("0000000d-0000-0000-0000-000000000001"),
-                new ExerciseName("triceps extension"), 3, 8, 4),
+                Guid.Parse("0000000f-0000-0000-0000-000000000001"),
+                new ExerciseName("barbell row"), 3, 6, 3),
             new ProgramExercise(
                 Guid.Parse("00000002-0000-0000-0000-000000000001"),
-                new ExerciseName("hammer curl"), 3, 8, 4),
+                new ExerciseName("hammer curl"), 3, 8, 4, 1),
+            new ProgramExercise(
+                Guid.Parse("0000000d-0000-0000-0000-000000000001"),
+                new ExerciseName("triceps extension"), 3, 8, 4, 1),
             new ProgramExercise(
                 Guid.Parse("0000000b-0000-0000-0000-000000000001"),
                 new ExerciseName("lateral raises"), 2, 12, 5),

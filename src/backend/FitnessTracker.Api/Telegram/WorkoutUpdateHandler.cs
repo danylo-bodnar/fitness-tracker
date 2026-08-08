@@ -51,6 +51,32 @@ public class WorkoutUpdateHandler(
                 return;
             }
 
+            if (text == "/help")
+            {
+                await bot.SendMessage(chatId,
+                    "Here's what I can do:\n\n"
+                    + "/log — Start logging a workout\n"
+                    + "/cancel — Cancel an in-progress log\n"
+                    + "/start — Show this bot's info\n\n"
+                    + "During a workout entry, just type the number I ask for (weight in kg, then reps).",
+                    cancellationToken: ct);
+                return;
+            }
+
+            if (text == "/cancel")
+            {
+                if (await stateService.ExistsAsync(chatId))
+                {
+                    await stateService.DeleteAsync(chatId);
+                    await bot.SendMessage(chatId, "Cancelled.", cancellationToken: ct);
+                }
+                else
+                {
+                    await bot.SendMessage(chatId, "Nothing to cancel.", cancellationToken: ct);
+                }
+                return;
+            }
+
             if (await stateService.ExistsAsync(chatId))
             {
                 await conversationHandler.HandleTextAsync(bot, chatId, text, ct);
@@ -58,13 +84,15 @@ public class WorkoutUpdateHandler(
             }
 
             await bot.SendMessage(chatId,
-                "Send /log to log a workout, or /start for help.",
+                "Send /log to log a workout, or /help for what I can do.",
                 cancellationToken: ct);
         }
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Failed to handle message: {Text}", text);
-            await bot.SendMessage(chatId, $"❌ {ex.Message}", cancellationToken: ct);
+            await bot.SendMessage(chatId,
+                "❌ Something went wrong. Send /log to try again, or /cancel to reset.",
+                cancellationToken: ct);
         }
     }
 
