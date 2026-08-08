@@ -1,6 +1,7 @@
 namespace FitnessTracker.Contracts.Events;
 
 public record ExerciseLoggedEvent(
+    Guid EventId,
     Guid UserId,
     Guid ExerciseId,
     string ExerciseName,

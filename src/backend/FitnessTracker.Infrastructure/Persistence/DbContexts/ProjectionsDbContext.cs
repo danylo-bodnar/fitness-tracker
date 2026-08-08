@@ -53,7 +53,8 @@ public class ProjectionsDbContext(DbContextOptions<ProjectionsDbContext> options
         modelBuilder.Entity<ProcessedMessage>(b =>
         {
             b.ToTable("processed_messages");
-            b.HasKey(x => x.MessageId);
+            b.HasKey(x => new { x.ConsumerName, x.EventId });
+            b.Property(x => x.ConsumerName).HasMaxLength(100);
             b.Property(x => x.ProcessedAt).IsRequired();
         });
     }

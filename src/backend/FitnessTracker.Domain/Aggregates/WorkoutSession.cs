@@ -40,6 +40,7 @@ public class WorkoutSession : AggregateRoot
     public void CompleteExercise(ExerciseLog log)
     {
         AddDomainEvent(new ExercisePerformed(
+            Guid.NewGuid(),
             Id,
             UserId,
             log.ExerciseId,

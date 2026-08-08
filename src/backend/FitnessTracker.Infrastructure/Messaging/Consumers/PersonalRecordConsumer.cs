@@ -1,8 +1,8 @@
 using FitnessTracker.Contracts.Events;
 using FitnessTracker.Infrastructure.Persistence.DbContexts;
 using FitnessTracker.Infrastructure.Persistence.ReadModels;
-using Microsoft.EntityFrameworkCore;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Infrastructure.Messaging.Consumers;
 
@@ -12,6 +12,23 @@ public class PersonalRecordConsumer(ProjectionsDbContext db)
     public async Task Consume(ConsumeContext<ExerciseLoggedEvent> context)
     {
         var msg = context.Message;
+
+        await using var tx = await db.Database.BeginTransactionAsync(context.CancellationToken);
+
+        var claimed = await db.Database.ExecuteSqlInterpolatedAsync(
+            $"""
+             INSERT INTO processed_messages (consumer_name, event_id, processed_at)
+             VALUES ({nameof(PersonalRecordConsumer)}, {msg.EventId}, {DateTime.UtcNow})
+             ON CONFLICT DO NOTHING
+             """, context.CancellationToken);
+
+        if (claimed == 0)
+        {
+            await tx.RollbackAsync(context.CancellationToken);
+            return;
+        }
+
+        //TODO: adjust this formula
         var estimated1RM = msg.MaxWeightKg * (1 + msg.SetCount / 30m);
 
         var existing = await db.UserPRs
@@ -20,7 +37,11 @@ public class PersonalRecordConsumer(ProjectionsDbContext db)
                 x.ExerciseId == msg.ExerciseId);
 
         var isNewPR = existing is null || msg.MaxWeightKg > existing.WeightKg;
-        if (!isNewPR) return;
+        if (!isNewPR)
+        {
+            await tx.CommitAsync(context.CancellationToken);
+            return;
+        }
 
         if (existing is null)
         {
@@ -43,7 +64,10 @@ public class PersonalRecordConsumer(ProjectionsDbContext db)
             existing.AchievedAt = msg.Date;
         }
 
+        await db.SaveChangesAsync(context.CancellationToken);
+
         await context.Publish(new PRDetectedEvent(
+            EventId: msg.EventId,
             UserId: msg.UserId,
             ExerciseId: msg.ExerciseId,
             ExerciseName: msg.ExerciseName,
@@ -53,6 +77,6 @@ public class PersonalRecordConsumer(ProjectionsDbContext db)
             AchievedAt: msg.Date
         ));
 
-        await db.SaveChangesAsync();
+        await tx.CommitAsync(context.CancellationToken);
     }
 }
