@@ -45,7 +45,7 @@ public class WorkoutProgram : AggregateRoot
             throw new ProgramDayAlreadyExistsException(name);
         }
 
-        var day = new ProgramDay(name, _days.Count + 1, exercises);
+        var day = new ProgramDay(name, _days.Count > 0 ? _days.Max(d => d.Order) + 1 : 1, exercises);
 
         _days.Add(day);
 
