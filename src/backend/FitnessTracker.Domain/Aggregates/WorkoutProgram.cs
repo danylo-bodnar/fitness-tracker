@@ -5,6 +5,8 @@ namespace FitnessTracker.Domain.Aggregates;
 
 public class WorkoutProgram : AggregateRoot
 {
+    const int MAX_WORKOUT_DAYS = 4;
+
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
     public string Name { get; private set; } = null!;
@@ -27,6 +29,11 @@ public class WorkoutProgram : AggregateRoot
         Id = Guid.NewGuid();
         UserId = userId;
         Name = name;
+
+        if (programDays.Count > MAX_WORKOUT_DAYS)
+        {
+            throw new ProgramDayLimitExceededException(MAX_WORKOUT_DAYS);
+        }
 
         ReplaceDays(programDays);
     }

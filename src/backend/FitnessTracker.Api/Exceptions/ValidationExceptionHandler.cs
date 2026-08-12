@@ -1,9 +1,8 @@
-using System.Net;
 using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace FitnessTracker.Api.Middleware;
+namespace FitnessTracker.Api.Exceptions;
 
 internal sealed class ValidationExceptionHandler(ILogger<ValidationExceptionHandler> logger)
     : IExceptionHandler
