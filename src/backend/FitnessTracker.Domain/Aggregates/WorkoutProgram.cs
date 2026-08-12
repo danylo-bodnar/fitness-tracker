@@ -5,7 +5,7 @@ namespace FitnessTracker.Domain.Aggregates;
 
 public class WorkoutProgram : AggregateRoot
 {
-    const int MAX_WORKOUT_DAYS = 4;
+    private const int MaxWorkoutDays = 4;
 
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
@@ -28,11 +28,11 @@ public class WorkoutProgram : AggregateRoot
     {
         Id = Guid.NewGuid();
         UserId = userId;
-        Name = name;
+        Name = ValidateName(name);
 
-        if (programDays.Count > MAX_WORKOUT_DAYS)
+        if (programDays.Count > MaxWorkoutDays)
         {
-            throw new ProgramDayLimitExceededException(MAX_WORKOUT_DAYS);
+            throw new ProgramDayLimitExceededException(MaxWorkoutDays);
         }
 
         ReplaceDays(programDays);
@@ -42,6 +42,11 @@ public class WorkoutProgram : AggregateRoot
         string name,
         List<ProgramExercise> exercises)
     {
+        if (_days.Count >= MaxWorkoutDays)
+        {
+            throw new ProgramDayLimitExceededException(MaxWorkoutDays);
+        }
+
         var existingDay = _days.FirstOrDefault(
             d => d.Name.Equals(
                 name,
@@ -61,11 +66,16 @@ public class WorkoutProgram : AggregateRoot
 
     public void Rename(string newName)
     {
-        Name = newName;
+        Name = ValidateName(newName);
     }
 
     public void ReplaceDays(List<ProgramDay> newDays)
     {
+        if (_days.Select(d => d.Id).Concat(newDays.Select(n => n.Id)).Distinct().Count() > MaxWorkoutDays)
+        {
+            throw new ProgramDayLimitExceededException(MaxWorkoutDays);
+        }
+
         var toRemove = _days.Where(d => !newDays.Any(n => n.Id == d.Id)).ToList();
         foreach (var day in toRemove)
             _days.Remove(day);
@@ -84,6 +94,20 @@ public class WorkoutProgram : AggregateRoot
                 _days.Add(newDay);
             }
         }
+    }
+
+    private static string ValidateName(string name)
+    {
+        var trimmed = name?.Trim();
+        if (string.IsNullOrWhiteSpace(trimmed))
+        {
+            throw new ProgramNameEmptyException();
+        }
+        if (trimmed.Length > 100)
+        {
+            throw new ProgramNameTooLongException(100);
+        }
+        return trimmed;
     }
 
     public void RemoveDay(Guid dayId)
