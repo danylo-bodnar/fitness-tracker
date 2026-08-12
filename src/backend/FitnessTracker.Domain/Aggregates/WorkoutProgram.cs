@@ -5,6 +5,8 @@ namespace FitnessTracker.Domain.Aggregates;
 
 public class WorkoutProgram : AggregateRoot
 {
+    private const int MaxWorkoutDays = 4;
+
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
     public string Name { get; private set; } = null!;
@@ -26,7 +28,12 @@ public class WorkoutProgram : AggregateRoot
     {
         Id = Guid.NewGuid();
         UserId = userId;
-        Name = name;
+        Name = ValidateName(name);
+
+        if (programDays.Count > MaxWorkoutDays)
+        {
+            throw new ProgramDayLimitExceededException(MaxWorkoutDays);
+        }
 
         ReplaceDays(programDays);
     }
@@ -35,6 +42,11 @@ public class WorkoutProgram : AggregateRoot
         string name,
         List<ProgramExercise> exercises)
     {
+        if (_days.Count >= MaxWorkoutDays)
+        {
+            throw new ProgramDayLimitExceededException(MaxWorkoutDays);
+        }
+
         var existingDay = _days.FirstOrDefault(
             d => d.Name.Equals(
                 name,
@@ -45,7 +57,7 @@ public class WorkoutProgram : AggregateRoot
             throw new ProgramDayAlreadyExistsException(name);
         }
 
-        var day = new ProgramDay(name, _days.Count + 1, exercises);
+        var day = new ProgramDay(name, _days.Count > 0 ? _days.Max(d => d.Order) + 1 : 1, exercises);
 
         _days.Add(day);
 
@@ -54,11 +66,16 @@ public class WorkoutProgram : AggregateRoot
 
     public void Rename(string newName)
     {
-        Name = newName;
+        Name = ValidateName(newName);
     }
 
     public void ReplaceDays(List<ProgramDay> newDays)
     {
+        if (_days.Select(d => d.Id).Concat(newDays.Select(n => n.Id)).Distinct().Count() > MaxWorkoutDays)
+        {
+            throw new ProgramDayLimitExceededException(MaxWorkoutDays);
+        }
+
         var toRemove = _days.Where(d => !newDays.Any(n => n.Id == d.Id)).ToList();
         foreach (var day in toRemove)
             _days.Remove(day);
@@ -77,6 +94,20 @@ public class WorkoutProgram : AggregateRoot
                 _days.Add(newDay);
             }
         }
+    }
+
+    private static string ValidateName(string name)
+    {
+        var trimmed = name?.Trim();
+        if (string.IsNullOrWhiteSpace(trimmed))
+        {
+            throw new ProgramNameEmptyException();
+        }
+        if (trimmed.Length > 100)
+        {
+            throw new ProgramNameTooLongException(100);
+        }
+        return trimmed;
     }
 
     public void RemoveDay(Guid dayId)

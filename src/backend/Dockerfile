@@ -1,11 +1,14 @@
+# ---------- Stage 1: build ----------
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
-COPY . .
+COPY FitnessTracker.Api/FitnessTracker.Api.csproj FitnessTracker.Api/
 RUN dotnet restore FitnessTracker.Api/FitnessTracker.Api.csproj
 
-RUN dotnet publish FitnessTracker.Api/FitnessTracker.Api.csproj -c Release -o out
+COPY . .
+RUN dotnet publish FitnessTracker.Api/FitnessTracker.Api.csproj -c Release -o out --no-restore
 
+# ---------- Stage 2: runtime ----------
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 

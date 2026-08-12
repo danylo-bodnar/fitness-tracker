@@ -26,7 +26,7 @@ public class ExerciseReadRepository(NpgsqlDataSource dataSource) : IExerciseRead
         return result.ToList();
     }
 
-    public async Task<List<ExerciseDto>> SearchAsync(string query, CancellationToken ct = default)
+    public async Task<List<ExerciseDto>> SearchAsync(string muscleGroup, CancellationToken ct = default)
     {
         const string sql = """
             SELECT
@@ -34,15 +34,14 @@ public class ExerciseReadRepository(NpgsqlDataSource dataSource) : IExerciseRead
                 exercise_name AS "Name",
                 muscle_group  AS "MuscleGroup"
             FROM exercises
-            WHERE exercise_name ILIKE @query
-            ORDER BY exercise_name
-            LIMIT 10
+            WHERE muscle_group ILIKE @muscleGroup
+            ORDER BY muscle_group, exercise_name
             """;
 
         await using var connection = await dataSource.OpenConnectionAsync(ct);
 
         var result = await connection.QueryAsync<ExerciseDto>(
-            new CommandDefinition(sql, new { query = $"%{query}%" }, cancellationToken: ct));
+            new CommandDefinition(sql, new { muscleGroup = $"%{muscleGroup}%" }, cancellationToken: ct));
 
         return result.ToList();
     }
