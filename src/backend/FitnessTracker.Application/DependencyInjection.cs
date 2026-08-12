@@ -10,9 +10,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<LogWorkoutHandler>());
+        services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<LogWorkoutSessionHandler>());
 
-        services.AddValidatorsFromAssemblyContaining<LogWorkoutHandler>();
+        services.AddValidatorsFromAssemblyContaining<LogWorkoutSessionHandler>();
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
