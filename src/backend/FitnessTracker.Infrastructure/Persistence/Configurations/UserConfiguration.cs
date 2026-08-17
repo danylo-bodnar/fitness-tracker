@@ -20,6 +20,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasColumnName("telegram_chat_id");
 
+        builder.HasIndex(x => x.TelegramChatId)
+            .IsUnique();
+
         builder.Property(x => x.TelegramUsername)
             .HasMaxLength(100)
             .HasColumnName("telegram_username");
