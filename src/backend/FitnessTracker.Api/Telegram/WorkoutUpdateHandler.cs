@@ -7,6 +7,9 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using DomainUser = FitnessTracker.Domain.Aggregates.User;
+using WorkoutProgram = FitnessTracker.Domain.Aggregates.WorkoutProgram;
+using FitnessTracker.Infrastructure.Persistence.DbContexts;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Api.Telegram;
 
@@ -102,17 +105,47 @@ public class WorkoutUpdateHandler(
         var parts = text.Split(' ', 2, StringSplitOptions.TrimEntries);
         var nonce = parts.Length > 1 ? parts[1] : null;
 
-        var existingUser = await userRepo.GetByTelegramChatIdAsync(chatId, ct);
-        if (existingUser is null)
-        {
-            var newUser = new DomainUser(chatId, username);
-            userRepo.Add(newUser);
-            await unitOfWork.CommitAsync(ct);
+        var programRepo = scope.ServiceProvider.GetRequiredService<IWorkoutProgramRepository>();
 
-            var programRepo = scope.ServiceProvider.GetRequiredService<IWorkoutProgramRepository>();
-            var program = DefaultWorkoutProgramFactory.Create(newUser.Id);
-            programRepo.Add(program);
+        var user = await userRepo.GetByTelegramChatIdAsync(chatId, ct);
+        var createdUser = false;
+
+        if (user is null)
+        {
+            user = new DomainUser(chatId, username);
+            userRepo.Add(user);
+            createdUser = true;
+        }
+
+        if (createdUser || await programRepo.CountByUserAsync(user.Id, ct) == 0)
+        {
+            programRepo.Add(DefaultWorkoutProgramFactory.Create(user.Id));
+        }
+
+        try
+        {
             await unitOfWork.CommitAsync(ct);
+        }
+        catch (DbUpdateException) when (createdUser)
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Entry(user).State = EntityState.Detached;
+
+            foreach (var entry in db.ChangeTracker.Entries<WorkoutProgram>()
+                         .Where(e => e.State == EntityState.Added && e.Entity.UserId == user.Id))
+            {
+                entry.State = EntityState.Detached;
+            }
+
+            var winner = await userRepo.GetByTelegramChatIdAsync(chatId, ct);
+            if (winner is null)
+                throw;
+
+            if (await programRepo.CountByUserAsync(winner.Id, ct) == 0)
+            {
+                programRepo.Add(DefaultWorkoutProgramFactory.Create(winner.Id));
+                await unitOfWork.CommitAsync(ct);
+            }
         }
 
         if (nonce is not null)
