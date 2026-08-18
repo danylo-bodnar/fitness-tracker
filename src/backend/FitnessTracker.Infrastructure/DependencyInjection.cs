@@ -29,6 +29,7 @@ public static class DependencyInjection
         services.AddDbContext<ProjectionsDbContext>(o => o.UseNpgsql(connectionString));
 
         services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
+        services.AddScoped<IWorkoutSessionReadRepository, WorkoutSessionReadRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IExerciseReadRepository, ExerciseReadRepository>();
         services.AddScoped<IExerciseRepository, ExerciseRepository>();

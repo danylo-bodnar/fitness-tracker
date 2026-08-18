@@ -15,6 +15,7 @@ public class WorkoutSessionRepository(AppDbContext db) : IWorkoutSessionReposito
             .Include(x => x.Exercises)
             .ThenInclude(x => x.Sets)
             .Where(x => x.UserId == userId && x.Date == date)
+            .AsSplitQuery()
             .SingleOrDefaultAsync(ct);
     }
 
