@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { GripVertical, X, Unlink2, Link2 } from "lucide-react";
@@ -16,29 +16,33 @@ type ListEntry =
   | { type: "standalone"; exercise: ProgramExerciseDto; flatIndex: number }
   | { type: "superset"; exercises: ProgramExerciseDto[]; groupId: number; firstIndex: number };
 
-function buildList(exercises: ProgramExerciseDto[]): ListEntry[] {
+// eslint-disable-next-line react-refresh/only-export-components
+export function buildList(exercises: ProgramExerciseDto[]): ListEntry[] {
   const entries: ListEntry[] = [];
-  const used = new Set<number>();
+  let i = 0;
   let flatIdx = 0;
 
-  for (let i = 0; i < exercises.length; i++) {
+  while (i < exercises.length) {
     const ex = exercises[i];
-    if (used.has(i)) continue;
-
     if (ex.supersetGroupId != null) {
-      const group = exercises.filter((e, idx) => {
-        if (e.supersetGroupId === ex.supersetGroupId && !used.has(idx)) {
-          used.add(idx);
-          return true;
-        }
-        return false;
-      });
-      entries.push({ type: "superset", exercises: group, groupId: ex.supersetGroupId, firstIndex: flatIdx });
-      flatIdx += group.length;
-    } else {
-      entries.push({ type: "standalone", exercise: ex, flatIndex: flatIdx });
-      flatIdx++;
+      const groupId = ex.supersetGroupId;
+      const group: ProgramExerciseDto[] = [];
+      let j = i;
+      while (j < exercises.length && exercises[j].supersetGroupId === groupId) {
+        group.push(exercises[j]);
+        j++;
+      }
+      if (group.length > 1) {
+        entries.push({ type: "superset", exercises: group, groupId, firstIndex: flatIdx });
+        flatIdx += group.length;
+        i = j;
+        continue;
+      }
+      // single item with supersetId -> treat as standalone (orphan)
     }
+    entries.push({ type: "standalone", exercise: ex, flatIndex: flatIdx });
+    flatIdx++;
+    i++;
   }
 
   return entries;
@@ -55,7 +59,8 @@ interface ProgramExerciseListProps {
   editing?: boolean;
   onUpdate?: (index: number, exercise: ProgramExerciseDto) => void;
   onRemove?: (index: number) => void;
-  onDragDrop?: (dragIndex: number, dropIndex: number) => void;
+  onDragDrop?: (dragEntryIndex: number, dropEntryIndex: number) => void;
+  onGroup?: (index: number) => void;
   onUngroup?: (index: number) => void;
 }
 
@@ -65,10 +70,11 @@ export function ProgramExerciseList({
   onUpdate,
   onRemove,
   onDragDrop,
+  onGroup,
   onUngroup,
 }: ProgramExerciseListProps) {
   const [dragOverEntry, setDragOverEntry] = useState<number | null>(null);
-  const dragSourceEntry = useRef<number | null>(null);
+  const [dragSourceEntry, setDragSourceEntry] = useState<number | null>(null);
 
   const entries = buildList(exercises);
 
@@ -77,28 +83,33 @@ export function ProgramExerciseList({
       <div className="mt-2 space-y-1.5">
         {entries.map((entry, entryIndex) => {
           const isDragOver = dragOverEntry === entryIndex;
+          const isDragging = dragSourceEntry === entryIndex;
 
           if (entry.type === "standalone") {
             const ex = entry.exercise;
+            const canGroup = entry.flatIndex < exercises.length - 1;
             return (
               <div
-                key={ex.exerciseId}
+                key={ex.id}
                 draggable
-                onDragStart={() => { dragSourceEntry.current = entryIndex; }}
-                onDragOver={(e) => { e.preventDefault(); setDragOverEntry(entryIndex); }}
+                onDragStart={(e) => {
+                  setDragSourceEntry(entryIndex);
+                  e.dataTransfer.effectAllowed = "move";
+                  e.dataTransfer.setData("text/plain", String(entryIndex));
+                }}
+                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDragOverEntry(entryIndex); }}
                 onDragLeave={() => setDragOverEntry(null)}
-                onDrop={() => {
+                onDrop={(e) => {
+                  e.preventDefault();
                   setDragOverEntry(null);
-                  const src = dragSourceEntry.current;
-                  dragSourceEntry.current = null;
+                  const src = dragSourceEntry;
+                  setDragSourceEntry(null);
                   if (src != null && src !== entryIndex) {
-                    const srcEntry = entries[src];
-                    const srcFlat = srcEntry.type === "standalone" ? srcEntry.flatIndex : srcEntry.firstIndex;
-                    onDragDrop?.(srcFlat, entry.flatIndex);
+                    onDragDrop?.(src, entryIndex);
                   }
                 }}
-                onDragEnd={() => { setDragOverEntry(null); dragSourceEntry.current = null; }}
-                className={`flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm cursor-default transition-all ${isDragOver ? "ring-2 ring-primary/40" : ""}`}
+                onDragEnd={() => { setDragOverEntry(null); setDragSourceEntry(null); }}
+                className={`flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm cursor-default transition-all ${isDragOver ? "ring-2 ring-primary/40 bg-muted/30" : ""} ${isDragging ? "opacity-50" : ""}`}
               >
                 <span className="cursor-grab active:cursor-grabbing text-muted-foreground shrink-0">
                   <GripVertical className="size-4" />
@@ -124,6 +135,18 @@ export function ProgramExerciseList({
                     className="h-7 w-10 text-center text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                 </div>
+                {onGroup && (
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    className="size-6 shrink-0 text-muted-foreground hover:text-orange-500"
+                    onClick={() => onGroup(entry.flatIndex)}
+                    disabled={!canGroup}
+                    title={canGroup ? "Group with next exercise (superset)" : "No next exercise to group"}
+                  >
+                    <Link2 className="size-3" />
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="icon-xs"
@@ -139,26 +162,30 @@ export function ProgramExerciseList({
           // Superset group
           const group = entry.exercises;
           const color = getGroupColor(entry.groupId, exercises);
+          const isDraggingGroup = dragSourceEntry === entryIndex;
 
           return (
             <div
-              key={`group-${entry.groupId}`}
+              key={`group-${entry.groupId}-${entry.firstIndex}`}
               draggable
-              onDragStart={() => { dragSourceEntry.current = entryIndex; }}
-              onDragOver={(e) => { e.preventDefault(); setDragOverEntry(entryIndex); }}
+              onDragStart={(e) => {
+                setDragSourceEntry(entryIndex);
+                e.dataTransfer.effectAllowed = "move";
+                e.dataTransfer.setData("text/plain", String(entryIndex));
+              }}
+              onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDragOverEntry(entryIndex); }}
               onDragLeave={() => setDragOverEntry(null)}
-              onDrop={() => {
+              onDrop={(e) => {
+                e.preventDefault();
                 setDragOverEntry(null);
-                const src = dragSourceEntry.current;
-                dragSourceEntry.current = null;
+                const src = dragSourceEntry;
+                setDragSourceEntry(null);
                 if (src != null && src !== entryIndex) {
-                  const srcEntry = entries[src];
-                  const srcFlat = srcEntry.type === "standalone" ? srcEntry.flatIndex : srcEntry.firstIndex;
-                  onDragDrop?.(srcFlat, entry.firstIndex);
+                  onDragDrop?.(src, entryIndex);
                 }
               }}
-              onDragEnd={() => { setDragOverEntry(null); dragSourceEntry.current = null; }}
-              className={`rounded-md border border-l-[3px] ${color} text-sm cursor-default transition-all ${isDragOver ? "ring-2 ring-primary/40" : ""}`}
+              onDragEnd={() => { setDragOverEntry(null); setDragSourceEntry(null); }}
+              className={`rounded-md border border-l-[3px] ${color} text-sm cursor-default transition-all ${isDragOver ? "ring-2 ring-primary/40 bg-muted/30" : ""} ${isDraggingGroup ? "opacity-50" : ""}`}
             >
               {/* Group header */}
               <div className="flex items-center gap-2 px-2.5 py-1.5 bg-muted/20">
@@ -226,6 +253,24 @@ export function ProgramExerciseList({
             </div>
           );
         })}
+        {/* Drop zone at end to allow moving to last position */}
+        {entries.length > 0 && (
+          <div
+            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDragOverEntry(entries.length); }}
+            onDragLeave={() => setDragOverEntry(null)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOverEntry(null);
+              const src = dragSourceEntry;
+              setDragSourceEntry(null);
+              if (src != null && src !== entries.length) {
+                // Insert after last entry: treat drop index as entries.length
+                onDragDrop?.(src, entries.length);
+              }
+            }}
+            className={`h-2 rounded transition-all ${dragOverEntry === entries.length ? "bg-primary/20 ring-2 ring-primary/40 h-8" : ""}`}
+          />
+        )}
       </div>
     );
   }

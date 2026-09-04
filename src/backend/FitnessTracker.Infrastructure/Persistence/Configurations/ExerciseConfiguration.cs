@@ -73,7 +73,8 @@ public class ExerciseConfiguration : IEntityTypeConfiguration<Exercise>
              new Exercise(new ExerciseName("calf raises"), "Legs") { Id = Guid.Parse("00000006-0000-0000-0000-000000000001") },
              new Exercise(new ExerciseName("romanian deadlift"), "Legs") { Id = Guid.Parse("00000007-0000-0000-0000-000000000001") },
              new Exercise(new ExerciseName("lunges"), "Legs") { Id = Guid.Parse("00000010-0000-0000-0000-000000000002") },
-             new Exercise(new ExerciseName("hip thrust"), "Legs") { Id = Guid.Parse("00000011-0000-0000-0000-000000000002") }
+             new Exercise(new ExerciseName("hip thrust"), "Legs") { Id = Guid.Parse("00000011-0000-0000-0000-000000000002") },
+             new Exercise(new ExerciseName("incline leg press"), "Legs") { Id = Guid.Parse("00000012-0000-0000-0000-000000000001") }
          );
     }
 }

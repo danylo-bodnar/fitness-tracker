@@ -75,11 +75,11 @@ public static class SeedData
         string telegramUsername,
         CancellationToken ct)
     {
-        var user = await appDb.Users.FirstOrDefaultAsync(u => u.TelegramChatId == telegramChatId, ct);
-        var createdUser = user is null;
+        var existing = await appDb.Users.FirstOrDefaultAsync(u => u.TelegramChatId == telegramChatId, ct);
+        var user = existing ?? new User(telegramChatId, telegramUsername);
+        var createdUser = existing is null;
         if (createdUser)
         {
-            user = new User(telegramChatId, telegramUsername);
             appDb.Users.Add(user);
         }
 
