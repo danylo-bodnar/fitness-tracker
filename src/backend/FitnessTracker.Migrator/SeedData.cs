@@ -239,7 +239,7 @@ public static class SeedData
 
     private static List<DateOnly> GenerateSessionDates(int count)
     {
-        var day = DateOnly.FromDateTime(DateTime.Today);
+        var day = DateOnly.FromDateTime(DateTime.Today).AddDays(-1);
         if (day.DayOfWeek == DayOfWeek.Wednesday)
             day = day.AddDays(-1);
 
