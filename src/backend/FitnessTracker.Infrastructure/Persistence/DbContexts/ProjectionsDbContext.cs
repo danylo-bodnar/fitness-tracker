@@ -54,8 +54,9 @@ public class ProjectionsDbContext(DbContextOptions<ProjectionsDbContext> options
         {
             b.ToTable("processed_messages");
             b.HasKey(x => new { x.ConsumerName, x.EventId });
-            b.Property(x => x.ConsumerName).HasMaxLength(100);
-            b.Property(x => x.ProcessedAt).IsRequired();
+            b.Property(x => x.ConsumerName).HasColumnName("consumer_name").HasMaxLength(100);
+            b.Property(x => x.EventId).HasColumnName("event_id");
+            b.Property(x => x.ProcessedAt).HasColumnName("processed_at").IsRequired();
         });
     }
 }
