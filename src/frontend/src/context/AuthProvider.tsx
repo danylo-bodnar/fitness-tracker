@@ -1,64 +1,78 @@
-// context/AuthProvider.tsx
-import axios from "axios";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import { AuthContext } from "./AuthContext";
 import type { User } from "@/features/auth";
-import { tokenStore } from "@/lib/apiClient";
+import { refreshAccessToken, tokenStore } from "@/lib/apiClient";
 import { LoadingSpinner } from "@/components/feedback/Spinner";
-import { toast } from "sonner";
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const USER_KEY = "user";
+
+function readStoredUser(): User | null {
+  const saved = localStorage.getItem(USER_KEY);
+  if (!saved) return null;
+
+  try {
+    return JSON.parse(saved) as User;
+  } catch {
+    // Corrupt or hand-edited entry — treat it as no session at all.
+    localStorage.removeItem(USER_KEY);
+    return null;
+  }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem("user");
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [user, setUser] = useState<User | null>(readStoredUser);
   const [isInitializing, setIsInitializing] = useState(
-    () => !!localStorage.getItem("user"),
+    () => !!localStorage.getItem(USER_KEY),
   );
+
   const isAdmin = user?.role === "admin";
 
   const login = useCallback((newToken: string, newUser: User) => {
     tokenStore.set(newToken);
-    localStorage.setItem("user", JSON.stringify(newUser));
+    localStorage.setItem(USER_KEY, JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback((reason?: "expired") => {
     tokenStore.clear();
-    localStorage.removeItem("user");
-    toast.error("Session expired. Please log in again.");
+    localStorage.removeItem(USER_KEY);
+    if (reason === "expired") {
+      toast.error("Your session expired. Log in to continue.");
+    }
     setToken(null);
     setUser(null);
   }, []);
 
   useEffect(() => {
-    if (!user) return;
+    if (!localStorage.getItem(USER_KEY)) return;
 
-    axios
-      .post<{ accessToken: string }>(
-        `${BASE_URL}/auth/refresh`,
-        {},
-        { withCredentials: true },
-      )
-      .then((res) => {
-        tokenStore.set(res.data.accessToken);
-        setToken(res.data.accessToken);
+    let ignore = false;
+
+    refreshAccessToken()
+      .then((accessToken) => {
+        if (!ignore) setToken(accessToken);
       })
       .catch(() => {
-        localStorage.removeItem("user");
+        if (ignore) return;
+        localStorage.removeItem(USER_KEY);
         setUser(null);
       })
       .finally(() => {
-        setIsInitializing(false);
+        if (!ignore) setIsInitializing(false);
       });
-  }, [user]);
 
+    return () => {
+      // Stops a slow refresh from writing state after unmount or logout.
+      ignore = true;
+    };
+  }, []);
+
+  // Fired by the API client when a refresh fails on a 401.
   useEffect(() => {
-    const handler = () => logout();
+    const handler = () => logout("expired");
     window.addEventListener("auth:logout", handler);
     return () => window.removeEventListener("auth:logout", handler);
   }, [logout]);

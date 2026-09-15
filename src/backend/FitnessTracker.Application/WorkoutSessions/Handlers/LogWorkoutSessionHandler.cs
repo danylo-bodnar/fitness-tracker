@@ -29,6 +29,7 @@ public class LogWorkoutSessionHandler(
 
             session.CompleteExercise(exerciseLog);
         }
+        session.Complete();
 
         await unitOfWork.CommitAsync(ct);
 
