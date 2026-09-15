@@ -64,6 +64,7 @@ public static class DependencyInjection
         services.AddMassTransit(x =>
         {
             x.AddConsumer<AnalyticsConsumer>();
+            x.AddConsumer<SessionAnalyticsConsumer>();
             x.AddConsumer<PersonalRecordConsumer>();
             x.AddConsumer<NotificationConsumer>();
 

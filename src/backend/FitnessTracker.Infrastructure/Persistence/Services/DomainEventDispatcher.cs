@@ -30,6 +30,9 @@ public class DomainEventDispatcher(
                     case ExercisePerformed e:
                         await PublishExerciseLoggedEvent(e, cancellationToken);
                         break;
+                    case WorkoutSessionCompleted e:
+                        await PublishWorkoutSessionCompletedEvent(e, cancellationToken);
+                        break;
                 }
             }
         }
@@ -37,25 +40,30 @@ public class DomainEventDispatcher(
 
     private async Task PublishExerciseLoggedEvent(ExercisePerformed e, CancellationToken ct)
     {
-        var bestSet = e.Sets
-            .OrderByDescending(s => s.WeightKg)
-            .ThenBy(s => s.Reps)
-            .First();
-
-        var estimated1Rm = OneRepMaxEstimator.Epley(bestSet.WeightKg, bestSet.Reps);
-
         await publisher.Publish(new ExerciseLoggedEvent(
             EventId: e.EventId,
             UserId: e.UserId,
             ExerciseId: e.ExerciseId,
             ExerciseName: e.ExerciseName.Value,
             Date: e.Date,
-            MaxWeightKg: bestSet.WeightKg,
-            Estimated1Rm: estimated1Rm,
-            BestSetReps: bestSet.Reps,
-            TotalVolume: e.Sets.Sum(s => s.WeightKg * s.Reps),
-            SetCount: e.Sets.Count,
+            MaxWeightKg: e.MaxWeightKg,
+            Estimated1Rm: e.Estimated1Rm,
+            BestSetReps: e.BestSetReps,
+            TotalVolume: e.TotalVolume,
+            SetCount: e.SetCount,
             SupersetGroupId: e.SupersetGroupId
+        ), ct);
+    }
+
+    private async Task PublishWorkoutSessionCompletedEvent(WorkoutSessionCompleted e, CancellationToken ct)
+    {
+        await publisher.Publish(new WorkoutSessionCompletedEvent(
+            EventId: e.EventId,
+            SessionId: e.SessionId,
+            ExerciseCount: e.ExerciseCount,
+            UserId: e.UserId,
+            Date: e.Date,
+            TotalVolume: e.TotalVolume
         ), ct);
     }
 }

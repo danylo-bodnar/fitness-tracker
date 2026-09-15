@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Infrastructure.Messaging.Consumers;
 
+/// <summary>
+/// Handles per-exercise projections only. Fires once per exercise per session.
+/// </summary>
 public class AnalyticsConsumer(ProjectionsDbContext db) : IConsumer<ExerciseLoggedEvent>
 {
     public async Task Consume(ConsumeContext<ExerciseLoggedEvent> context)
@@ -56,60 +59,7 @@ public class AnalyticsConsumer(ProjectionsDbContext db) : IConsumer<ExerciseLogg
             progress.SetCount += msg.SetCount;
         }
 
-        var weekStart = GetWeekStart(msg.Date);
-        var weekly = await db.WeeklyVolume
-            .FirstOrDefaultAsync(x =>
-                x.UserId == msg.UserId &&
-                x.WeekStart == weekStart, ct);
-
-        if (weekly is null)
-        {
-            db.WeeklyVolume.Add(new WeeklyVolumeReadModel
-            {
-                Id = Guid.NewGuid(),
-                UserId = msg.UserId,
-                WeekStart = weekStart,
-                TotalVolume = msg.TotalVolume,
-                SessionCount = 1,
-                UpdatedAt = DateTime.UtcNow
-            });
-        }
-        else
-        {
-            weekly.TotalVolume += msg.TotalVolume;
-            weekly.SessionCount++;
-            weekly.UpdatedAt = DateTime.UtcNow;
-        }
-
-        var stats = await db.DashboardStats
-            .FirstOrDefaultAsync(x => x.UserId == msg.UserId, ct);
-
-        if (stats is null)
-        {
-            db.DashboardStats.Add(new DashboardStatsReadModel
-            {
-                UserId = msg.UserId,
-                TotalSessions = 1,
-                TotalVolumeKg = msg.TotalVolume,
-                LastWorkoutAt = msg.Date,
-                UpdatedAt = DateTime.UtcNow
-            });
-        }
-        else
-        {
-            stats.TotalSessions++;
-            stats.TotalVolumeKg += msg.TotalVolume;
-            stats.LastWorkoutAt = msg.Date;
-            stats.UpdatedAt = DateTime.UtcNow;
-        }
-
         await db.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
-    }
-
-    private static DateOnly GetWeekStart(DateOnly date)
-    {
-        var diff = ((int)date.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
-        return date.AddDays(-diff);
     }
 }
