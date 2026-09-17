@@ -93,7 +93,7 @@ builder.Services.AddHealthChecks()
     .AddNpgSql(connectionString, name: "postgres")
     .AddRedis(redisConnectionString, name: "redis")
     .AddRabbitMQ(
-        sp => new ConnectionFactory { Uri = new Uri(rabbitConnectionString) }.CreateConnectionAsync().GetAwaiter().GetResult(),
+        async sp => await new ConnectionFactory { Uri = new Uri(rabbitConnectionString) }.CreateConnectionAsync(),
         name: "rabbitmq");
 
 
