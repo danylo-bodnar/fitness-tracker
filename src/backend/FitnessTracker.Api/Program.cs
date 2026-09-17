@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Npgsql;
+using RabbitMQ.Client;
 using FitnessTracker.Api.Middleware;
 using FitnessTracker.Api.Telegram;
 using FitnessTracker.Application;
@@ -26,6 +27,8 @@ builder.Host.UseSerilog((context, config) =>
         .Enrich.WithMachineName()
         .WriteTo.Console();
 });
+
+
 
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
@@ -76,6 +79,24 @@ var connectionString = builder.Configuration.GetConnectionString("fitness-tracke
     ?? Environment.GetEnvironmentVariable("DATABASE_CONNECTION")
     ?? throw new InvalidOperationException("No database connection string found");
 
+var redisConnectionString = builder.Configuration.GetConnectionString("redis")
+    ?? builder.Configuration["REDIS_CONNECTION"]
+    ?? Environment.GetEnvironmentVariable("REDIS_CONNECTION")
+    ?? throw new InvalidOperationException("No redis connection string found");
+
+var rabbitConnectionString = builder.Configuration.GetConnectionString("rabbitmq")
+    ?? builder.Configuration["RABBITMQ_CONNECTION"]
+    ?? Environment.GetEnvironmentVariable("RABBITMQ_CONNECTION")
+    ?? throw new InvalidOperationException("No rabbitmq connection string found");
+
+builder.Services.AddHealthChecks()
+    .AddNpgSql(connectionString, name: "postgres")
+    .AddRedis(redisConnectionString, name: "redis")
+    .AddRabbitMQ(
+        sp => new ConnectionFactory { Uri = new Uri(rabbitConnectionString) }.CreateConnectionAsync().GetAwaiter().GetResult(),
+        name: "rabbitmq");
+
+
 builder.Services.AddSingleton(NpgsqlDataSource.Create(connectionString));
 
 builder.Services.AddApplication();
@@ -125,8 +146,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapDefaultEndpoints();
-
-app.MapGet("/health", () => "ok");
 
 app.Run();
 
