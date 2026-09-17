@@ -5,6 +5,8 @@ import TelegramLoginButton from "@/features/auth/components/TelegramLoginButton"
 import { toast } from "sonner";
 import { useAuthContext } from "@/context/useAuthContext";
 
+// TODO: if user is authenticated redirect to main
+
 function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuthContext();
