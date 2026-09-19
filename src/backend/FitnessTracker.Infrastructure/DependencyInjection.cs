@@ -29,9 +29,9 @@ public static class DependencyInjection
 
         var csb = new NpgsqlConnectionStringBuilder(connectionString)
         {
-            MaxPoolSize = 20,
-            MinPoolSize = 0,
-            ConnectionIdleLifetime = 30
+            Pooling = false,
+            NoResetOnClose = true,
+            CommandTimeout = 15
         };
         var dataSource = new NpgsqlDataSourceBuilder(csb.ConnectionString).Build();
 
