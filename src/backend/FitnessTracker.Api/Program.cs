@@ -28,8 +28,6 @@ builder.Host.UseSerilog((context, config) =>
         .WriteTo.Console();
 });
 
-
-
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
@@ -37,6 +35,7 @@ builder.AddServiceDefaults();
 
 builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetSection(JwtOptions.SectionName));
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
@@ -58,6 +57,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+
 var allowedOrigins = new[]
 {
     "http://localhost:5173",
@@ -75,6 +75,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+
 var connectionString = builder.Configuration.GetConnectionString("fitness-tracker")
     ?? Environment.GetEnvironmentVariable("DATABASE_CONNECTION")
     ?? throw new InvalidOperationException("No database connection string found");
@@ -90,14 +91,12 @@ var rabbitConnectionString = builder.Configuration.GetConnectionString("rabbitmq
     ?? throw new InvalidOperationException("No rabbitmq connection string found");
 
 builder.Services.AddHealthChecks()
-    .AddNpgSql(connectionString, name: "postgres")
+    .AddNpgSql(sp => sp.GetRequiredService<NpgsqlDataSource>(), name: "postgres")
     .AddRedis(redisConnectionString, name: "redis")
     .AddRabbitMQ(
         async sp => await new ConnectionFactory { Uri = new Uri(rabbitConnectionString) }.CreateConnectionAsync(),
         name: "rabbitmq");
 
-
-builder.Services.AddSingleton(NpgsqlDataSource.Create(connectionString));
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -119,6 +118,7 @@ builder.Services.AddSingleton<WorkoutUpdateHandler>();
 builder.Services.AddSingleton<TelegramLoginCallbackHandler>();
 builder.Services.AddSingleton<IUpdateHandler, CompositeUpdateHandler>();
 builder.Services.AddHostedService<BotService>();
+
 
 var app = builder.Build();
 
