@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using StackExchange.Redis;
 
 namespace FitnessTracker.Infrastructure;
@@ -25,8 +26,18 @@ public static class DependencyInjection
             ?? Environment.GetEnvironmentVariable("DATABASE_CONNECTION")
             ?? throw new InvalidOperationException("No database connection string found");
 
-        services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
-        services.AddDbContext<ProjectionsDbContext>(o => o.UseNpgsql(connectionString));
+
+        var csb = new NpgsqlConnectionStringBuilder(connectionString)
+        {
+            MaxPoolSize = 20,
+            MinPoolSize = 0,
+            ConnectionIdleLifetime = 30
+        };
+        var dataSource = new NpgsqlDataSourceBuilder(csb.ConnectionString).Build();
+
+        services.AddSingleton(dataSource);
+        services.AddDbContext<AppDbContext>(o => o.UseNpgsql(dataSource));
+        services.AddDbContext<ProjectionsDbContext>(o => o.UseNpgsql(dataSource));
 
         services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
         services.AddScoped<IWorkoutSessionReadRepository, WorkoutSessionReadRepository>();
@@ -82,6 +93,13 @@ public static class DependencyInjection
                     ?? throw new InvalidOperationException("RabbitMQ connection string not found");
 
                  cfg.Host(rabbitMqConnection);
+
+                 cfg.PrefetchCount = 4;
+                 cfg.ConcurrentMessageLimit = 2;
+
+                 cfg.UseMessageRetry(r => r.Exponential(
+                     5, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(2)));
+
                  cfg.ConfigureEndpoints(ctx);
              });
 
