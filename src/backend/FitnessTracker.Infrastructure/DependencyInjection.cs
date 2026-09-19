@@ -29,8 +29,14 @@ public static class DependencyInjection
 
         var csb = new NpgsqlConnectionStringBuilder(connectionString)
         {
-            Pooling = false,
+            Pooling = true,
+            MinPoolSize = 0,
+            MaxPoolSize = 20,
+            ConnectionIdleLifetime = 30,   // prune idle connections long before the ~4 min drop
             NoResetOnClose = true,
+            TcpKeepAlive = true,
+            TcpKeepAliveTime = 30,
+            TcpKeepAliveInterval = 10,
             CommandTimeout = 15
         };
         var dataSource = new NpgsqlDataSourceBuilder(csb.ConnectionString).Build();
