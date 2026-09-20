@@ -213,7 +213,6 @@ public class WorkoutConversationHandler(
         var group = state.Groups[state.CurrentGroupIndex];
         var exercise = group.Exercises[state.CurrentExerciseInGroup];
 
-        state.PendingWeight = weight;
         exercise.AssignedWeight = weight;
         state.Step = WorkoutStep.AwaitingReps;
 
@@ -235,6 +234,14 @@ public class WorkoutConversationHandler(
         var group = state.Groups[state.CurrentGroupIndex];
         var exercise = group.Exercises[state.CurrentExerciseInGroup];
 
+        if (exercise.AssignedWeight is not { } weightKg)
+        {
+            await bot.SendMessage(chatId, "I don't have a weight for this exercise yet. Please enter the weight first.",
+                cancellationToken: ct);
+
+            return;
+        }
+
         var acc = state.GroupAccumulators.FirstOrDefault(a => a.ExerciseId == exercise.ExerciseId);
         if (acc is null)
         {
@@ -248,7 +255,7 @@ public class WorkoutConversationHandler(
 
         acc.Sets.Add(new LoggedSet
         {
-            WeightKg = state.PendingWeight,
+            WeightKg = exercise.AssignedWeight.Value,
             Reps = reps
         });
 

@@ -18,7 +18,6 @@ public class WorkoutConversationState
     public string ProgramName { get; set; } = null!;
     public Guid DayId { get; set; }
     public string DayName { get; set; } = null!;
-    public decimal PendingWeight { get; set; }
 
     public List<ConversationGroup> Groups { get; set; } = [];
     public int CurrentGroupIndex { get; set; }
