@@ -1,6 +1,8 @@
+using System.Text.Json;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -106,10 +108,30 @@ public static class Extensions
 
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
-        // All health checks must pass for app to be considered ready to accept traffic after starting
-        app.MapHealthChecks(HealthEndpointPath);
+        app.MapHealthChecks(HealthEndpointPath, new HealthCheckOptions
+        {
+            ResponseWriter = async (context, report) =>
+            {
+                context.Response.ContentType = "application/json";
 
-        // Only health checks tagged with the "live" tag must pass for app to be considered alive
+                var response = new
+                {
+                    status = report.Status.ToString(),
+                    entries = report.Entries.ToDictionary(
+                        entry => entry.Key,
+                        entry => new
+                        {
+                            status = entry.Value.Status.ToString(),
+                            duration = entry.Value.Duration.ToString(),
+                            description = entry.Value.Description
+                        })
+                };
+
+                await context.Response.WriteAsync(
+                    JsonSerializer.Serialize(response));
+            }
+        });
+
         app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
         {
             Predicate = r => r.Tags.Contains("live")
